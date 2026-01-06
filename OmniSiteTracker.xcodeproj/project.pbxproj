@@ -1,0 +1,429 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C7A00001291A00010000001 /* OmniSiteTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00002291A00010000001 /* OmniSiteTrackerApp.swift */; };
+		C7A00003291A00010000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00004291A00010000002 /* ContentView.swift */; };
+		C7A00005291A00010000003 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00006291A00010000003 /* HomeView.swift */; };
+		C7A00007291A00010000004 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00008291A00010000004 /* HistoryView.swift */; };
+		C7A00009291A00010000005 /* BodyDiagramView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0000A291A00010000005 /* BodyDiagramView.swift */; };
+		C7A0000B291A00010000006 /* PlacementConfirmationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0000C291A00010000006 /* PlacementConfirmationSheet.swift */; };
+		C7A0000D291A00010000007 /* RecommendationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0000E291A00010000007 /* RecommendationCard.swift */; };
+		C7A0000F291A00010000008 /* BodyLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00010291A00010000008 /* BodyLocation.swift */; };
+		C7A00011291A00010000009 /* PlacementLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00012291A00010000009 /* PlacementLog.swift */; };
+		C7A00013291A0001000000A /* PlacementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00014291A0001000000A /* PlacementViewModel.swift */; };
+		C7A00015291A0001000000B /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00016291A0001000000B /* DesignSystem.swift */; };
+		C7A00017291A0001000000C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C7A00018291A0001000000C /* Assets.xcassets */; };
+		C7A00019291A0001000000D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C7A0001A291A0001000000D /* Preview Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		C7A00000291A00010000000 /* OmniSiteTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OmniSiteTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C7A00002291A00010000001 /* OmniSiteTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OmniSiteTrackerApp.swift; sourceTree = "<group>"; };
+		C7A00004291A00010000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C7A00006291A00010000003 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		C7A00008291A00010000004 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		C7A0000A291A00010000005 /* BodyDiagramView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyDiagramView.swift; sourceTree = "<group>"; };
+		C7A0000C291A00010000006 /* PlacementConfirmationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacementConfirmationSheet.swift; sourceTree = "<group>"; };
+		C7A0000E291A00010000007 /* RecommendationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationCard.swift; sourceTree = "<group>"; };
+		C7A00010291A00010000008 /* BodyLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyLocation.swift; sourceTree = "<group>"; };
+		C7A00012291A00010000009 /* PlacementLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacementLog.swift; sourceTree = "<group>"; };
+		C7A00014291A0001000000A /* PlacementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacementViewModel.swift; sourceTree = "<group>"; };
+		C7A00016291A0001000000B /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		C7A00018291A0001000000C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C7A0001A291A0001000000D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C7AFFFFF291A00010000000 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C7AFFFF0291A00010000000 = {
+			isa = PBXGroup;
+			children = (
+				C7AFFFF1291A00010000000 /* OmniSiteTracker */,
+				C7AFFFF2291A00010000000 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C7AFFFF1291A00010000000 /* OmniSiteTracker */ = {
+			isa = PBXGroup;
+			children = (
+				C7A00002291A00010000001 /* OmniSiteTrackerApp.swift */,
+				C7AFFFF3291A00010000000 /* Models */,
+				C7AFFFF4291A00010000000 /* ViewModels */,
+				C7AFFFF5291A00010000000 /* Views */,
+				C7AFFFF6291A00010000000 /* Utilities */,
+				C7A00018291A0001000000C /* Assets.xcassets */,
+				C7AFFFF7291A00010000000 /* Preview Content */,
+			);
+			path = OmniSiteTracker;
+			sourceTree = "<group>";
+		};
+		C7AFFFF2291A00010000000 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C7A00000291A00010000000 /* OmniSiteTracker.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C7AFFFF3291A00010000000 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				C7A00010291A00010000008 /* BodyLocation.swift */,
+				C7A00012291A00010000009 /* PlacementLog.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		C7AFFFF4291A00010000000 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				C7A00014291A0001000000A /* PlacementViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		C7AFFFF5291A00010000000 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C7A00004291A00010000002 /* ContentView.swift */,
+				C7A00006291A00010000003 /* HomeView.swift */,
+				C7A00008291A00010000004 /* HistoryView.swift */,
+				C7AFFFF8291A00010000000 /* Components */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C7AFFFF6291A00010000000 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				C7A00016291A0001000000B /* DesignSystem.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		C7AFFFF7291A00010000000 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				C7A0001A291A0001000000D /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		C7AFFFF8291A00010000000 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				C7A0000A291A00010000005 /* BodyDiagramView.swift */,
+				C7A0000C291A00010000006 /* PlacementConfirmationSheet.swift */,
+				C7A0000E291A00010000007 /* RecommendationCard.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C7AFFFFE291A00010000000 /* OmniSiteTracker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C7B00000291A00010000000 /* Build configuration list for PBXNativeTarget "OmniSiteTracker" */;
+			buildPhases = (
+				C7AFFFFD291A00010000000 /* Sources */,
+				C7AFFFFF291A00010000000 /* Frameworks */,
+				C7B00001291A00010000000 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OmniSiteTracker;
+			productName = OmniSiteTracker;
+			productReference = C7A00000291A00010000000 /* OmniSiteTracker.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C7AFFFFC291A00010000000 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					C7AFFFFE291A00010000000 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = C7AFFFFA291A00010000000 /* Build configuration list for PBXProject "OmniSiteTracker" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C7AFFFF0291A00010000000;
+			productRefGroup = C7AFFFF2291A00010000000 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C7AFFFFE291A00010000000 /* OmniSiteTracker */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C7B00001291A00010000000 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C7A00017291A0001000000C /* Assets.xcassets in Resources */,
+				C7A00019291A0001000000D /* Preview Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C7AFFFFD291A00010000000 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C7A00001291A00010000001 /* OmniSiteTrackerApp.swift in Sources */,
+				C7A00003291A00010000002 /* ContentView.swift in Sources */,
+				C7A00005291A00010000003 /* HomeView.swift in Sources */,
+				C7A00007291A00010000004 /* HistoryView.swift in Sources */,
+				C7A00009291A00010000005 /* BodyDiagramView.swift in Sources */,
+				C7A0000B291A00010000006 /* PlacementConfirmationSheet.swift in Sources */,
+				C7A0000D291A00010000007 /* RecommendationCard.swift in Sources */,
+				C7A0000F291A00010000008 /* BodyLocation.swift in Sources */,
+				C7A00011291A00010000009 /* PlacementLog.swift in Sources */,
+				C7A00013291A0001000000A /* PlacementViewModel.swift in Sources */,
+				C7A00015291A0001000000B /* DesignSystem.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		C7AFFFFB291A00010000000 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C7AFFFFC291A00010000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C7B00002291A00010000000 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"OmniSiteTracker/Preview Content\"";
+				DEVELOPMENT_TEAM = TQV66JM3KL;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = OmniSite;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.omnisite.tracker;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C7B00003291A00010000000 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"OmniSiteTracker/Preview Content\"";
+				DEVELOPMENT_TEAM = TQV66JM3KL;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = OmniSite;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.omnisite.tracker;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C7AFFFFA291A00010000000 /* Build configuration list for PBXProject "OmniSiteTracker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C7AFFFFB291A00010000000 /* Debug */,
+				C7AFFFFC291A00010000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C7B00000291A00010000000 /* Build configuration list for PBXNativeTarget "OmniSiteTracker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C7B00002291A00010000000 /* Debug */,
+				C7B00003291A00010000000 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C7AFFFFC291A00010000000 /* Project object */;
+}
