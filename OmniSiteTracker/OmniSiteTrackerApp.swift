@@ -12,7 +12,7 @@ import SwiftData
 /// Main entry point for the OmniSite Tracker application.
 /// Configures SwiftData persistence and establishes the root view hierarchy.
 @main
-sstruct OmniSiteTrackerApp: App {
+struct OmniSiteTrackerApp: App {
     let modelContainer: ModelContainer
 
     init() {
