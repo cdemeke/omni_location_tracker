@@ -102,12 +102,14 @@ struct PlacementConfirmationSheet: View {
             // Warning if recently used
             if let days = viewModel.daysSinceLastUse(for: location),
                days < PlacementViewModel.minimumRestDays {
-                HStack(spacing: 8) {
+                HStack(alignment: .top, spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundColor(.appWarning)
+                        .padding(.top, 2)
                     Text("This site was used recently. Consider choosing another location for better rotation.")
                         .font(.caption)
                         .foregroundColor(.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(12)
                 .background(Color.appWarning.opacity(0.1))

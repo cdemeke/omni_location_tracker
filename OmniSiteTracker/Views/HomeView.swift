@@ -40,7 +40,6 @@ struct HomeView: View {
                             "Select Placement Site",
                             subtitle: "Tap a location to log a new placement"
                         )
-                        .padding(.horizontal, 20)
 
                         BodyDiagramView(
                             viewModel: viewModel,
@@ -48,11 +47,10 @@ struct HomeView: View {
                                 selectedLocation = SelectedLocation(location: location)
                             }
                         )
-                        .frame(height: 420)
+                        .frame(height: 400)
                     }
-                    .padding(.vertical, 16)
-                    .background(Color.cardBackground)
-                    .cornerRadius(24)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(20)
                     .neumorphicCard()
 
                     // Recent placement card
