@@ -459,6 +459,78 @@ extension PlacementViewModel {
     }
 }
 
+// MARK: - Placement Trend Data
+
+/// Grouping period for trend data
+enum DateGrouping {
+    case day
+    case week
+}
+
+extension PlacementViewModel {
+    /// Returns placement counts grouped by time period for charting.
+    /// - Parameters:
+    ///   - from: Start date of the range (inclusive)
+    ///   - to: End date of the range (inclusive)
+    ///   - groupBy: Optional grouping period. If nil, auto-selects based on date range.
+    /// - Returns: Array of TrendDataPoint sorted by date ascending
+    func getPlacementTrend(from startDate: Date, to endDate: Date, groupBy: DateGrouping? = nil) -> [TrendDataPoint] {
+        let calendar = Calendar.current
+
+        // Auto-select grouping: day for ranges < 30 days, week for >= 30 days
+        let daysBetween = calendar.dateComponents([.day], from: startDate, to: endDate).day ?? 0
+        let effectiveGrouping = groupBy ?? (daysBetween < 30 ? .day : .week)
+
+        // Filter placements to only include those within date range
+        let filteredPlacements = placements.filter { placement in
+            placement.placedAt >= startDate && placement.placedAt <= endDate
+        }
+
+        // Group placements by the specified time period
+        var countsByPeriod: [Date: Int] = [:]
+
+        for placement in filteredPlacements {
+            let periodStart: Date
+            switch effectiveGrouping {
+            case .day:
+                periodStart = calendar.startOfDay(for: placement.placedAt)
+            case .week:
+                // Get the start of the week containing this date
+                periodStart = calendar.dateInterval(of: .weekOfYear, for: placement.placedAt)?.start
+                    ?? calendar.startOfDay(for: placement.placedAt)
+            }
+            countsByPeriod[periodStart, default: 0] += 1
+        }
+
+        // Generate periods for the entire date range (including zero-count periods)
+        var allPeriods: [Date] = []
+        var currentDate = effectiveGrouping == .day
+            ? calendar.startOfDay(for: startDate)
+            : (calendar.dateInterval(of: .weekOfYear, for: startDate)?.start ?? calendar.startOfDay(for: startDate))
+
+        let rangeEnd = effectiveGrouping == .day
+            ? calendar.startOfDay(for: endDate)
+            : (calendar.dateInterval(of: .weekOfYear, for: endDate)?.start ?? calendar.startOfDay(for: endDate))
+
+        while currentDate <= rangeEnd {
+            allPeriods.append(currentDate)
+            switch effectiveGrouping {
+            case .day:
+                currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate) ?? currentDate
+            case .week:
+                currentDate = calendar.date(byAdding: .weekOfYear, value: 1, to: currentDate) ?? currentDate
+            }
+            // Safety check to prevent infinite loop
+            if allPeriods.count > 1000 { break }
+        }
+
+        // Convert to TrendDataPoint array
+        return allPeriods.map { periodDate in
+            TrendDataPoint(date: periodDate, count: countsByPeriod[periodDate] ?? 0)
+        }
+    }
+}
+
 // MARK: - Status Helpers
 
 extension PlacementViewModel {
