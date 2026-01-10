@@ -1,0 +1,23 @@
+# Ralph Progress Log
+Started: Fri Jan  9 21:18:54 EST 2026
+
+## Codebase Patterns
+- Models are stored in OmniSiteTracker/Models/
+- Use simple Swift structs for data models (not SwiftData @Model for transient/computed data)
+- SwiftData @Model is only for persisted entities like PlacementLog
+- BodyLocation enum is the source of truth for all 8 body locations
+- Build command: `xcodebuild -project OmniSiteTracker.xcodeproj -scheme OmniSiteTracker -destination 'platform=iOS Simulator,name=iPhone 15' build`
+
+---
+
+## 2026-01-09 - US-001
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Created HeatmapModels.swift with three data model structs for the heatmap feature
+- Files changed:
+  - OmniSiteTracker/Models/HeatmapModels.swift (new file)
+- **Learnings for future iterations:**
+  - Codebase uses simple Swift structs for computed/view data vs SwiftData @Model for persistence
+  - HeatmapData, RotationScore, and TrendDataPoint are all view-layer models, not persisted
+  - BodyLocation enum has 8 cases total (leftArm, rightArm, abdomenLeft, abdomenRight, lowerAbdomen, leftThigh, rightThigh, lowerBack)
+  - Use Identifiable protocol with computed `id` property for SwiftUI list compatibility
+---

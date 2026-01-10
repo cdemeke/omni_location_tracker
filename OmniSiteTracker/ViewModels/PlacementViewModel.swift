@@ -233,6 +233,59 @@ final class PlacementViewModel {
     }
 }
 
+// MARK: - Heatmap Data Generation
+
+extension PlacementViewModel {
+    /// Generates heatmap data for all body locations within the specified date range.
+    /// - Parameters:
+    ///   - from: Start date of the range (inclusive)
+    ///   - to: End date of the range (inclusive)
+    /// - Returns: Array of HeatmapData for all 8 body locations
+    func generateHeatmapData(from startDate: Date, to endDate: Date) -> [HeatmapData] {
+        // Filter placements to only include those within date range
+        let filteredPlacements = placements.filter { placement in
+            placement.placedAt >= startDate && placement.placedAt <= endDate
+        }
+
+        // Count placements per location
+        var countsByLocation: [BodyLocation: Int] = [:]
+        var lastUsedByLocation: [BodyLocation: Date] = [:]
+
+        for placement in filteredPlacements {
+            countsByLocation[placement.location, default: 0] += 1
+
+            // Track last used date (most recent first due to sorting)
+            if lastUsedByLocation[placement.location] == nil {
+                lastUsedByLocation[placement.location] = placement.placedAt
+            } else if let existing = lastUsedByLocation[placement.location],
+                      placement.placedAt > existing {
+                lastUsedByLocation[placement.location] = placement.placedAt
+            }
+        }
+
+        // Calculate max count for intensity calculation
+        let maxCount = countsByLocation.values.max() ?? 0
+        let totalPlacements = filteredPlacements.count
+
+        // Generate HeatmapData for all 8 locations
+        return BodyLocation.allCases.map { location in
+            let usageCount = countsByLocation[location] ?? 0
+            let intensity: Double = maxCount > 0 ? Double(usageCount) / Double(maxCount) : 0
+            let percentageOfTotal: Double = totalPlacements > 0
+                ? (Double(usageCount) / Double(totalPlacements)) * 100
+                : 0
+
+            return HeatmapData(
+                location: location,
+                usageCount: usageCount,
+                intensity: intensity,
+                lastUsed: lastUsedByLocation[location],
+                percentageOfTotal: percentageOfTotal
+            )
+        }
+    }
+}
+
 // MARK: - Status Helpers
 
 extension PlacementViewModel {
