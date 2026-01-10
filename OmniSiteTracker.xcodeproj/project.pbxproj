@@ -21,6 +21,7 @@
 		C7A0001F291A00010000010 /* PatternsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00020291A00010000010 /* PatternsView.swift */; };
 		C7A00021291A00010000011 /* DateRangePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00022291A00010000011 /* DateRangePickerView.swift */; };
 		C7A00023291A00010000012 /* HeatmapBodyDiagramView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00024291A00010000012 /* HeatmapBodyDiagramView.swift */; };
+		C7A00025291A00010000013 /* ZoneStatisticsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00026291A00010000013 /* ZoneStatisticsListView.swift */; };
 		C7A00013291A0001000000A /* PlacementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00014291A0001000000A /* PlacementViewModel.swift */; };
 		C7A00015291A0001000000B /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00016291A0001000000B /* DesignSystem.swift */; };
 		C7A00017291A0001000000C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C7A00018291A0001000000C /* Assets.xcassets */; };
@@ -43,6 +44,7 @@
 		C7A00020291A00010000010 /* PatternsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatternsView.swift; sourceTree = "<group>"; };
 		C7A00022291A00010000011 /* DateRangePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateRangePickerView.swift; sourceTree = "<group>"; };
 		C7A00024291A00010000012 /* HeatmapBodyDiagramView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeatmapBodyDiagramView.swift; sourceTree = "<group>"; };
+		C7A00026291A00010000013 /* ZoneStatisticsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoneStatisticsListView.swift; sourceTree = "<group>"; };
 		C7A00014291A0001000000A /* PlacementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacementViewModel.swift; sourceTree = "<group>"; };
 		C7A00016291A0001000000B /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		C7A00018291A0001000000C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -145,6 +147,7 @@
 				C7A0000C291A00010000006 /* PlacementConfirmationSheet.swift */,
 				C7A0001C291A0001000000E /* PlacementEditSheet.swift */,
 				C7A0000E291A00010000007 /* RecommendationCard.swift */,
+				C7A00026291A00010000013 /* ZoneStatisticsListView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -233,6 +236,7 @@
 				C7A0001F291A00010000010 /* PatternsView.swift in Sources */,
 				C7A00021291A00010000011 /* DateRangePickerView.swift in Sources */,
 				C7A00023291A00010000012 /* HeatmapBodyDiagramView.swift in Sources */,
+				C7A00025291A00010000013 /* ZoneStatisticsListView.swift in Sources */,
 				C7A00013291A0001000000A /* PlacementViewModel.swift in Sources */,
 				C7A00015291A0001000000B /* DesignSystem.swift in Sources */,
 			);
