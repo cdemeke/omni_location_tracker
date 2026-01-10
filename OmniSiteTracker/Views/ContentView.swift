@@ -24,6 +24,12 @@ struct ContentView: View {
                     Label("History", systemImage: "clock.fill")
                 }
                 .tag(1)
+
+            PatternsView()
+                .tabItem {
+                    Label("Patterns", systemImage: "chart.bar.doc.horizontal")
+                }
+                .tag(2)
         }
         .tint(.appAccent)
     }
