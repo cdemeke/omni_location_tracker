@@ -22,6 +22,8 @@ struct PatternsView: View {
     @State private var showingExportSheet = false
     @State private var showingShareSheet = false
     @State private var exportedImage: UIImage?
+    @State private var exportedPDFURL: URL?
+    @State private var showingPDFShareSheet = false
 
     var body: some View {
         NavigationStack {
@@ -83,7 +85,7 @@ struct PatternsView: View {
                     exportAsImage()
                 }
                 Button("Export as PDF") {
-                    // TODO: Implement in US-024
+                    exportAsPDF()
                 }
                 Button("Cancel", role: .cancel) { }
             } message: {
@@ -92,6 +94,11 @@ struct PatternsView: View {
             .sheet(isPresented: $showingShareSheet) {
                 if let image = exportedImage {
                     ShareSheet(activityItems: [image])
+                }
+            }
+            .sheet(isPresented: $showingPDFShareSheet) {
+                if let pdfURL = exportedPDFURL {
+                    ShareSheet(activityItems: [pdfURL])
                 }
             }
             .onAppear {
@@ -204,6 +211,22 @@ struct PatternsView: View {
         if let uiImage = renderer.uiImage {
             exportedImage = uiImage
             showingShareSheet = true
+        }
+    }
+
+    /// Exports the pattern data as a PDF using UIGraphicsPDFRenderer
+    @MainActor
+    private func exportAsPDF() {
+        let pdfGenerator = PatternsPDFGenerator(
+            heatmapData: heatmapData,
+            rotationScore: rotationScore,
+            trendData: trendData,
+            dateRange: formattedDateRange
+        )
+
+        if let pdfURL = pdfGenerator.generatePDF() {
+            exportedPDFURL = pdfURL
+            showingPDFShareSheet = true
         }
     }
 }
@@ -452,6 +475,391 @@ struct ShareSheet: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+// MARK: - PDF Generator
+
+/// Generates a PDF document containing pattern data statistics
+class PatternsPDFGenerator {
+    private let heatmapData: [HeatmapData]
+    private let rotationScore: RotationScore
+    private let trendData: [TrendDataPoint]
+    private let dateRange: String
+
+    // PDF page dimensions (US Letter)
+    private let pageWidth: CGFloat = 612
+    private let pageHeight: CGFloat = 792
+    private let margin: CGFloat = 50
+
+    init(heatmapData: [HeatmapData], rotationScore: RotationScore, trendData: [TrendDataPoint], dateRange: String) {
+        self.heatmapData = heatmapData
+        self.rotationScore = rotationScore
+        self.trendData = trendData
+        self.dateRange = dateRange
+    }
+
+    func generatePDF() -> URL? {
+        let pdfMetaData = [
+            kCGPDFContextCreator: "OmniSite Tracker",
+            kCGPDFContextAuthor: "OmniSite Tracker App",
+            kCGPDFContextTitle: "Rotation Patterns Report"
+        ]
+
+        let format = UIGraphicsPDFRendererFormat()
+        format.documentInfo = pdfMetaData as [String: Any]
+
+        let pageRect = CGRect(x: 0, y: 0, width: pageWidth, height: pageHeight)
+        let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
+
+        let data = renderer.pdfData { context in
+            context.beginPage()
+            drawContent(in: context.cgContext)
+        }
+
+        // Save to temporary file
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("OmniSite_Patterns_Report.pdf")
+
+        do {
+            try data.write(to: tempURL)
+            return tempURL
+        } catch {
+            print("Error saving PDF: \(error)")
+            return nil
+        }
+    }
+
+    private func drawContent(in context: CGContext) {
+        var yPosition: CGFloat = margin
+
+        // Title
+        yPosition = drawTitle(at: yPosition)
+
+        // Date range
+        yPosition = drawDateRange(at: yPosition)
+
+        // Generation timestamp
+        yPosition = drawTimestamp(at: yPosition)
+
+        yPosition += 20
+
+        // Compliance Score Section
+        yPosition = drawComplianceScore(at: yPosition)
+
+        yPosition += 20
+
+        // Heatmap Summary Section
+        yPosition = drawHeatmapSummary(at: yPosition)
+
+        yPosition += 20
+
+        // Zone Statistics Table
+        yPosition = drawZoneStatisticsTable(at: yPosition)
+
+        yPosition += 20
+
+        // Trend Summary
+        yPosition = drawTrendSummary(at: yPosition)
+
+        // Footer
+        drawFooter()
+    }
+
+    private func drawTitle(at yPosition: CGFloat) -> CGFloat {
+        let title = "OmniSite Tracker"
+        let subtitle = "Rotation Patterns Report"
+
+        let titleAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.boldSystemFont(ofSize: 24),
+            .foregroundColor: UIColor.darkGray
+        ]
+
+        let subtitleAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 16),
+            .foregroundColor: UIColor.gray
+        ]
+
+        let titleSize = title.size(withAttributes: titleAttributes)
+        let subtitleSize = subtitle.size(withAttributes: subtitleAttributes)
+
+        let titleX = (pageWidth - titleSize.width) / 2
+        title.draw(at: CGPoint(x: titleX, y: yPosition), withAttributes: titleAttributes)
+
+        let subtitleX = (pageWidth - subtitleSize.width) / 2
+        subtitle.draw(at: CGPoint(x: subtitleX, y: yPosition + titleSize.height + 4), withAttributes: subtitleAttributes)
+
+        return yPosition + titleSize.height + subtitleSize.height + 16
+    }
+
+    private func drawDateRange(at yPosition: CGFloat) -> CGFloat {
+        let text = "Report Period: \(dateRange)"
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 12),
+            .foregroundColor: UIColor.darkGray
+        ]
+
+        let textSize = text.size(withAttributes: attributes)
+        let textX = (pageWidth - textSize.width) / 2
+        text.draw(at: CGPoint(x: textX, y: yPosition), withAttributes: attributes)
+
+        return yPosition + textSize.height + 8
+    }
+
+    private func drawTimestamp(at yPosition: CGFloat) -> CGFloat {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        let timestamp = "Generated: \(formatter.string(from: Date()))"
+
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 10),
+            .foregroundColor: UIColor.gray
+        ]
+
+        let textSize = timestamp.size(withAttributes: attributes)
+        let textX = (pageWidth - textSize.width) / 2
+        timestamp.draw(at: CGPoint(x: textX, y: yPosition), withAttributes: attributes)
+
+        return yPosition + textSize.height + 8
+    }
+
+    private func drawComplianceScore(at yPosition: CGFloat) -> CGFloat {
+        var currentY = yPosition
+
+        // Section header
+        currentY = drawSectionHeader("Compliance Score", at: currentY)
+
+        let contentX = margin + 20
+
+        // Overall score
+        let scoreText = "Overall Score: \(rotationScore.score)/100"
+        let scoreAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.boldSystemFont(ofSize: 18),
+            .foregroundColor: scoreColor
+        ]
+        scoreText.draw(at: CGPoint(x: contentX, y: currentY), withAttributes: scoreAttributes)
+        currentY += 28
+
+        // Sub-scores
+        let subScoreAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 12),
+            .foregroundColor: UIColor.darkGray
+        ]
+
+        let distributionText = "Distribution Score: \(rotationScore.distributionScore)/50"
+        distributionText.draw(at: CGPoint(x: contentX, y: currentY), withAttributes: subScoreAttributes)
+        currentY += 18
+
+        let restText = "Rest Compliance Score: \(rotationScore.restComplianceScore)/50"
+        restText.draw(at: CGPoint(x: contentX, y: currentY), withAttributes: subScoreAttributes)
+        currentY += 22
+
+        // Explanation
+        let explanationAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.italicSystemFont(ofSize: 11),
+            .foregroundColor: UIColor.gray
+        ]
+
+        let explanationRect = CGRect(x: contentX, y: currentY, width: pageWidth - margin * 2 - 20, height: 60)
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineBreakMode = .byWordWrapping
+
+        var explanationAttrs = explanationAttributes
+        explanationAttrs[.paragraphStyle] = paragraphStyle
+
+        let explanationNS = rotationScore.explanation as NSString
+        explanationNS.draw(in: explanationRect, withAttributes: explanationAttrs)
+
+        return currentY + 50
+    }
+
+    private var scoreColor: UIColor {
+        if rotationScore.score < 50 {
+            return UIColor(red: 0.85, green: 0.35, blue: 0.35, alpha: 1.0)
+        } else if rotationScore.score <= 75 {
+            return UIColor(red: 0.95, green: 0.65, blue: 0.25, alpha: 1.0)
+        } else {
+            return UIColor(red: 0.35, green: 0.75, blue: 0.45, alpha: 1.0)
+        }
+    }
+
+    private func drawHeatmapSummary(at yPosition: CGFloat) -> CGFloat {
+        var currentY = yPosition
+
+        // Section header
+        currentY = drawSectionHeader("Heatmap Summary", at: currentY)
+
+        let contentX = margin + 20
+        let sortedData = heatmapData.sorted { $0.usageCount > $1.usageCount }
+
+        let textAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 11),
+            .foregroundColor: UIColor.darkGray
+        ]
+
+        // Total placements
+        let totalPlacements = sortedData.reduce(0) { $0 + $1.usageCount }
+        let totalText = "Total Placements: \(totalPlacements)"
+        totalText.draw(at: CGPoint(x: contentX, y: currentY), withAttributes: textAttributes)
+        currentY += 18
+
+        // Most used location
+        if let mostUsed = sortedData.first, mostUsed.usageCount > 0 {
+            let mostUsedText = "Most Used: \(mostUsed.location.shortName) (\(mostUsed.usageCount) placements, \(String(format: "%.1f", mostUsed.percentageOfTotal))%)"
+            mostUsedText.draw(at: CGPoint(x: contentX, y: currentY), withAttributes: textAttributes)
+            currentY += 18
+        }
+
+        // Least used location (with usage > 0)
+        if let leastUsed = sortedData.filter({ $0.usageCount > 0 }).last {
+            let leastUsedText = "Least Used: \(leastUsed.location.shortName) (\(leastUsed.usageCount) placements, \(String(format: "%.1f", leastUsed.percentageOfTotal))%)"
+            leastUsedText.draw(at: CGPoint(x: contentX, y: currentY), withAttributes: textAttributes)
+            currentY += 18
+        }
+
+        // Unused locations
+        let unusedLocations = sortedData.filter { $0.usageCount == 0 }
+        if !unusedLocations.isEmpty {
+            let unusedNames = unusedLocations.map { $0.location.shortName }.joined(separator: ", ")
+            let unusedText = "Unused Locations: \(unusedNames)"
+            unusedText.draw(at: CGPoint(x: contentX, y: currentY), withAttributes: textAttributes)
+            currentY += 18
+        }
+
+        return currentY + 8
+    }
+
+    private func drawZoneStatisticsTable(at yPosition: CGFloat) -> CGFloat {
+        var currentY = yPosition
+
+        // Section header
+        currentY = drawSectionHeader("Zone Statistics", at: currentY)
+
+        let sortedData = heatmapData.sorted { $0.usageCount > $1.usageCount }
+
+        // Table headers
+        let headerAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.boldSystemFont(ofSize: 10),
+            .foregroundColor: UIColor.darkGray
+        ]
+
+        let col1X = margin + 20
+        let col2X = margin + 150
+        let col3X = margin + 220
+        let col4X = margin + 300
+        let col5X = margin + 380
+
+        "Zone".draw(at: CGPoint(x: col1X, y: currentY), withAttributes: headerAttributes)
+        "Count".draw(at: CGPoint(x: col2X, y: currentY), withAttributes: headerAttributes)
+        "Percentage".draw(at: CGPoint(x: col3X, y: currentY), withAttributes: headerAttributes)
+        "Intensity".draw(at: CGPoint(x: col4X, y: currentY), withAttributes: headerAttributes)
+        "Last Used".draw(at: CGPoint(x: col5X, y: currentY), withAttributes: headerAttributes)
+        currentY += 16
+
+        // Draw header line
+        let context = UIGraphicsGetCurrentContext()
+        context?.setStrokeColor(UIColor.lightGray.cgColor)
+        context?.setLineWidth(0.5)
+        context?.move(to: CGPoint(x: margin + 10, y: currentY))
+        context?.addLine(to: CGPoint(x: pageWidth - margin - 10, y: currentY))
+        context?.strokePath()
+        currentY += 6
+
+        // Table rows
+        let rowAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 10),
+            .foregroundColor: UIColor.darkGray
+        ]
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .short
+        dateFormatter.timeStyle = .none
+
+        for data in sortedData {
+            let zoneName = data.location.shortName
+            let count = "\(data.usageCount)"
+            let percentage = String(format: "%.1f%%", data.percentageOfTotal)
+            let intensity = String(format: "%.2f", data.intensity)
+            let lastUsed = data.lastUsed != nil ? dateFormatter.string(from: data.lastUsed!) : "Never"
+
+            zoneName.draw(at: CGPoint(x: col1X, y: currentY), withAttributes: rowAttributes)
+            count.draw(at: CGPoint(x: col2X, y: currentY), withAttributes: rowAttributes)
+            percentage.draw(at: CGPoint(x: col3X, y: currentY), withAttributes: rowAttributes)
+            intensity.draw(at: CGPoint(x: col4X, y: currentY), withAttributes: rowAttributes)
+            lastUsed.draw(at: CGPoint(x: col5X, y: currentY), withAttributes: rowAttributes)
+            currentY += 16
+        }
+
+        return currentY + 8
+    }
+
+    private func drawTrendSummary(at yPosition: CGFloat) -> CGFloat {
+        var currentY = yPosition
+
+        // Section header
+        currentY = drawSectionHeader("Trend Summary", at: currentY)
+
+        let contentX = margin + 20
+        let textAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 11),
+            .foregroundColor: UIColor.darkGray
+        ]
+
+        let totalInRange = trendData.reduce(0) { $0 + $1.count }
+        let totalText = "Total Placements in Period: \(totalInRange)"
+        totalText.draw(at: CGPoint(x: contentX, y: currentY), withAttributes: textAttributes)
+        currentY += 18
+
+        let nonZeroPeriods = trendData.filter { $0.count > 0 }
+        if !nonZeroPeriods.isEmpty {
+            let avgPerPeriod = Double(totalInRange) / Double(nonZeroPeriods.count)
+            let avgText = "Average per Active Period: \(String(format: "%.1f", avgPerPeriod))"
+            avgText.draw(at: CGPoint(x: contentX, y: currentY), withAttributes: textAttributes)
+            currentY += 18
+        }
+
+        if let maxPeriod = trendData.max(by: { $0.count < $1.count }), maxPeriod.count > 0 {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .short
+            let peakText = "Peak: \(maxPeriod.count) placements on \(dateFormatter.string(from: maxPeriod.date))"
+            peakText.draw(at: CGPoint(x: contentX, y: currentY), withAttributes: textAttributes)
+            currentY += 18
+        }
+
+        return currentY + 8
+    }
+
+    private func drawSectionHeader(_ title: String, at yPosition: CGFloat) -> CGFloat {
+        let headerAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.boldSystemFont(ofSize: 14),
+            .foregroundColor: UIColor(red: 0.4, green: 0.3, blue: 0.25, alpha: 1.0)
+        ]
+
+        title.draw(at: CGPoint(x: margin, y: yPosition), withAttributes: headerAttributes)
+
+        // Draw underline
+        let context = UIGraphicsGetCurrentContext()
+        context?.setStrokeColor(UIColor(red: 0.85, green: 0.8, blue: 0.75, alpha: 1.0).cgColor)
+        context?.setLineWidth(1.0)
+        context?.move(to: CGPoint(x: margin, y: yPosition + 20))
+        context?.addLine(to: CGPoint(x: pageWidth - margin, y: yPosition + 20))
+        context?.strokePath()
+
+        return yPosition + 28
+    }
+
+    private func drawFooter() {
+        let footerY = pageHeight - margin + 10
+
+        let footerText = "Generated by OmniSite Tracker"
+        let footerAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 9),
+            .foregroundColor: UIColor.lightGray
+        ]
+
+        let textSize = footerText.size(withAttributes: footerAttributes)
+        let textX = (pageWidth - textSize.width) / 2
+        footerText.draw(at: CGPoint(x: textX, y: footerY), withAttributes: footerAttributes)
+    }
 }
 
 // MARK: - Preview
