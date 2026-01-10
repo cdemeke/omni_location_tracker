@@ -27,6 +27,12 @@ struct PatternsView: View {
                     // Date range picker
                     DateRangePickerView(startDate: $startDate, endDate: $endDate)
 
+                    // Rotation Score section
+                    VStack(alignment: .leading, spacing: 16) {
+                        SectionHeader("Rotation Score")
+                        ComplianceScoreView(rotationScore: rotationScore)
+                    }
+
                     // Usage Heatmap section
                     VStack(alignment: .leading, spacing: 16) {
                         SectionHeader("Usage Heatmap")
@@ -63,6 +69,11 @@ struct PatternsView: View {
     }
 
     // MARK: - Computed Data
+
+    /// Rotation score recalculates when date range changes
+    private var rotationScore: RotationScore {
+        viewModel.calculateRotationScore(from: startDate, to: endDate)
+    }
 
     /// Heatmap data recalculates when date range changes
     private var heatmapData: [HeatmapData] {
