@@ -17,6 +17,9 @@ struct PatternsView: View {
     @State private var startDate: Date = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
     @State private var endDate: Date = Date()
 
+    // Export state
+    @State private var showingExportSheet = false
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -67,6 +70,22 @@ struct PatternsView: View {
             .background(WarmGradientBackground())
             .navigationTitle("Patterns")
             .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    shareButton
+                }
+            }
+            .confirmationDialog("Export Patterns", isPresented: $showingExportSheet, titleVisibility: .visible) {
+                Button("Export as Image") {
+                    // TODO: Implement in US-023
+                }
+                Button("Export as PDF") {
+                    // TODO: Implement in US-024
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Choose an export format for your pattern data.")
+            }
             .onAppear {
                 viewModel.configure(with: modelContext)
             }
@@ -124,6 +143,18 @@ struct PatternsView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 60)
+    }
+
+    // MARK: - Share Button
+
+    private var shareButton: some View {
+        Button {
+            showingExportSheet = true
+        } label: {
+            Image(systemName: "square.and.arrow.up")
+                .font(.title3)
+                .foregroundColor(.appAccent)
+        }
     }
 
     // MARK: - Selected Range Header
