@@ -27,7 +27,11 @@ struct PatternsView: View {
                     // Date range picker
                     DateRangePickerView(startDate: $startDate, endDate: $endDate)
 
-                    // Additional content will be added in future stories
+                    // Usage Heatmap section
+                    VStack(alignment: .leading, spacing: 16) {
+                        SectionHeader("Usage Heatmap")
+                        HeatmapBodyDiagramView(heatmapData: heatmapData)
+                    }
                 }
                 .padding(20)
             }
@@ -38,6 +42,13 @@ struct PatternsView: View {
                 viewModel.configure(with: modelContext)
             }
         }
+    }
+
+    // MARK: - Computed Data
+
+    /// Heatmap data recalculates when date range changes
+    private var heatmapData: [HeatmapData] {
+        viewModel.generateHeatmapData(from: startDate, to: endDate)
     }
 
     // MARK: - Selected Range Header
