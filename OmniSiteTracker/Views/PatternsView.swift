@@ -32,6 +32,12 @@ struct PatternsView: View {
                         SectionHeader("Usage Heatmap")
                         HeatmapBodyDiagramView(heatmapData: heatmapData)
                     }
+
+                    // Zone Statistics section
+                    VStack(alignment: .leading, spacing: 16) {
+                        SectionHeader("Zone Statistics")
+                        ZoneStatisticsListView(heatmapData: heatmapData)
+                    }
                 }
                 .padding(20)
             }
