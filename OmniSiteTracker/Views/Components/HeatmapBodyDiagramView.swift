@@ -66,6 +66,9 @@ struct HeatmapBodyDiagramView: View {
                 .clipped()
             }
             .aspectRatio(1.0, contentMode: .fit)
+
+            // Heatmap legend
+            HeatmapLegend()
         }
         .padding(16)
         .neumorphicCard()
@@ -175,6 +178,41 @@ struct HeatmapZoneIndicator: View {
         case .bottomCenter:
             return CGPoint(x: width / 2, y: height - halfButton)
         }
+    }
+}
+
+// MARK: - Heatmap Legend
+
+struct HeatmapLegend: View {
+    var body: some View {
+        VStack(spacing: 6) {
+            // Gradient bar
+            RoundedRectangle(cornerRadius: 4)
+                .fill(
+                    LinearGradient(
+                        stops: [
+                            .init(color: Color.gray, location: 0.0),
+                            .init(color: Color.orange, location: 0.5),
+                            .init(color: Color.red, location: 1.0)
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .frame(height: 12)
+
+            // Labels
+            HStack {
+                Text("Low")
+                    .font(.caption)
+                    .foregroundColor(.textSecondary)
+                Spacer()
+                Text("High")
+                    .font(.caption)
+                    .foregroundColor(.textSecondary)
+            }
+        }
+        .padding(.top, 8)
     }
 }
 
