@@ -11,6 +11,7 @@ import SwiftUI
 struct HeatmapBodyDiagramView: View {
     let heatmapData: [HeatmapData]
     @State private var selectedView: BodyView = .front
+    @State private var selectedZone: HeatmapData? = nil
 
     // Front view zones - same positioning as BodyDiagramView
     private let frontZones: [PlacementZone] = [
@@ -58,7 +59,12 @@ struct HeatmapBodyDiagramView: View {
                         HeatmapZoneIndicator(
                             zone: zone,
                             geometry: geometry,
-                            intensity: intensityFor(location: zone.location)
+                            intensity: intensityFor(location: zone.location),
+                            onTap: {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    selectedZone = heatmapDataFor(location: zone.location)
+                                }
+                            }
                         )
                     }
                 }
@@ -72,6 +78,11 @@ struct HeatmapBodyDiagramView: View {
         }
         .padding(16)
         .neumorphicCard()
+        .sheet(item: $selectedZone) { zoneData in
+            ZoneDetailPopover(zoneData: zoneData)
+                .presentationDetents([.height(220)])
+                .presentationDragIndicator(.visible)
+        }
     }
 
     private var currentZones: [PlacementZone] {
@@ -81,6 +92,10 @@ struct HeatmapBodyDiagramView: View {
     private func intensityFor(location: BodyLocation) -> Double {
         heatmapData.first { $0.location == location }?.intensity ?? 0
     }
+
+    private func heatmapDataFor(location: BodyLocation) -> HeatmapData? {
+        heatmapData.first { $0.location == location }
+    }
 }
 
 // MARK: - Heatmap Zone Indicator
@@ -89,6 +104,7 @@ struct HeatmapZoneIndicator: View {
     let zone: PlacementZone
     let geometry: GeometryProxy
     let intensity: Double
+    let onTap: () -> Void
 
     private let buttonSize: CGFloat = 75
     private let buttonPadding: CGFloat = 8
@@ -111,7 +127,7 @@ struct HeatmapZoneIndicator: View {
                 .frame(width: 14, height: 14)
                 .position(bodyTarget)
 
-            // Zone indicator in corner
+            // Zone indicator in corner - tappable
             VStack(spacing: 4) {
                 Text(zone.location.displayName)
                     .font(.system(size: 11, weight: .semibold))
@@ -129,6 +145,10 @@ struct HeatmapZoneIndicator: View {
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(heatmapColor.opacity(0.3), lineWidth: 1)
             )
+            .contentShape(RoundedRectangle(cornerRadius: 10))
+            .onTapGesture {
+                onTap()
+            }
             .position(buttonCenter)
         }
     }
@@ -213,6 +233,64 @@ struct HeatmapLegend: View {
             }
         }
         .padding(.top, 8)
+    }
+}
+
+// MARK: - Zone Detail Popover
+
+struct ZoneDetailPopover: View {
+    let zoneData: HeatmapData
+    @Environment(\.dismiss) private var dismiss
+
+    private var lastUsedText: String {
+        guard let lastUsed = zoneData.lastUsed else {
+            return "Never"
+        }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: lastUsed)
+    }
+
+    var body: some View {
+        VStack(spacing: 16) {
+            // Zone name header
+            Text(zoneData.location.displayName)
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.textPrimary)
+
+            // Statistics grid
+            VStack(spacing: 12) {
+                StatRow(label: "Usage Count", value: "\(zoneData.usageCount)")
+                StatRow(label: "Last Used", value: lastUsedText)
+                StatRow(label: "Percentage of Total", value: String(format: "%.1f%%", zoneData.percentageOfTotal))
+            }
+            .padding(16)
+            .neumorphicCard()
+
+            Spacer()
+        }
+        .padding(20)
+        .background(WarmGradientBackground())
+    }
+}
+
+private struct StatRow: View {
+    let label: String
+    let value: String
+
+    var body: some View {
+        HStack {
+            Text(label)
+                .font(.subheadline)
+                .foregroundColor(.textSecondary)
+            Spacer()
+            Text(value)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(.textPrimary)
+        }
     }
 }
 
