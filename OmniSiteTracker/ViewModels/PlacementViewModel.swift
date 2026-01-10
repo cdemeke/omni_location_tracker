@@ -529,6 +529,79 @@ extension PlacementViewModel {
             TrendDataPoint(date: periodDate, count: countsByPeriod[periodDate] ?? 0)
         }
     }
+
+    /// Returns placement trends broken down by location for stacked charts.
+    /// - Parameters:
+    ///   - from: Start date of the range (inclusive)
+    ///   - to: End date of the range (inclusive)
+    ///   - groupBy: Grouping period (day or week)
+    /// - Returns: Dictionary mapping each BodyLocation to its array of TrendDataPoint
+    func getLocationTrend(from startDate: Date, to endDate: Date, groupBy: DateGrouping) -> [BodyLocation: [TrendDataPoint]] {
+        let calendar = Calendar.current
+
+        // Filter placements to only include those within date range
+        let filteredPlacements = placements.filter { placement in
+            placement.placedAt >= startDate && placement.placedAt <= endDate
+        }
+
+        // Group placements by location and then by time period
+        var countsByLocationAndPeriod: [BodyLocation: [Date: Int]] = [:]
+
+        // Initialize all locations
+        for location in BodyLocation.allCases {
+            countsByLocationAndPeriod[location] = [:]
+        }
+
+        for placement in filteredPlacements {
+            let periodStart: Date
+            switch groupBy {
+            case .day:
+                periodStart = calendar.startOfDay(for: placement.placedAt)
+            case .week:
+                periodStart = calendar.dateInterval(of: .weekOfYear, for: placement.placedAt)?.start
+                    ?? calendar.startOfDay(for: placement.placedAt)
+            }
+            countsByLocationAndPeriod[placement.location, default: [:]][periodStart, default: 0] += 1
+        }
+
+        // Generate periods for the entire date range (including zero-count periods)
+        var allPeriods: [Date] = []
+        var currentDate = groupBy == .day
+            ? calendar.startOfDay(for: startDate)
+            : (calendar.dateInterval(of: .weekOfYear, for: startDate)?.start ?? calendar.startOfDay(for: startDate))
+
+        let rangeEnd = groupBy == .day
+            ? calendar.startOfDay(for: endDate)
+            : (calendar.dateInterval(of: .weekOfYear, for: endDate)?.start ?? calendar.startOfDay(for: endDate))
+
+        while currentDate <= rangeEnd {
+            allPeriods.append(currentDate)
+            switch groupBy {
+            case .day:
+                currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate) ?? currentDate
+            case .week:
+                currentDate = calendar.date(byAdding: .weekOfYear, value: 1, to: currentDate) ?? currentDate
+            }
+            // Safety check to prevent infinite loop
+            if allPeriods.count > 1000 { break }
+        }
+
+        // Convert to dictionary of TrendDataPoint arrays
+        var result: [BodyLocation: [TrendDataPoint]] = [:]
+
+        for location in BodyLocation.allCases {
+            let locationCounts = countsByLocationAndPeriod[location] ?? [:]
+            result[location] = allPeriods.map { periodDate in
+                TrendDataPoint(
+                    date: periodDate,
+                    count: locationCounts[periodDate] ?? 0,
+                    location: location
+                )
+            }
+        }
+
+        return result
+    }
 }
 
 // MARK: - Status Helpers
