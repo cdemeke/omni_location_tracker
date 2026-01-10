@@ -1,0 +1,387 @@
+{
+  "project": "OmniSiteTracker",
+  "branchName": "ralph/rotation-pattern-heatmap",
+  "description": "Rotation Pattern View (Heatmap) - A dedicated view displaying usage density heatmap on body diagram with custom date ranges, trend charts, compliance scoring, and export functionality",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Add HeatmapData and RotationScore models",
+      "description": "As a developer, I need data models to represent heatmap density and rotation compliance scores.",
+      "acceptanceCriteria": [
+        "Create HeatmapData struct with: location (BodyLocation), usageCount (Int), intensity (Double 0-1), lastUsed (Date?), percentageOfTotal (Double)",
+        "Create RotationScore struct with: score (Int 0-100), distributionScore (Int), restComplianceScore (Int), explanation (String)",
+        "Create TrendDataPoint struct with: date (Date), count (Int), location (BodyLocation?)",
+        "Add structs to Models folder or appropriate location",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Add generateHeatmapData method to ViewModel",
+      "description": "As a developer, I need to compute usage density per location from placement history.",
+      "acceptanceCriteria": [
+        "Add generateHeatmapData(from: Date, to: Date) -> [HeatmapData] method to PlacementViewModel",
+        "Filter placements to only include those within date range",
+        "Count placements per BodyLocation",
+        "Calculate intensity as ratio: location count / max count (0 if no placements)",
+        "Calculate percentageOfTotal for each location",
+        "Include lastUsed date for each location",
+        "Return array with entry for all 8 BodyLocation values",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Add calculateRotationScore method to ViewModel",
+      "description": "As a developer, I need to calculate a compliance score measuring rotation effectiveness.",
+      "acceptanceCriteria": [
+        "Add calculateRotationScore(from: Date, to: Date) -> RotationScore method to PlacementViewModel",
+        "distributionScore: measure evenness of usage across locations (0-50 points)",
+        "restComplianceScore: measure if 3-day rest is maintained between same-site uses (0-50 points)",
+        "Combined score is sum of both (0-100)",
+        "Generate explanation string describing the score",
+        "Return score of 0 with appropriate explanation if fewer than 5 placements",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Add getPlacementTrend method to ViewModel",
+      "description": "As a developer, I need to get placement counts grouped by time period for charting.",
+      "acceptanceCriteria": [
+        "Add DateGrouping enum with cases: day, week",
+        "Add getPlacementTrend(from: Date, to: Date, groupBy: DateGrouping) -> [TrendDataPoint] method",
+        "Group placements by the specified time period",
+        "Return array of TrendDataPoint with date and count",
+        "Auto-select grouping: day for ranges < 30 days, week for >= 30 days",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Add getLocationTrend method to ViewModel",
+      "description": "As a developer, I need placement trends broken down by location for the stacked chart.",
+      "acceptanceCriteria": [
+        "Add getLocationTrend(from: Date, to: Date, groupBy: DateGrouping) -> [BodyLocation: [TrendDataPoint]] method",
+        "Return dictionary mapping each location to its trend data points",
+        "Each TrendDataPoint includes the location for identification",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Create PatternsView with basic structure and tab",
+      "description": "As a user, I want a dedicated Patterns tab to access usage analytics.",
+      "acceptanceCriteria": [
+        "Create new PatternsView.swift in Views folder",
+        "Add ScrollView with VStack layout matching app structure",
+        "Use WarmGradientBackground for background",
+        "Add 'Patterns' tab to ContentView tab navigation as third tab",
+        "Use SF Symbol icon chart.bar.doc.horizontal for tab",
+        "Tab styling matches existing Home/History tabs",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Create DateRangePicker component",
+      "description": "As a user, I want to select a custom date range to analyze rotation patterns.",
+      "acceptanceCriteria": [
+        "Create DateRangePickerView.swift component",
+        "Include preset buttons: 'Last 7 days', 'Last 30 days', 'Last 90 days', 'All time'",
+        "Include start and end date pickers using native DatePicker",
+        "Prevent selecting future dates",
+        "Prevent end date before start date",
+        "Use NeumorphicCardStyle for container",
+        "Expose @Binding for startDate and endDate",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Integrate DateRangePicker into PatternsView",
+      "description": "As a user, I want the date range picker at the top of the Patterns view.",
+      "acceptanceCriteria": [
+        "Add @State properties for startDate and endDate in PatternsView",
+        "Default startDate to 30 days ago, endDate to today",
+        "Add DateRangePickerView to top of PatternsView ScrollView",
+        "Display selected range text above picker",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Create HeatmapBodyDiagramView component",
+      "description": "As a user, I want to see a body diagram with color-coded zones showing usage density.",
+      "acceptanceCriteria": [
+        "Create HeatmapBodyDiagramView.swift based on existing BodyDiagramView structure",
+        "Accept [HeatmapData] as input parameter",
+        "Display all 8 zones with colors based on intensity: gray (0) -> orange (0.5) -> red (1.0)",
+        "Include front/back view toggle using existing BodyViewTabs",
+        "Reuse body silhouette image and zone positioning from BodyDiagramView",
+        "Use NeumorphicCardStyle for container",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Add heatmap legend to HeatmapBodyDiagramView",
+      "description": "As a user, I want a legend explaining the heatmap colors.",
+      "acceptanceCriteria": [
+        "Add horizontal gradient bar showing gray -> orange -> red",
+        "Label left side 'Low' and right side 'High'",
+        "Position legend below body diagram",
+        "Use consistent typography from DesignSystem",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Integrate HeatmapBodyDiagramView into PatternsView",
+      "description": "As a user, I want to see the heatmap body diagram in the Patterns view.",
+      "acceptanceCriteria": [
+        "Call generateHeatmapData with selected date range",
+        "Pass heatmap data to HeatmapBodyDiagramView",
+        "Recalculate heatmap when date range changes",
+        "Add SectionHeader 'Usage Heatmap' above diagram",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Add zone detail popover to heatmap",
+      "description": "As a user, I want to tap a zone to see detailed usage statistics.",
+      "acceptanceCriteria": [
+        "Tapping a zone on heatmap shows popover or sheet",
+        "Popover displays: zone name, usage count, last used date, percentage of total",
+        "Use NeumorphicCardStyle for popover styling",
+        "Popover dismisses on tap outside",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Create ZoneStatisticsListView component",
+      "description": "As a user, I want a ranked list of all zones by usage.",
+      "acceptanceCriteria": [
+        "Create ZoneStatisticsListView.swift accepting [HeatmapData]",
+        "Display all 8 zones in a vertical list",
+        "Sort by usageCount descending (highest first)",
+        "Each row shows: location icon (SF Symbol), zone name, usage count, horizontal usage bar",
+        "Usage bar width proportional to intensity (percentage of max)",
+        "Row colors match heatmap colors based on intensity",
+        "Use NeumorphicCardStyle for container",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Integrate ZoneStatisticsListView into PatternsView",
+      "description": "As a user, I want to see the zone statistics list in the Patterns view.",
+      "acceptanceCriteria": [
+        "Add ZoneStatisticsListView below heatmap diagram",
+        "Pass same heatmap data used for diagram",
+        "Add SectionHeader 'Zone Statistics' above list",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Create UsageTrendChartView component",
+      "description": "As a user, I want a chart showing placement frequency over time.",
+      "acceptanceCriteria": [
+        "Create UsageTrendChartView.swift using Swift Charts framework",
+        "Accept [TrendDataPoint] as input",
+        "Display bar chart with dates on X-axis, counts on Y-axis",
+        "Use app's earthy color palette for bars",
+        "Chart height approximately 200 points",
+        "Use NeumorphicCardStyle for container",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Integrate UsageTrendChartView into PatternsView",
+      "description": "As a user, I want to see the usage trend chart in the Patterns view.",
+      "acceptanceCriteria": [
+        "Call getPlacementTrend with selected date range",
+        "Pass trend data to UsageTrendChartView",
+        "Add SectionHeader 'Usage Trend' above chart",
+        "Recalculate when date range changes",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Create LocationBreakdownChartView component",
+      "description": "As a user, I want a chart showing usage breakdown by location over time.",
+      "acceptanceCriteria": [
+        "Create LocationBreakdownChartView.swift using Swift Charts",
+        "Accept [BodyLocation: [TrendDataPoint]] dictionary as input",
+        "Display stacked bar chart or multi-series line chart",
+        "Each location has distinct color from app palette",
+        "Include legend identifying each location",
+        "Chart height approximately 250 points",
+        "Use NeumorphicCardStyle for container",
+        "Typecheck passes"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Integrate LocationBreakdownChartView into PatternsView",
+      "description": "As a user, I want to see the location breakdown chart in the Patterns view.",
+      "acceptanceCriteria": [
+        "Call getLocationTrend with selected date range",
+        "Pass location trend data to LocationBreakdownChartView",
+        "Add SectionHeader 'Location Breakdown' above chart",
+        "Recalculate when date range changes",
+        "Typecheck passes"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Create ComplianceScoreView component",
+      "description": "As a user, I want to see my rotation compliance score prominently displayed.",
+      "acceptanceCriteria": [
+        "Create ComplianceScoreView.swift accepting RotationScore",
+        "Display score (0-100) in circular progress indicator or gauge",
+        "Use color coding: red (<50), orange (50-75), green (>75)",
+        "Display explanation text below score",
+        "Use NeumorphicCardStyle for container",
+        "Typecheck passes"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "Integrate ComplianceScoreView into PatternsView",
+      "description": "As a user, I want to see my compliance score at the top of the Patterns view.",
+      "acceptanceCriteria": [
+        "Call calculateRotationScore with selected date range",
+        "Add ComplianceScoreView after date range picker, before heatmap",
+        "Add SectionHeader 'Rotation Score' above component",
+        "Recalculate when date range changes",
+        "Typecheck passes"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-021",
+      "title": "Add empty state to PatternsView",
+      "description": "As a user, I want helpful guidance when I don't have enough data.",
+      "acceptanceCriteria": [
+        "Show empty state when no placements exist in selected date range",
+        "Display friendly message: 'No placement data for this period'",
+        "Include suggestion to log placements to see patterns",
+        "Use consistent styling with app design",
+        "Hide heatmap, charts, and stats when empty",
+        "Typecheck passes"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-022",
+      "title": "Add share button to PatternsView navigation",
+      "description": "As a user, I want a share button to export my pattern data.",
+      "acceptanceCriteria": [
+        "Add share button (SF Symbol square.and.arrow.up) to navigation bar",
+        "Button triggers export action sheet",
+        "Use PrimaryButtonStyle or appropriate navigation button style",
+        "Typecheck passes"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-023",
+      "title": "Implement image export functionality",
+      "description": "As a user, I want to export my heatmap and stats as an image.",
+      "acceptanceCriteria": [
+        "Create exportable view containing heatmap + zone stats + score",
+        "Use ImageRenderer to capture view as UIImage",
+        "Include date range and timestamp in exported image",
+        "Present iOS share sheet with image",
+        "Typecheck passes"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-024",
+      "title": "Implement PDF export functionality",
+      "description": "As a user, I want to export detailed statistics as a PDF.",
+      "acceptanceCriteria": [
+        "Use UIGraphicsPDFRenderer to generate PDF",
+        "PDF includes: title, date range, compliance score, heatmap summary, zone statistics table, trend summary",
+        "Include app name and generation timestamp",
+        "Present iOS share sheet with PDF file",
+        "Typecheck passes"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
