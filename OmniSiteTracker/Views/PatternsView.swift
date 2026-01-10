@@ -38,6 +38,12 @@ struct PatternsView: View {
                         SectionHeader("Zone Statistics")
                         ZoneStatisticsListView(heatmapData: heatmapData)
                     }
+
+                    // Usage Trend section
+                    VStack(alignment: .leading, spacing: 16) {
+                        SectionHeader("Usage Trend")
+                        UsageTrendChartView(trendData: trendData)
+                    }
                 }
                 .padding(20)
             }
@@ -55,6 +61,11 @@ struct PatternsView: View {
     /// Heatmap data recalculates when date range changes
     private var heatmapData: [HeatmapData] {
         viewModel.generateHeatmapData(from: startDate, to: endDate)
+    }
+
+    /// Trend data recalculates when date range changes
+    private var trendData: [TrendDataPoint] {
+        viewModel.getPlacementTrend(from: startDate, to: endDate)
     }
 
     // MARK: - Selected Range Header
