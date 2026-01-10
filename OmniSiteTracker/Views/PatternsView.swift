@@ -44,6 +44,12 @@ struct PatternsView: View {
                         SectionHeader("Usage Trend")
                         UsageTrendChartView(trendData: trendData)
                     }
+
+                    // Location Breakdown section
+                    VStack(alignment: .leading, spacing: 16) {
+                        SectionHeader("Location Breakdown")
+                        LocationBreakdownChartView(locationTrendData: locationTrendData)
+                    }
                 }
                 .padding(20)
             }
@@ -66,6 +72,14 @@ struct PatternsView: View {
     /// Trend data recalculates when date range changes
     private var trendData: [TrendDataPoint] {
         viewModel.getPlacementTrend(from: startDate, to: endDate)
+    }
+
+    /// Location breakdown trend data recalculates when date range changes
+    private var locationTrendData: [BodyLocation: [TrendDataPoint]] {
+        // Auto-select grouping: day for ranges < 30 days, week for >= 30 days
+        let daysDifference = Calendar.current.dateComponents([.day], from: startDate, to: endDate).day ?? 0
+        let grouping: DateGrouping = daysDifference < 30 ? .day : .week
+        return viewModel.getLocationTrend(from: startDate, to: endDate, groupBy: grouping)
     }
 
     // MARK: - Selected Range Header
