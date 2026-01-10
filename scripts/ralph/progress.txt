@@ -7,6 +7,8 @@ Started: Fri Jan  9 21:18:54 EST 2026
 - SwiftData @Model is only for persisted entities like PlacementLog
 - BodyLocation enum is the source of truth for all 8 body locations
 - Build command: `xcodebuild -project OmniSiteTracker.xcodeproj -scheme OmniSiteTracker -destination 'platform=iOS Simulator,name=iPhone 15' build`
+- When adding new Swift files, MUST also add them to project.pbxproj (PBXBuildFile, PBXFileReference, PBXGroup, PBXSourcesBuildPhase sections)
+- PlacementViewModel uses `placements` array with `placedAt` (Date) and `location` (BodyLocation) properties
 
 ---
 
@@ -20,4 +22,326 @@ Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
   - HeatmapData, RotationScore, and TrendDataPoint are all view-layer models, not persisted
   - BodyLocation enum has 8 cases total (leftArm, rightArm, abdomenLeft, abdomenRight, lowerAbdomen, leftThigh, rightThigh, lowerBack)
   - Use Identifiable protocol with computed `id` property for SwiftUI list compatibility
+---
+
+## 2026-01-09 - US-002
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Added `generateHeatmapData(from: Date, to: Date) -> [HeatmapData]` method to PlacementViewModel
+- Files changed:
+  - OmniSiteTracker/ViewModels/PlacementViewModel.swift (added extension with generateHeatmapData method)
+  - OmniSiteTracker.xcodeproj/project.pbxproj (added HeatmapModels.swift to build target - was missing from US-001)
+- **Learnings for future iterations:**
+  - HeatmapModels.swift was not in the Xcode project after US-001 - future iterations need to verify files are added to project.pbxproj
+  - Method uses BodyLocation.allCases to ensure all 8 locations are returned even with 0 usage
+  - Intensity calculation: usageCount / maxCount (0 if no placements)
+  - percentageOfTotal: (usageCount / totalPlacements) * 100
+---
+
+## 2026-01-09 - US-003
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Added `calculateRotationScore(from: Date, to: Date) -> RotationScore` method to PlacementViewModel
+- Files changed:
+  - OmniSiteTracker/ViewModels/PlacementViewModel.swift (added extension with calculateRotationScore and 3 helper methods)
+- **Learnings for future iterations:**
+  - RotationScore uses two components: distributionScore (0-50) and restComplianceScore (0-50)
+  - distributionScore uses variance-based approach: compares actual distribution to ideal even distribution across 8 locations
+  - restComplianceScore checks each consecutive same-site placement pair for 3-day rest compliance (uses PlacementViewModel.minimumRestDays = 3)
+  - Returns early with score 0 and explanation if fewer than 5 placements
+  - generateScoreExplanation provides contextual feedback based on score thresholds (80+, 60-79, 40-59, <40)
+---
+
+## 2026-01-09 - US-004
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Added `DateGrouping` enum and `getPlacementTrend(from: Date, to: Date, groupBy: DateGrouping?) -> [TrendDataPoint]` method to PlacementViewModel
+- Files changed:
+  - OmniSiteTracker/ViewModels/PlacementViewModel.swift (added DateGrouping enum and extension with getPlacementTrend method)
+- **Learnings for future iterations:**
+  - DateGrouping enum has cases: `.day` and `.week`
+  - Auto-select grouping logic: use `.day` for ranges < 30 days, `.week` for >= 30 days
+  - Method generates TrendDataPoints for entire date range (including zero-count periods)
+  - Uses Calendar.dateInterval(of: .weekOfYear, for:) to get start of week for weekly grouping
+  - Safety check prevents infinite loop with max 1000 periods limit
+---
+
+## 2026-01-09 - US-005
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Added `getLocationTrend(from: Date, to: Date, groupBy: DateGrouping) -> [BodyLocation: [TrendDataPoint]]` method to PlacementViewModel
+- Files changed:
+  - OmniSiteTracker/ViewModels/PlacementViewModel.swift (added getLocationTrend method to existing extension)
+- **Learnings for future iterations:**
+  - getLocationTrend returns a dictionary mapping each BodyLocation to its array of TrendDataPoint
+  - Each TrendDataPoint includes the location property for identification in stacked charts
+  - Method follows same date range filtering and period generation pattern as getPlacementTrend
+  - Initializes countsByLocationAndPeriod with empty dictionaries for all 8 locations before processing
+  - Returns TrendDataPoints for all periods (including zero-count) for each location
+---
+
+## 2026-01-09 - US-006
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Created PatternsView.swift with basic structure and added Patterns tab to ContentView
+- Files changed:
+  - OmniSiteTracker/Views/PatternsView.swift (new file)
+  - OmniSiteTracker/Views/ContentView.swift (added PatternsView tab as third tab)
+  - OmniSiteTracker.xcodeproj/project.pbxproj (added PatternsView.swift to build target)
+- **Learnings for future iterations:**
+  - PatternsView follows same structure as HomeView/HistoryView: NavigationStack with ScrollView
+  - Uses WarmGradientBackground() for background (defined in DesignSystem.swift)
+  - Tab icon uses SF Symbol "chart.bar.doc.horizontal"
+  - Views are stored in OmniSiteTracker/Views/ folder
+  - ContentView uses TabView with .tag() for tab selection
+---
+
+## 2026-01-09 - US-007
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Created DateRangePickerView.swift component with preset buttons and custom date selection
+- Files changed:
+  - OmniSiteTracker/Views/Components/DateRangePickerView.swift (new file)
+  - OmniSiteTracker.xcodeproj/project.pbxproj (added DateRangePickerView.swift to build target)
+- **Learnings for future iterations:**
+  - DateRangePickerView uses @Binding for startDate and endDate
+  - Preset buttons: "7 days", "30 days", "90 days", "All time" with visual selection state
+  - Custom date pickers are collapsible to reduce UI clutter (toggle with chevron button)
+  - DatePicker uses `in: ...min(endDate, today)` and `in: startDate...today` to prevent future dates and end < start
+  - Uses AnyShapeStyle pattern for conditional LinearGradient/Color backgrounds in buttons
+  - Components folder is for reusable UI components: OmniSiteTracker/Views/Components/
+  - PresetButton is a private struct for internal use only (not exposed to other files)
+---
+
+## 2026-01-09 - US-008
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Integrated DateRangePickerView into PatternsView with date range state management
+- Files changed:
+  - OmniSiteTracker/Views/PatternsView.swift (added @State for startDate/endDate, selectedRangeHeader, DateRangePickerView integration)
+- **Learnings for future iterations:**
+  - PatternsView uses @State for startDate (defaults to 30 days ago) and endDate (defaults to today)
+  - selectedRangeHeader displays formatted date range above the picker using DateFormatter with .medium style
+  - DateRangePickerView accepts @Binding for startDate and endDate to sync state with parent view
+  - Date formatting pattern: "\(formatter.string(from: startDate)) - \(formatter.string(from: endDate))"
+---
+
+## 2026-01-09 - US-009
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Created HeatmapBodyDiagramView component with color-coded zones showing usage density
+- Files changed:
+  - OmniSiteTracker/Views/Components/HeatmapBodyDiagramView.swift (new file)
+  - OmniSiteTracker.xcodeproj/project.pbxproj (added HeatmapBodyDiagramView.swift to build target)
+- **Learnings for future iterations:**
+  - HeatmapBodyDiagramView reuses PlacementZone struct and zone positioning from BodyDiagramView
+  - Color gradient uses custom interpolation: gray (0) -> orange (0.5) -> red (1.0)
+  - HeatmapZoneIndicator is a private struct that handles zone display with intensity-based coloring
+  - Same crop parameters (cropTop: 0.10, cropBottom: 0.68) as BodyDiagramView for consistent body display
+  - Reuses DottedLine shape and BodyViewTabs from existing DesignSystem/BodyDiagramView
+  - Component includes @State for selectedView to toggle between front/back views internally
+---
+
+## 2026-01-09 - US-010
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Added HeatmapLegend component to HeatmapBodyDiagramView with horizontal gradient bar and labels
+- Files changed:
+  - OmniSiteTracker/Views/Components/HeatmapBodyDiagramView.swift (added HeatmapLegend struct and integrated into HeatmapBodyDiagramView)
+- **Learnings for future iterations:**
+  - HeatmapLegend is a simple struct with horizontal gradient bar (gray -> orange -> red) using LinearGradient with stops
+  - Uses .textSecondary color from DesignSystem for "Low" and "High" labels
+  - Legend is positioned below body diagram with .padding(.top, 8) spacing
+  - Uses .caption font for labels to keep it compact
+---
+
+## 2026-01-09 - US-011
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Integrated HeatmapBodyDiagramView into PatternsView with date range binding
+- Files changed:
+  - OmniSiteTracker/Views/PatternsView.swift (added heatmapData computed property, SectionHeader, HeatmapBodyDiagramView integration)
+- **Learnings for future iterations:**
+  - Use computed property for heatmapData to automatically recalculate when @State date range changes
+  - SectionHeader("Usage Heatmap") provides section title - use from DesignSystem.swift
+  - Pattern: VStack(alignment: .leading, spacing: 16) for section layout with header + content
+  - viewModel.generateHeatmapData(from:to:) returns [HeatmapData] for all 8 BodyLocation values
+---
+
+## 2026-01-09 - US-012
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Added zone detail popover to HeatmapBodyDiagramView that shows when tapping a zone
+- Files changed:
+  - OmniSiteTracker/Views/Components/HeatmapBodyDiagramView.swift (added ZoneDetailPopover, onTap callback to HeatmapZoneIndicator, sheet presentation)
+- **Learnings for future iterations:**
+  - Use .sheet(item:) with optional @State binding for item-driven sheet presentation
+  - HeatmapData conforms to Identifiable, so it works directly with .sheet(item:)
+  - .presentationDetents([.height(220)]) sets a fixed height for the sheet
+  - ZoneDetailPopover uses WarmGradientBackground for consistent styling
+  - StatRow is a private struct for displaying label-value pairs in popover
+  - .contentShape() is needed before .onTapGesture for proper tap area on styled views
+---
+
+## 2026-01-09 - US-013
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Created ZoneStatisticsListView component displaying ranked list of all zones by usage
+- Files changed:
+  - OmniSiteTracker/Views/Components/ZoneStatisticsListView.swift (new file)
+  - OmniSiteTracker.xcodeproj/project.pbxproj (added ZoneStatisticsListView.swift to build target)
+- **Learnings for future iterations:**
+  - ZoneStatisticsListView accepts [HeatmapData] and sorts by usageCount descending
+  - Uses same heatmap color calculation as HeatmapBodyDiagramView (gray -> orange -> red based on intensity)
+  - Each ZoneStatisticsRow shows: icon, shortName, usage count, and horizontal progress bar
+  - Uses BodyLocation.iconName for SF Symbol icons, BodyLocation.shortName for compact zone names
+  - Progress bar width uses CGFloat(data.intensity) to proportionally fill based on intensity (0-1)
+  - Row background uses intensityColor.opacity(0.05) for subtle color coding
+  - Uses .neumorphicCard() modifier for container styling consistent with other components
+---
+
+## 2026-01-09 - US-014
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Integrated ZoneStatisticsListView into PatternsView below the heatmap diagram
+- Files changed:
+  - OmniSiteTracker/Views/PatternsView.swift (added ZoneStatisticsListView with SectionHeader)
+- **Learnings for future iterations:**
+  - Simple integration pattern: add VStack with SectionHeader + component
+  - Reuses same heatmapData computed property already used for HeatmapBodyDiagramView
+  - VStack(alignment: .leading, spacing: 16) is the standard section container pattern
+  - No new project.pbxproj changes needed when only modifying existing files
+---
+
+## 2026-01-09 - US-015
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Created UsageTrendChartView component using Swift Charts framework
+- Files changed:
+  - OmniSiteTracker/Views/Components/UsageTrendChartView.swift (new file)
+  - OmniSiteTracker.xcodeproj/project.pbxproj (added UsageTrendChartView.swift to build target)
+- **Learnings for future iterations:**
+  - Swift Charts requires `import Charts` at the top of the file
+  - UsageTrendChartView accepts [TrendDataPoint] and displays bar chart with dates on X-axis, counts on Y-axis
+  - BarMark is used for bar charts, with `.foregroundStyle()` for gradient coloring
+  - Chart axis customization via `.chartXAxis` and `.chartYAxis` with AxisMarks, AxisGridLine, AxisTick, AxisValueLabel
+  - Date formatting for X-axis: `.dateTime.month(.abbreviated).day()` for compact display
+  - Use `.chartYScale(domain:)` to set explicit Y-axis range (0 to maxCount + 1)
+  - Empty state handling: check if all counts are 0 to show placeholder
+  - Use LinearGradient with app's earthy colors (appAccent -> appSecondary) for bar styling
+  - Chart height should be approximately 200 points per acceptance criteria
+---
+
+## 2026-01-09 - US-016
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Integrated UsageTrendChartView into PatternsView with date range recalculation
+- Files changed:
+  - OmniSiteTracker/Views/PatternsView.swift (added trendData computed property and UsageTrendChartView section)
+- **Learnings for future iterations:**
+  - Follow the existing section pattern: VStack(alignment: .leading, spacing: 16) with SectionHeader + component
+  - Add computed property for data (e.g., `trendData`) that calls viewModel method with date range
+  - Computed properties automatically recalculate when @State date variables change (no onChange needed)
+  - viewModel.getPlacementTrend(from:to:) returns [TrendDataPoint] with default auto-grouping
+---
+
+## 2026-01-09 - US-017
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Created LocationBreakdownChartView component using Swift Charts for multi-location trend visualization
+- Files changed:
+  - OmniSiteTracker/Views/Components/LocationBreakdownChartView.swift (new file)
+  - OmniSiteTracker.xcodeproj/project.pbxproj (added LocationBreakdownChartView.swift to build target)
+- **Learnings for future iterations:**
+  - LocationBreakdownChartView accepts [BodyLocation: [TrendDataPoint]] dictionary and displays stacked bar chart
+  - Use .chartForegroundStyleScale(locationColorMapping) with KeyValuePairs<String, Color> for consistent color mapping across all locations
+  - Chart legend positioning: .chartLegend(position: .bottom, alignment: .center, spacing: 12)
+  - Each BodyLocation gets a distinct color from the app palette (appAccent, appSecondary, appSuccess, appInfo, appWarning, appHighlight, plus custom colors for remaining locations)
+  - Empty state check iterates through dictionary values to check if any TrendDataPoint has count > 0
+  - Chart height should be 250 points (per acceptance criteria, larger than UsageTrendChartView's 200 points)
+---
+
+## 2026-01-09 - US-018
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Integrated LocationBreakdownChartView into PatternsView with date range recalculation
+- Files changed:
+  - OmniSiteTracker/Views/PatternsView.swift (added locationTrendData computed property and LocationBreakdownChartView section)
+- **Learnings for future iterations:**
+  - getLocationTrend requires explicit groupBy parameter (unlike getPlacementTrend which has optional default)
+  - Auto-select grouping logic: use `.day` for ranges < 30 days, `.week` for >= 30 days
+  - Use Calendar.dateComponents([.day], from:to:).day to calculate date range difference
+  - Computed properties auto-recalculate when @State date variables change (no onChange needed)
+  - Follow existing pattern: VStack(alignment: .leading, spacing: 16) with SectionHeader + component
+---
+
+## 2026-01-09 - US-019
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Created ComplianceScoreView.swift component displaying rotation compliance score in circular gauge
+- Files changed:
+  - OmniSiteTracker/Views/Components/ComplianceScoreView.swift (new file)
+  - OmniSiteTracker.xcodeproj/project.pbxproj (added ComplianceScoreView.swift to build target)
+- **Learnings for future iterations:**
+  - ComplianceScoreView accepts RotationScore and displays circular gauge with score 0-100
+  - Color coding: red (<50), orange (50-75), green (>75) using Color(red:green:blue) for red, .appWarning for orange, .appSuccess for green
+  - Uses Circle().trim(from:to:) for progress arc with rotationEffect(.degrees(-90)) for top start
+  - ScoreComponent sub-view shows distribution and rest compliance subscores with mini progress bars
+  - Uses .neumorphicCard() modifier for container styling consistent with other components
+  - Animation: .animation(.easeInOut(duration: 0.5), value: score) for smooth gauge transitions
+---
+
+## 2026-01-09 - US-020
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Integrated ComplianceScoreView into PatternsView between date range picker and heatmap
+- Files changed:
+  - OmniSiteTracker/Views/PatternsView.swift (added rotationScore computed property and Rotation Score section)
+- **Learnings for future iterations:**
+  - ComplianceScoreView parameter name is `rotationScore:` not `score:`
+  - Simple integration pattern: add VStack with SectionHeader + component, same as other sections
+  - Computed properties (e.g., `rotationScore`) automatically recalculate when @State date variables change
+  - viewModel.calculateRotationScore(from:to:) returns RotationScore for compliance evaluation
+---
+
+## 2026-01-09 - US-021
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Added empty state to PatternsView that shows when no placement data exists for the selected date range
+- Files changed:
+  - OmniSiteTracker/Views/PatternsView.swift (added hasPlacementData computed property and emptyStateView)
+- **Learnings for future iterations:**
+  - Use hasPlacementData computed property to check if heatmapData contains any usageCount > 0
+  - Empty state pattern: VStack with icon (60pt font), title (.title2), and description (.subheadline)
+  - Match existing HistoryView empty state styling: textMuted.opacity(0.5) for icon, textPrimary for title, textSecondary for description
+  - Use .frame(maxWidth: .infinity) and .padding(.vertical, 60) for centered layout
+  - Conditional rendering with if/else in body: show analytics content OR empty state view
+---
+
+## 2026-01-09 - US-022
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Added share button to PatternsView navigation bar that triggers export action sheet
+- Files changed:
+  - OmniSiteTracker/Views/PatternsView.swift (added showingExportSheet state, toolbar with shareButton, confirmationDialog for export options)
+- **Learnings for future iterations:**
+  - Toolbar pattern: `.toolbar { ToolbarItem(placement: .topBarTrailing) { ... } }` for navigation bar buttons
+  - Use `.confirmationDialog()` modifier for action sheets with multiple options
+  - Share button styling: `.font(.title3)` and `.foregroundColor(.appAccent)` matches HistoryView filterButton pattern
+  - SF Symbol for share: "square.and.arrow.up"
+  - Export action sheet has "Export as Image" and "Export as PDF" options (to be implemented in US-023 and US-024)
+---
+
+## 2026-01-09 - US-023
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: Image export functionality using ImageRenderer to capture and share pattern data as an image
+- Files changed:
+  - OmniSiteTracker/Views/PatternsView.swift (added exportAsImage function, ExportablePatternView, ExportableScoreView, ExportableZoneStatsView, ShareSheet)
+- **Learnings for future iterations:**
+  - Use `ImageRenderer(content: view)` to capture SwiftUI views as images
+  - ImageRenderer properties (.scale, .uiImage) require @MainActor context - add @MainActor to the calling function
+  - ShareSheet is a UIViewControllerRepresentable wrapper for UIActivityViewController
+  - Create simplified "exportable" versions of views for image export (remove interactive elements, use fixed width)
+  - ExportablePatternView uses fixed width (400 points) for consistent image output
+  - Include timestamp using DateFormatter with .medium dateStyle and .short timeStyle
+  - Use solid background (LinearGradient) instead of WarmGradientBackground for export (ImageRenderer needs solid colors)
+  - Color intensity calculation can be extracted to reusable function (intensityColor pattern from ZoneStatisticsListView)
+---
+
+## 2026-01-09 - US-024
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented: PDF export functionality using UIGraphicsPDFRenderer to generate detailed pattern reports
+- Files changed:
+  - OmniSiteTracker/Views/PatternsView.swift (added exportAsPDF function, PatternsPDFGenerator class, PDF share sheet state)
+- **Learnings for future iterations:**
+  - Use `UIGraphicsPDFRenderer` with `pdfData { context in }` closure to generate PDF content
+  - PDF page dimensions for US Letter: 612 x 792 points
+  - Use `context.beginPage()` to start a new PDF page
+  - Draw text with `String.draw(at:withAttributes:)` and `NSString.draw(in:withAttributes:)` for bounding box
+  - Draw lines with `context.cgContext.move(to:)` and `context.addLine(to:)`
+  - Save PDF to temporary file using `FileManager.default.temporaryDirectory`
+  - Share PDF via URL to ShareSheet (UIActivityViewController accepts URL for files)
+  - Include PDF metadata using `UIGraphicsPDFRendererFormat` with `documentInfo` dictionary
+  - Use `kCGPDFContextCreator`, `kCGPDFContextAuthor`, `kCGPDFContextTitle` for metadata keys
+  - PatternsPDFGenerator class encapsulates PDF generation logic separate from view
+  - Score color coding matches ComplianceScoreView: red (<50), orange (50-75), green (>75)
 ---

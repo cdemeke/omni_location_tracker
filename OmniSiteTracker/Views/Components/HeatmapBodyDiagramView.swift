@@ -35,9 +35,6 @@ struct HeatmapBodyDiagramView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            // Front/Back toggle
-            BodyViewTabs(selection: $selectedView)
-
             // Body diagram with heatmap zones
             GeometryReader { geometry in
                 let imageScale: CGFloat = 1 / visibleHeight
@@ -72,6 +69,13 @@ struct HeatmapBodyDiagramView: View {
                 .clipped()
             }
             .aspectRatio(1.0, contentMode: .fit)
+
+            // Front/Back toggle below diagram
+            HStack {
+                Spacer()
+                BodyViewTabs(selection: $selectedView)
+                Spacer()
+            }
 
             // Heatmap legend
             HeatmapLegend()
