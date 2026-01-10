@@ -129,6 +129,21 @@ final class PlacementViewModel {
         }
     }
 
+    func updatePlacement(_ placement: PlacementLog, location: BodyLocation, date: Date, note: String?) {
+        placement.location = location
+        placement.placedAt = date
+        placement.note = note
+
+        guard let modelContext else { return }
+
+        do {
+            try modelContext.save()
+            fetchPlacements()
+        } catch {
+            // Silent fail
+        }
+    }
+
     func daysSinceLastUse(for location: BodyLocation) -> Int? {
         guard let lastDate = _lastUsedDates[location] else {
             return nil

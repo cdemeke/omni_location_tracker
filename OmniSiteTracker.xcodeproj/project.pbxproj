@@ -14,6 +14,7 @@
 		C7A00009291A00010000005 /* BodyDiagramView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0000A291A00010000005 /* BodyDiagramView.swift */; };
 		C7A0000B291A00010000006 /* PlacementConfirmationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0000C291A00010000006 /* PlacementConfirmationSheet.swift */; };
 		C7A0000D291A00010000007 /* RecommendationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0000E291A00010000007 /* RecommendationCard.swift */; };
+		C7A0001B291A0001000000E /* PlacementEditSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0001C291A0001000000E /* PlacementEditSheet.swift */; };
 		C7A0000F291A00010000008 /* BodyLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00010291A00010000008 /* BodyLocation.swift */; };
 		C7A00011291A00010000009 /* PlacementLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00012291A00010000009 /* PlacementLog.swift */; };
 		C7A00013291A0001000000A /* PlacementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00014291A0001000000A /* PlacementViewModel.swift */; };
@@ -31,6 +32,7 @@
 		C7A0000A291A00010000005 /* BodyDiagramView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyDiagramView.swift; sourceTree = "<group>"; };
 		C7A0000C291A00010000006 /* PlacementConfirmationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacementConfirmationSheet.swift; sourceTree = "<group>"; };
 		C7A0000E291A00010000007 /* RecommendationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationCard.swift; sourceTree = "<group>"; };
+		C7A0001C291A0001000000E /* PlacementEditSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacementEditSheet.swift; sourceTree = "<group>"; };
 		C7A00010291A00010000008 /* BodyLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyLocation.swift; sourceTree = "<group>"; };
 		C7A00012291A00010000009 /* PlacementLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacementLog.swift; sourceTree = "<group>"; };
 		C7A00014291A0001000000A /* PlacementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacementViewModel.swift; sourceTree = "<group>"; };
@@ -129,6 +131,7 @@
 			children = (
 				C7A0000A291A00010000005 /* BodyDiagramView.swift */,
 				C7A0000C291A00010000006 /* PlacementConfirmationSheet.swift */,
+				C7A0001C291A0001000000E /* PlacementEditSheet.swift */,
 				C7A0000E291A00010000007 /* RecommendationCard.swift */,
 			);
 			path = Components;
@@ -210,6 +213,7 @@
 				C7A00007291A00010000004 /* HistoryView.swift in Sources */,
 				C7A00009291A00010000005 /* BodyDiagramView.swift in Sources */,
 				C7A0000B291A00010000006 /* PlacementConfirmationSheet.swift in Sources */,
+				C7A0001B291A0001000000E /* PlacementEditSheet.swift in Sources */,
 				C7A0000D291A00010000007 /* RecommendationCard.swift in Sources */,
 				C7A0000F291A00010000008 /* BodyLocation.swift in Sources */,
 				C7A00011291A00010000009 /* PlacementLog.swift in Sources */,

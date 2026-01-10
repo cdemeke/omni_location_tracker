@@ -3,69 +3,70 @@
 //  OmniSiteTracker
 //
 //  Interactive body diagram showing insulin pump placement sites.
+//  Zone buttons in corners with dotted lines to body parts.
 //
 
 import SwiftUI
 
+/// View selection for body diagram
+enum BodyView: String, CaseIterable {
+    case front = "Front"
+    case back = "Back"
+}
+
 struct PlacementZone: Identifiable {
     let id: BodyLocation
     let location: BodyLocation
-    let center: CGPoint
-    let size: CGSize
+    /// Position of the button (in corners)
+    let buttonPosition: ButtonCorner
+    /// Target point on body for the dotted line (normalized 0-1)
+    let bodyPoint: CGPoint
 
-    init(location: BodyLocation, centerX: CGFloat, centerY: CGFloat, width: CGFloat, height: CGFloat) {
+    enum ButtonCorner {
+        case topLeft, topRight, bottomLeft, bottomRight
+        case leftCenter, rightCenter, bottomCenter
+    }
+
+    init(location: BodyLocation, corner: ButtonCorner, bodyX: CGFloat, bodyY: CGFloat) {
         self.id = location
         self.location = location
-        self.center = CGPoint(x: centerX, y: centerY)
-        self.size = CGSize(width: width, height: height)
+        self.buttonPosition = corner
+        self.bodyPoint = CGPoint(x: bodyX, y: bodyY)
     }
 }
 
 struct BodyDiagramView: View {
     let viewModel: PlacementViewModel
     let onLocationSelected: (BodyLocation) -> Void
+    @Binding var selectedView: BodyView
 
-    @State private var selectedView: BodyView = .front
-
-    enum BodyView: String, CaseIterable {
-        case front = "Front"
-        case back = "Back"
-    }
-
-    // Zones positioned for CROPPED view (shoulders to mid-thigh)
-    // Original image cropped from y=0.10 to y=0.68 (58% of height visible)
-    // Zone positions recalculated: new_y = (old_y - 0.10) / 0.58
-    // Zone sizes scaled up for better tap targets
+    // Front view zones - buttons in corners, body points where lines connect
     private let frontZones: [PlacementZone] = [
-        PlacementZone(location: .abdomenLeft, centerX: 0.38, centerY: 0.40, width: 0.18, height: 0.10),
-        PlacementZone(location: .abdomenRight, centerX: 0.62, centerY: 0.40, width: 0.18, height: 0.10),
-        PlacementZone(location: .lowerAbdomen, centerX: 0.50, centerY: 0.56, width: 0.22, height: 0.09),
-        PlacementZone(location: .leftThigh, centerX: 0.40, centerY: 0.82, width: 0.16, height: 0.14),
-        PlacementZone(location: .rightThigh, centerX: 0.60, centerY: 0.82, width: 0.16, height: 0.14),
+        PlacementZone(location: .abdomenLeft, corner: .topLeft, bodyX: 0.42, bodyY: 0.52),
+        PlacementZone(location: .abdomenRight, corner: .topRight, bodyX: 0.58, bodyY: 0.52),
+        PlacementZone(location: .leftThigh, corner: .bottomLeft, bodyX: 0.42, bodyY: 0.78),
+        PlacementZone(location: .rightThigh, corner: .bottomRight, bodyX: 0.58, bodyY: 0.78),
     ]
 
+    // Back view zones
     private let backZones: [PlacementZone] = [
-        PlacementZone(location: .leftArm, centerX: 0.22, centerY: 0.46, width: 0.12, height: 0.18),
-        PlacementZone(location: .rightArm, centerX: 0.78, centerY: 0.46, width: 0.12, height: 0.18),
-        PlacementZone(location: .lowerBack, centerX: 0.50, centerY: 0.56, width: 0.22, height: 0.09),
+        PlacementZone(location: .leftArm, corner: .topLeft, bodyX: 0.25, bodyY: 0.42),
+        PlacementZone(location: .rightArm, corner: .topRight, bodyX: 0.75, bodyY: 0.42),
+        PlacementZone(location: .lowerBack, corner: .bottomCenter, bodyX: 0.50, bodyY: 0.58),
     ]
 
-    // Crop parameters: show from 10% to 68% of original image height
+    // Crop parameters
     private let cropTop: CGFloat = 0.10
     private let cropBottom: CGFloat = 0.68
-    private var visibleHeight: CGFloat { cropBottom - cropTop }  // 0.58
+    private var visibleHeight: CGFloat { cropBottom - cropTop }
 
     var body: some View {
-        VStack(spacing: 16) {
-            viewToggle
-
-            GeometryReader { geometry in
-                let imageScale: CGFloat = 1 / visibleHeight  // ~1.72x zoom
+        GeometryReader { geometry in
+                let imageScale: CGFloat = 1 / visibleHeight
                 let offsetY = geometry.size.height * (0.5 - (cropTop + cropBottom) / 2) * imageScale
 
                 ZStack {
-                    // Professional body silhouette from BodyMapPicker
-                    // Cropped to show shoulders to mid-thigh
+                    // Body silhouette (centered)
                     Image("bodyFront")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -75,10 +76,11 @@ struct BodyDiagramView: View {
                         .scaleEffect(x: selectedView == .back ? -imageScale : imageScale, y: imageScale)
                         .offset(y: offsetY)
 
+                    // Dotted lines and zone buttons
                     ForEach(currentZones) { zone in
-                        ZoneButton(
+                        ZoneWithLine(
                             zone: zone,
-                            geo: geometry,
+                            geometry: geometry,
                             color: viewModel.statusColor(for: zone.location),
                             recommended: viewModel.recommendedSite?.location == zone.location,
                             onTap: { onLocationSelected(zone.location) }
@@ -87,89 +89,115 @@ struct BodyDiagramView: View {
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
                 .clipped()
-            }
-            // New aspect ratio for cropped view: original was 353:908, now showing 58% of height
-            .aspectRatio(353.0 / (908.0 * visibleHeight), contentMode: .fit)
         }
-        .frame(maxWidth: .infinity)
+        .aspectRatio(1.0, contentMode: .fit)
     }
 
     private var currentZones: [PlacementZone] {
         selectedView == .front ? frontZones : backZones
     }
-
-    private var viewToggle: some View {
-        HStack(spacing: 0) {
-            ForEach(BodyView.allCases, id: \.self) { view in
-                Button {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        selectedView = view
-                    }
-                } label: {
-                    Text(view.rawValue)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundColor(selectedView == view ? .white : .textSecondary)
-                        .padding(.horizontal, 32)
-                        .padding(.vertical, 12)
-                        .background(selectedView == view ? Color.appAccent : Color.clear)
-                        .cornerRadius(12)
-                }
-            }
-        }
-        .padding(4)
-        .background(Color.cardBackground)
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
-    }
 }
 
-struct ZoneButton: View {
+// MARK: - Zone with connecting line
+
+struct ZoneWithLine: View {
     let zone: PlacementZone
-    let geo: GeometryProxy
+    let geometry: GeometryProxy
     let color: Color
     let recommended: Bool
     let onTap: () -> Void
 
+    private let buttonSize: CGFloat = 75
+    private let buttonPadding: CGFloat = 8
+
     var body: some View {
-        let w = geo.size.width * zone.size.width
-        let h = geo.size.height * zone.size.height
-        let x = geo.size.width * zone.center.x
-        let y = geo.size.height * zone.center.y
+        let buttonCenter = buttonPosition(in: geometry)
+        let bodyTarget = CGPoint(
+            x: geometry.size.width * zone.bodyPoint.x,
+            y: geometry.size.height * zone.bodyPoint.y
+        )
 
-        Button(action: onTap) {
-            ZStack {
-                // Zone fill with border
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(color.opacity(0.85))
-                RoundedRectangle(cornerRadius: 8)
-                    .strokeBorder(color.opacity(0.6), lineWidth: 1)
+        ZStack {
+            // Dotted line from button to body point
+            DottedLine(from: buttonCenter, to: bodyTarget)
+                .stroke(color.opacity(0.5), style: StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
 
-                if recommended {
-                    RoundedRectangle(cornerRadius: 8)
-                        .strokeBorder(Color.white, lineWidth: 2)
-                    RoundedRectangle(cornerRadius: 10)
-                        .strokeBorder(Color.appHighlight, lineWidth: 2.5)
+            // Small circle on body point
+            Circle()
+                .fill(color.opacity(0.6))
+                .frame(width: 10, height: 10)
+                .position(bodyTarget)
+
+            // Zone button in corner
+            Button(action: onTap) {
+                VStack(spacing: 4) {
+                    Text(zone.location.displayName)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-
-                Text(zone.location.zoneLabel)
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .minimumScaleFactor(0.6)
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 6)
+                .frame(width: buttonSize, height: 44)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(color.opacity(0.9))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(recommended ? Color.appHighlight : color.opacity(0.3), lineWidth: recommended ? 2.5 : 1)
+                )
             }
+            .buttonStyle(.plain)
+            .position(buttonCenter)
         }
-        .buttonStyle(.plain)
-        .frame(width: w, height: h)
-        .position(x: x, y: y)
+    }
+
+    private func buttonPosition(in geometry: GeometryProxy) -> CGPoint {
+        let width = geometry.size.width
+        let height = geometry.size.height
+        let halfButton = buttonSize / 2 + buttonPadding
+
+        switch zone.buttonPosition {
+        case .topLeft:
+            return CGPoint(x: halfButton, y: halfButton)
+        case .topRight:
+            return CGPoint(x: width - halfButton, y: halfButton)
+        case .bottomLeft:
+            return CGPoint(x: halfButton, y: height - halfButton)
+        case .bottomRight:
+            return CGPoint(x: width - halfButton, y: height - halfButton)
+        case .leftCenter:
+            return CGPoint(x: halfButton, y: height / 2)
+        case .rightCenter:
+            return CGPoint(x: width - halfButton, y: height / 2)
+        case .bottomCenter:
+            return CGPoint(x: width / 2, y: height - halfButton)
+        }
     }
 }
+
+// MARK: - Dotted Line Shape
+
+struct DottedLine: Shape {
+    var from: CGPoint
+    var to: CGPoint
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: from)
+        path.addLine(to: to)
+        return path
+    }
+}
+
+// MARK: - Preview
 
 #Preview {
     BodyDiagramView(
         viewModel: PlacementViewModel(),
-        onLocationSelected: { _ in }
+        onLocationSelected: { _ in },
+        selectedView: .constant(.front)
     )
     .padding()
     .background(Color.appBackground)

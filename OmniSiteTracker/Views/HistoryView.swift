@@ -14,6 +14,7 @@ struct HistoryView: View {
     @State private var viewModel = PlacementViewModel()
     @State private var selectedFilter: BodyLocation?
     @State private var showingFilterSheet = false
+    @State private var placementToEdit: PlacementLog?
 
     var body: some View {
         NavigationStack {
@@ -37,6 +38,23 @@ struct HistoryView: View {
             }
             .sheet(isPresented: $showingFilterSheet) {
                 filterSheet
+            }
+            .sheet(item: $placementToEdit) { placement in
+                PlacementEditSheet(
+                    placement: placement,
+                    onSave: { newLocation, newDate, newNote in
+                        viewModel.updatePlacement(placement, location: newLocation, date: newDate, note: newNote)
+                        placementToEdit = nil
+                    },
+                    onDelete: {
+                        viewModel.deletePlacement(placement)
+                        placementToEdit = nil
+                    },
+                    onCancel: {
+                        placementToEdit = nil
+                    }
+                )
+                .presentationDetents([.medium, .large])
             }
         }
     }
@@ -194,61 +212,65 @@ struct HistoryView: View {
     }
 
     private func placementCard(_ placement: PlacementLog) -> some View {
-        HStack(spacing: 14) {
-            // Status indicator
-            Circle()
-                .fill(viewModel.statusColor(for: placement.location))
-                .frame(width: 14, height: 14)
+        Button {
+            placementToEdit = placement
+        } label: {
+            HStack(spacing: 14) {
+                // Status indicator
+                Circle()
+                    .fill(viewModel.statusColor(for: placement.location))
+                    .frame(width: 14, height: 14)
 
-            // Placement info
-            VStack(alignment: .leading, spacing: 4) {
-                Text(placement.location.displayName)
-                    .font(.headline)
-                    .foregroundColor(.textPrimary)
+                // Placement info
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(placement.location.displayName)
+                        .font(.headline)
+                        .foregroundColor(.textPrimary)
 
-                HStack(spacing: 12) {
-                    Label {
-                        Text(placement.relativeTimeString)
-                            .foregroundColor(.textSecondary)
-                    } icon: {
-                        Image(systemName: "clock")
-                            .foregroundColor(.textMuted)
+                    HStack(spacing: 12) {
+                        Label {
+                            Text(placement.relativeTimeString)
+                                .foregroundColor(.textSecondary)
+                        } icon: {
+                            Image(systemName: "clock")
+                                .foregroundColor(.textMuted)
+                        }
+                        .font(.caption)
                     }
-                    .font(.caption)
+
+                    if let note = placement.note, !note.isEmpty {
+                        Text("📝 \(note)")
+                            .font(.caption)
+                            .foregroundColor(.textMuted)
+                            .padding(.top, 2)
+                    }
                 }
 
-                if let note = placement.note, !note.isEmpty {
-                    Text("📝 \(note)")
+                Spacer()
+
+                // Edit indicator and time
+                VStack(alignment: .trailing, spacing: 4) {
+                    Image(systemName: "chevron.right")
                         .font(.caption)
                         .foregroundColor(.textMuted)
-                        .padding(.top, 2)
+                    Text(formatTime(placement.placedAt))
+                        .font(.caption)
+                        .foregroundColor(.textMuted)
                 }
             }
-
-            Spacer()
-
-            // Time
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(formatTime(placement.placedAt))
-                    .font(.caption)
-                    .foregroundColor(.textMuted)
-            }
+            .padding(16)
+            .background(Color.cardBackground)
+            .cornerRadius(14)
+            .shadow(color: Color.neumorphicDark.opacity(0.15), radius: 4, x: 2, y: 2)
+            .shadow(color: Color.neumorphicLight.opacity(0.8), radius: 4, x: -2, y: -2)
         }
-        .padding(16)
-        .background(Color.cardBackground)
-        .cornerRadius(14)
-        .shadow(color: Color.neumorphicDark.opacity(0.15), radius: 4, x: 2, y: 2)
-        .shadow(color: Color.neumorphicLight.opacity(0.8), radius: 4, x: -2, y: -2)
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button(role: .destructive) {
-                withAnimation {
-                    viewModel.deletePlacement(placement)
-                }
-            } label: {
-                Label("Delete", systemImage: "trash")
-            }
-        }
+        .buttonStyle(.plain)
         .contextMenu {
+            Button {
+                placementToEdit = placement
+            } label: {
+                Label("Edit", systemImage: "pencil")
+            }
             Button(role: .destructive) {
                 viewModel.deletePlacement(placement)
             } label: {

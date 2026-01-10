@@ -21,6 +21,7 @@ struct HomeView: View {
     @State private var viewModel = PlacementViewModel()
     @State private var selectedLocation: SelectedLocation?
     @State private var showingSuccessToast = false
+    @State private var selectedBodyView: BodyView = .front
 
     var body: some View {
         NavigationStack {
@@ -45,9 +46,17 @@ struct HomeView: View {
                             viewModel: viewModel,
                             onLocationSelected: { location in
                                 selectedLocation = SelectedLocation(location: location)
-                            }
+                            },
+                            selectedView: $selectedBodyView
                         )
-                        .frame(height: 400)
+                        .frame(height: 350)
+
+                        // Front/Back tabs below diagram
+                        HStack {
+                            Spacer()
+                            BodyViewTabs(selection: $selectedBodyView)
+                            Spacer()
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(20)
