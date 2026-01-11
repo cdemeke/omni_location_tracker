@@ -30,6 +30,12 @@ struct ContentView: View {
                     Label("Patterns", systemImage: "chart.bar.doc.horizontal")
                 }
                 .tag(2)
+
+            SettingsView()
+                .tabItem {
+                    Label("Settings", systemImage: "gearshape.fill")
+                }
+                .tag(3)
         }
         .tint(.appAccent)
     }
