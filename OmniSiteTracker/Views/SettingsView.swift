@@ -22,6 +22,7 @@ struct SettingsView: View {
     @State private var newSiteName: String = ""
     @State private var newSiteIcon: String = "star.fill"
     @State private var showDuplicateNameError: Bool = false
+    @State private var showDisabledSitesInHistory: Bool = true
 
     /// Curated list of SF Symbols for custom site icons
     private let availableIcons = [
@@ -54,6 +55,9 @@ struct SettingsView: View {
 
                     // MARK: - Custom Sites Section
                     customSitesSection
+
+                    // MARK: - Data Display Section
+                    dataDisplaySection
                 }
                 .padding(20)
             }
@@ -65,6 +69,7 @@ struct SettingsView: View {
                 restDays = viewModel.getRestDuration()
                 disabledSites = Set(viewModel.getDisabledDefaultSites())
                 customSites = viewModel.getCustomSites()
+                showDisabledSitesInHistory = viewModel.getShowDisabledSitesInHistory()
             }
             .alert("Cannot Disable All Sites", isPresented: $showDisableAllAlert) {
                 Button("OK", role: .cancel) { }
@@ -398,6 +403,33 @@ struct SettingsView: View {
             .buttonStyle(PlainButtonStyle())
         }
         .padding(.vertical, 8)
+    }
+
+    // MARK: - Data Display Section
+
+    private var dataDisplaySection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            SectionHeader("Data Display")
+
+            VStack(spacing: 12) {
+                Toggle(isOn: $showDisabledSitesInHistory) {
+                    Text("Show Disabled Sites in History")
+                        .font(.body)
+                        .foregroundColor(.textPrimary)
+                }
+                .toggleStyle(SwitchToggleStyle(tint: .appAccent))
+                .onChange(of: showDisabledSitesInHistory) { _, newValue in
+                    viewModel.updateShowDisabledSitesInHistory(show: newValue)
+                }
+
+                Text("When off, disabled sites are hidden from History and Patterns")
+                    .font(.caption)
+                    .foregroundColor(.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(16)
+            .neumorphicCard()
+        }
     }
 }
 
