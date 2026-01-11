@@ -12,6 +12,7 @@ import SwiftData
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = SettingsViewModel()
+    @State private var restDays: Int = 3
 
     var body: some View {
         NavigationStack {
@@ -29,12 +30,8 @@ struct SettingsView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                    // Placeholder for future settings sections
-                    Text("Settings options coming soon")
-                        .font(.subheadline)
-                        .foregroundColor(.textSecondary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 40)
+                    // MARK: - Rotation Settings Section
+                    rotationSettingsSection
                 }
                 .padding(20)
             }
@@ -43,7 +40,45 @@ struct SettingsView: View {
             .navigationTitle("Settings")
             .onAppear {
                 viewModel.configure(with: modelContext)
+                restDays = viewModel.getRestDuration()
             }
+        }
+    }
+
+    // MARK: - Rotation Settings Section
+
+    private var rotationSettingsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            SectionHeader("Rotation Settings")
+
+            VStack(spacing: 12) {
+                HStack {
+                    Text("Minimum Rest Days")
+                        .font(.body)
+                        .foregroundColor(.textPrimary)
+
+                    Spacer()
+
+                    Text("\(restDays)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.appAccent)
+                        .frame(minWidth: 40)
+
+                    Stepper("", value: $restDays, in: 1...30)
+                        .labelsHidden()
+                        .onChange(of: restDays) { _, newValue in
+                            viewModel.updateRestDuration(days: newValue)
+                        }
+                }
+
+                Text("Days before a site can be used again")
+                    .font(.caption)
+                    .foregroundColor(.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(16)
+            .neumorphicCard()
         }
     }
 }
