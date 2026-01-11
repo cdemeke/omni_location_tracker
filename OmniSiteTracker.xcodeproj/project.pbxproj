@@ -33,6 +33,7 @@
 		C7A0002F291A00010000018 /* HelpButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00030291A00010000018 /* HelpButton.swift */; };
 		C7A00031291A00010000019 /* HelpTooltip.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00032291A00010000019 /* HelpTooltip.swift */; };
 		C7A00033291A0001000001A /* OnboardingTopicSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00034291A0001000001A /* OnboardingTopicSheet.swift */; };
+		C7A00035291A0001000001B /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00036291A0001000001B /* UserSettings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +64,7 @@
 		C7A00030291A00010000018 /* HelpButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpButton.swift; sourceTree = "<group>"; };
 		C7A00032291A00010000019 /* HelpTooltip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpTooltip.swift; sourceTree = "<group>"; };
 		C7A00034291A0001000001A /* OnboardingTopicSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTopicSheet.swift; sourceTree = "<group>"; };
+		C7A00036291A0001000001B /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +114,7 @@
 				C7A00010291A00010000008 /* BodyLocation.swift */,
 				C7A0001E291A0001000000F /* HeatmapModels.swift */,
 				C7A00012291A00010000009 /* PlacementLog.swift */,
+				C7A00036291A0001000001B /* UserSettings.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -259,6 +262,7 @@
 				C7A0002B291A00010000016 /* ComplianceScoreView.swift in Sources */,
 				C7A00013291A0001000000A /* PlacementViewModel.swift in Sources */,
 				C7A00015291A0001000000B /* DesignSystem.swift in Sources */,
+				C7A00035291A0001000001B /* UserSettings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

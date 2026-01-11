@@ -18,7 +18,7 @@ struct OmniSiteTrackerApp: App {
     init() {
         do {
             // Configure SwiftData with explicit schema and local-only storage
-            let schema = Schema([PlacementLog.self])
+            let schema = Schema([PlacementLog.self, UserSettings.self])
             let config = ModelConfiguration(
                 "OmniSiteTracker",
                 schema: schema,
