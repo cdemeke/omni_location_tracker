@@ -15,6 +15,10 @@ struct SettingsView: View {
     @State private var restDays: Int = 3
     @State private var disabledSites: Set<BodyLocation> = []
     @State private var showDisableAllAlert: Bool = false
+    @State private var customSites: [CustomSite] = []
+    @State private var showDeleteConfirmation: Bool = false
+    @State private var siteToDelete: CustomSite?
+    @State private var showAddCustomSiteSheet: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -37,6 +41,9 @@ struct SettingsView: View {
 
                     // MARK: - Body Sites Section
                     bodySitesSection
+
+                    // MARK: - Custom Sites Section
+                    customSitesSection
                 }
                 .padding(20)
             }
@@ -47,11 +54,30 @@ struct SettingsView: View {
                 viewModel.configure(with: modelContext)
                 restDays = viewModel.getRestDuration()
                 disabledSites = Set(viewModel.getDisabledDefaultSites())
+                customSites = viewModel.getCustomSites()
             }
             .alert("Cannot Disable All Sites", isPresented: $showDisableAllAlert) {
                 Button("OK", role: .cancel) { }
             } message: {
                 Text("At least one body site must remain enabled.")
+            }
+            .alert("Delete Custom Site", isPresented: $showDeleteConfirmation) {
+                Button("Cancel", role: .cancel) {
+                    siteToDelete = nil
+                }
+                Button("Delete", role: .destructive) {
+                    if let site = siteToDelete {
+                        viewModel.deleteCustomSite(id: site.id)
+                        customSites = viewModel.getCustomSites()
+                        siteToDelete = nil
+                    }
+                }
+            } message: {
+                if let site = siteToDelete {
+                    Text("Are you sure you want to delete \"\(site.name)\"?")
+                } else {
+                    Text("Are you sure you want to delete this site?")
+                }
             }
         }
     }
@@ -156,6 +182,98 @@ struct SettingsView: View {
 
         // Persist change via ViewModel
         viewModel.toggleDefaultSite(location: location)
+    }
+
+    // MARK: - Custom Sites Section
+
+    private var customSitesSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            SectionHeader("Custom Sites")
+
+            VStack(spacing: 0) {
+                if customSites.isEmpty {
+                    // Empty state
+                    Text("No custom sites yet")
+                        .font(.body)
+                        .foregroundColor(.textSecondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 24)
+                } else {
+                    // List of custom sites
+                    ForEach(customSites, id: \.id) { site in
+                        customSiteRow(for: site)
+
+                        if site.id != customSites.last?.id {
+                            Divider()
+                                .background(Color.textSecondary.opacity(0.3))
+                        }
+                    }
+                }
+
+                // Add Custom Site button
+                if !customSites.isEmpty {
+                    Divider()
+                        .background(Color.textSecondary.opacity(0.3))
+                }
+
+                Button(action: {
+                    showAddCustomSiteSheet = true
+                }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.body)
+                        Text("Add Custom Site")
+                            .font(.body)
+                            .fontWeight(.medium)
+                    }
+                    .foregroundColor(.appAccent)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                }
+            }
+            .padding(16)
+            .neumorphicCard()
+        }
+    }
+
+    private func customSiteRow(for site: CustomSite) -> some View {
+        HStack(spacing: 12) {
+            // Site icon
+            Image(systemName: site.iconName)
+                .font(.body)
+                .foregroundColor(site.isEnabled ? .appAccent : .textSecondary)
+                .frame(width: 24)
+
+            // Site name
+            Text(site.name)
+                .font(.body)
+                .foregroundColor(site.isEnabled ? .textPrimary : .textSecondary)
+
+            Spacer()
+
+            // Toggle
+            Toggle("", isOn: Binding(
+                get: { site.isEnabled },
+                set: { _ in
+                    viewModel.toggleCustomSite(id: site.id)
+                    customSites = viewModel.getCustomSites()
+                }
+            ))
+            .toggleStyle(SwitchToggleStyle(tint: .appAccent))
+            .labelsHidden()
+
+            // Delete button
+            Button(action: {
+                siteToDelete = site
+                showDeleteConfirmation = true
+            }) {
+                Image(systemName: "trash")
+                    .font(.body)
+                    .foregroundColor(.appWarning)
+            }
+            .buttonStyle(PlainButtonStyle())
+        }
+        .padding(.vertical, 8)
     }
 }
 
