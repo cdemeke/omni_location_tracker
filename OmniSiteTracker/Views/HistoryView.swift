@@ -62,6 +62,7 @@ private struct HistoryAboutModal: View {
                 .foregroundColor(.textSecondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
+                .fixedSize(horizontal: false, vertical: true)
 
             VStack(spacing: 8) {
                 Text("Made with love.")
@@ -89,7 +90,9 @@ private struct HistoryAboutModal: View {
                     .cornerRadius(12)
             }
         }
-        .padding(24)
+        .padding(.horizontal, 24)
+        .padding(.top, 32)
+        .padding(.bottom, 24)
         .background(Color.appBackground)
     }
 }
