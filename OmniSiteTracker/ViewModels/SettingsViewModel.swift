@@ -243,4 +243,49 @@ final class SettingsViewModel {
             // Silent fail
         }
     }
+
+    // MARK: - Reset to Defaults
+
+    /// Resets all settings to their default values
+    /// - Resets rest days to 3
+    /// - Enables all default sites
+    /// - Deletes all custom sites
+    /// - Disables notifications
+    /// - Sets show disabled sites in history to ON
+    func resetToDefaults() {
+        guard let modelContext else { return }
+
+        do {
+            // Reset UserSettings to defaults
+            let userSettings = UserSettings.getOrCreate(context: modelContext)
+            userSettings.minimumRestDays = 3
+            userSettings.showDisabledSitesInHistory = true
+            userSettings.updatedAt = .now
+
+            // Re-enable all default sites by deleting all DisabledDefaultSite records
+            let disabledDescriptor = FetchDescriptor<DisabledDefaultSite>()
+            let disabledSites = try modelContext.fetch(disabledDescriptor)
+            for disabledSite in disabledSites {
+                modelContext.delete(disabledSite)
+            }
+
+            // Delete all custom sites
+            let customDescriptor = FetchDescriptor<CustomSite>()
+            let customSites = try modelContext.fetch(customDescriptor)
+            for customSite in customSites {
+                modelContext.delete(customSite)
+            }
+
+            // Reset notification settings to defaults
+            let notificationSettings = NotificationSettings.getOrCreate(context: modelContext)
+            notificationSettings.notificationsEnabled = false
+            notificationSettings.reminderHour = 9
+            notificationSettings.reminderMinute = 0
+            notificationSettings.daysBeforeReminder = 0
+
+            try modelContext.save()
+        } catch {
+            // Silent fail
+        }
+    }
 }

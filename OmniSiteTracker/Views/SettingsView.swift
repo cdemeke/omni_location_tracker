@@ -31,6 +31,10 @@ struct SettingsView: View {
     @State private var daysBeforeReminder: Int = 0
     @State private var notificationPermissionDenied: Bool = false
 
+    // Reset to defaults state
+    @State private var showResetConfirmation: Bool = false
+    @State private var showResetSuccessToast: Bool = false
+
     /// Curated list of SF Symbols for custom site icons
     private let availableIcons = [
         "star.fill", "circle.fill", "square.fill", "triangle.fill", "heart.fill",
@@ -71,6 +75,9 @@ struct SettingsView: View {
 
                     // MARK: - About Section
                     aboutSection
+
+                    // MARK: - Reset to Defaults
+                    resetToDefaultsSection
                 }
                 .padding(20)
             }
@@ -111,6 +118,21 @@ struct SettingsView: View {
             }
             .sheet(isPresented: $showAddCustomSiteSheet) {
                 addCustomSiteSheet
+            }
+            .alert("Reset to Defaults", isPresented: $showResetConfirmation) {
+                Button("Cancel", role: .cancel) { }
+                Button("Reset", role: .destructive) {
+                    performReset()
+                }
+            } message: {
+                Text("Reset all settings to defaults? This will reset rest days to 3, enable all default sites, delete all custom sites, and disable notifications.")
+            }
+            .overlay(alignment: .bottom) {
+                if showResetSuccessToast {
+                    toastView
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .animation(.easeInOut(duration: 0.3), value: showResetSuccessToast)
+                }
             }
         }
     }
@@ -699,6 +721,76 @@ struct SettingsView: View {
     private func openSettings() {
         if let url = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(url)
+        }
+    }
+
+    // MARK: - Reset to Defaults Section
+
+    private var resetToDefaultsSection: some View {
+        VStack(spacing: 16) {
+            Button(action: {
+                showResetConfirmation = true
+            }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(.body)
+                    Text("Reset to Defaults")
+                        .font(.body)
+                        .fontWeight(.medium)
+                }
+                .foregroundColor(.appWarning)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.appWarning.opacity(0.5), lineWidth: 1)
+                )
+            }
+            .buttonStyle(PlainButtonStyle())
+        }
+    }
+
+    private var toastView: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.body)
+                .foregroundColor(.white)
+            Text("Settings reset to defaults")
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 14)
+        .background(
+            Capsule()
+                .fill(Color.appSuccess)
+        )
+        .padding(.bottom, 32)
+    }
+
+    private func performReset() {
+        viewModel.resetToDefaults()
+
+        // Refresh all local state to match default values
+        restDays = 3
+        disabledSites = []
+        customSites = []
+        showDisabledSitesInHistory = true
+        notificationsEnabled = false
+        daysBeforeReminder = 0
+        reminderTime = Calendar.current.date(from: DateComponents(hour: 9, minute: 0)) ?? Date()
+
+        // Show success toast
+        withAnimation {
+            showResetSuccessToast = true
+        }
+
+        // Hide toast after delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            withAnimation {
+                showResetSuccessToast = false
+            }
         }
     }
 }
