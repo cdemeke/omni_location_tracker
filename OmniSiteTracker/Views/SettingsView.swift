@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import UserNotifications
 
 /// Settings screen for customizing app preferences
 struct SettingsView: View {
@@ -23,6 +24,12 @@ struct SettingsView: View {
     @State private var newSiteIcon: String = "star.fill"
     @State private var showDuplicateNameError: Bool = false
     @State private var showDisabledSitesInHistory: Bool = true
+
+    // Notification settings state
+    @State private var notificationsEnabled: Bool = false
+    @State private var reminderTime: Date = Calendar.current.date(from: DateComponents(hour: 9, minute: 0)) ?? Date()
+    @State private var daysBeforeReminder: Int = 0
+    @State private var notificationPermissionDenied: Bool = false
 
     /// Curated list of SF Symbols for custom site icons
     private let availableIcons = [
@@ -58,6 +65,9 @@ struct SettingsView: View {
 
                     // MARK: - Data Display Section
                     dataDisplaySection
+
+                    // MARK: - Notifications Section
+                    notificationsSection
                 }
                 .padding(20)
             }
@@ -70,6 +80,8 @@ struct SettingsView: View {
                 disabledSites = Set(viewModel.getDisabledDefaultSites())
                 customSites = viewModel.getCustomSites()
                 showDisabledSitesInHistory = viewModel.getShowDisabledSitesInHistory()
+                loadNotificationSettings()
+                checkNotificationPermission()
             }
             .alert("Cannot Disable All Sites", isPresented: $showDisableAllAlert) {
                 Button("OK", role: .cancel) { }
@@ -429,6 +441,163 @@ struct SettingsView: View {
             }
             .padding(16)
             .neumorphicCard()
+        }
+    }
+
+    // MARK: - Notifications Section
+
+    private var notificationsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            SectionHeader("Notifications")
+
+            VStack(spacing: 16) {
+                // Master toggle for notifications
+                Toggle(isOn: Binding(
+                    get: { notificationsEnabled },
+                    set: { newValue in
+                        if newValue {
+                            requestNotificationPermission()
+                        } else {
+                            notificationsEnabled = false
+                            viewModel.updateNotificationsEnabled(false)
+                        }
+                    }
+                )) {
+                    Text("Enable Reminders")
+                        .font(.body)
+                        .foregroundColor(.textPrimary)
+                }
+                .toggleStyle(SwitchToggleStyle(tint: .appAccent))
+
+                // Show permission denied message and settings button
+                if notificationPermissionDenied && notificationsEnabled == false {
+                    VStack(spacing: 8) {
+                        Text("Notification permission denied")
+                            .font(.caption)
+                            .foregroundColor(.appWarning)
+
+                        Button(action: openSettings) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "gear")
+                                    .font(.caption)
+                                Text("Open Settings")
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                            }
+                            .foregroundColor(.appAccent)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                // Show time picker and days stepper only when enabled
+                if notificationsEnabled {
+                    Divider()
+                        .background(Color.textSecondary.opacity(0.3))
+
+                    // Time picker
+                    HStack {
+                        Text("Reminder Time")
+                            .font(.body)
+                            .foregroundColor(.textPrimary)
+
+                        Spacer()
+
+                        DatePicker(
+                            "",
+                            selection: $reminderTime,
+                            displayedComponents: .hourAndMinute
+                        )
+                        .labelsHidden()
+                        .onChange(of: reminderTime) { _, newValue in
+                            let components = Calendar.current.dateComponents([.hour, .minute], from: newValue)
+                            viewModel.updateReminderTime(
+                                hour: components.hour ?? 9,
+                                minute: components.minute ?? 0
+                            )
+                        }
+                    }
+
+                    Divider()
+                        .background(Color.textSecondary.opacity(0.3))
+
+                    // Days before reminder stepper
+                    VStack(spacing: 8) {
+                        HStack {
+                            Text("Days Before Site is Ready")
+                                .font(.body)
+                                .foregroundColor(.textPrimary)
+
+                            Spacer()
+
+                            Text("\(daysBeforeReminder)")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.appAccent)
+                                .frame(minWidth: 40)
+
+                            Stepper("", value: $daysBeforeReminder, in: 0...7)
+                                .labelsHidden()
+                                .onChange(of: daysBeforeReminder) { _, newValue in
+                                    viewModel.updateDaysBeforeReminder(days: newValue)
+                                }
+                        }
+
+                        Text("Get reminded this many days before a site becomes available")
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+            }
+            .padding(16)
+            .neumorphicCard()
+        }
+    }
+
+    // MARK: - Notification Helpers
+
+    private func loadNotificationSettings() {
+        let settings = viewModel.getNotificationSettings()
+        notificationsEnabled = settings.enabled
+        daysBeforeReminder = settings.daysBefore
+
+        // Convert hour/minute to Date for DatePicker
+        var components = DateComponents()
+        components.hour = settings.hour
+        components.minute = settings.minute
+        if let date = Calendar.current.date(from: components) {
+            reminderTime = date
+        }
+    }
+
+    private func checkNotificationPermission() {
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            DispatchQueue.main.async {
+                notificationPermissionDenied = settings.authorizationStatus == .denied
+            }
+        }
+    }
+
+    private func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
+            DispatchQueue.main.async {
+                if granted {
+                    notificationsEnabled = true
+                    viewModel.updateNotificationsEnabled(true)
+                    notificationPermissionDenied = false
+                } else {
+                    notificationsEnabled = false
+                    viewModel.updateNotificationsEnabled(false)
+                    notificationPermissionDenied = true
+                }
+            }
+        }
+    }
+
+    private func openSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
         }
     }
 }

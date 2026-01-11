@@ -188,4 +188,59 @@ final class SettingsViewModel {
             // Silent fail
         }
     }
+
+    // MARK: - Notification Settings
+
+    /// Gets the current notification settings
+    /// - Returns: Tuple containing notificationsEnabled, reminderHour, reminderMinute, and daysBeforeReminder
+    func getNotificationSettings() -> (enabled: Bool, hour: Int, minute: Int, daysBefore: Int) {
+        guard let modelContext else { return (false, 9, 0, 0) }
+        let settings = NotificationSettings.getOrCreate(context: modelContext)
+        return (settings.notificationsEnabled, settings.reminderHour, settings.reminderMinute, settings.daysBeforeReminder)
+    }
+
+    /// Updates whether notifications are enabled
+    /// - Parameter enabled: Whether notifications should be enabled
+    func updateNotificationsEnabled(_ enabled: Bool) {
+        guard let modelContext else { return }
+        let settings = NotificationSettings.getOrCreate(context: modelContext)
+        settings.notificationsEnabled = enabled
+
+        do {
+            try modelContext.save()
+        } catch {
+            // Silent fail
+        }
+    }
+
+    /// Updates the notification reminder time
+    /// - Parameters:
+    ///   - hour: Hour component (0-23)
+    ///   - minute: Minute component (0-59)
+    func updateReminderTime(hour: Int, minute: Int) {
+        guard let modelContext else { return }
+        let settings = NotificationSettings.getOrCreate(context: modelContext)
+        settings.reminderHour = hour
+        settings.reminderMinute = minute
+
+        do {
+            try modelContext.save()
+        } catch {
+            // Silent fail
+        }
+    }
+
+    /// Updates the number of days before site is ready to send reminder
+    /// - Parameter days: Number of days (0-7)
+    func updateDaysBeforeReminder(days: Int) {
+        guard let modelContext else { return }
+        let settings = NotificationSettings.getOrCreate(context: modelContext)
+        settings.daysBeforeReminder = days
+
+        do {
+            try modelContext.save()
+        } catch {
+            // Silent fail
+        }
+    }
 }
