@@ -79,19 +79,15 @@ struct UsageTrendChartView: View {
 // MARK: - Preview
 
 #Preview {
-    let calendar = Calendar.current
-    let today = Date()
-
-    let sampleData: [TrendDataPoint] = (0..<14).map { dayOffset in
-        let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) ?? today
-        let count = Int.random(in: 0...5)
-        return TrendDataPoint(date: date, count: count)
-    }.reversed()
-
-    return ScrollView {
+    ScrollView {
         VStack(spacing: 24) {
             SectionHeader("Usage Trend")
-            UsageTrendChartView(trendData: sampleData)
+            UsageTrendChartView(trendData: (0..<14).map { dayOffset in
+                TrendDataPoint(
+                    date: Calendar.current.date(byAdding: .day, value: -dayOffset, to: Date()) ?? Date(),
+                    count: Int.random(in: 0...5)
+                )
+            }.reversed())
         }
         .padding()
     }

@@ -1,0 +1,362 @@
+## Codebase Patterns
+- Use `xcodebuild -project OmniSiteTracker.xcodeproj -scheme OmniSiteTracker -destination 'platform=iOS Simulator,name=iPhone 15' CODE_SIGNING_ALLOWED=NO build` to typecheck without signing issues
+- Design system components are in `OmniSiteTracker/Utilities/DesignSystem.swift`
+- Color palette uses static Color extensions (e.g., Color.appBackground, Color.appAccent)
+- Use `.appDanger` for error states, destructive actions, and low scores (replaces hardcoded red values)
+- ViewModifiers like SoftCardStyle, NeumorphicCardStyle are applied via View extensions (.softCard(), .neumorphicCard())
+- WarmGradientBackground is used across multiple views for the main background
+- For haptic feedback: `import UIKit` and use `UIImpactFeedbackGenerator(style: .medium).impactOccurred()`
+- For press state on buttons: use `simultaneousGesture(DragGesture(minimumDistance: 0))` with onChanged/onEnded
+- For TabView styling: use UITabBarAppearance in init() to customize unselected items and background
+
+---
+
+## 2026-01-10 08:27 - US-005
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Updated WarmGradientBackground to use single solid Color.appBackground instead of LinearGradient
+  - Added AppBackground typealias for backward compatibility and clearer naming
+  - Changed MARK comment from "Gradient Background" to "App Background"
+  - Added documentation comments explaining the flat background approach
+- Files changed:
+  - OmniSiteTracker/Utilities/DesignSystem.swift
+- **Learnings for future iterations:**
+  - WarmGradientBackground is used in many views (PatternsView, HeatmapBodyDiagramView, DateRangePickerView, ZoneStatisticsListView, LocationBreakdownChartView, UsageTrendChartView, ComplianceScoreView)
+  - Keeping the original struct name maintains backward compatibility while the typealias provides a better semantic name
+  - Build command needs CODE_SIGNING_ALLOWED=NO flag to avoid signing certificate errors on this machine
+---
+
+## 2026-01-10 - US-006
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Updated BodyViewTabButton to use solid Color.appAccent instead of LinearGradient when selected
+  - Removed AnyShapeStyle wrapper and simplified fill to conditional ternary
+  - Added .animation(.easeInOut(duration: 0.2), value: selection) to BodyViewTabs for smooth transitions
+  - Unselected state already used transparent background with textSecondary color (no change needed)
+  - BodyViewTabs container already used appBackgroundSecondary (no change needed)
+- Files changed:
+  - OmniSiteTracker/Utilities/DesignSystem.swift
+- **Learnings for future iterations:**
+  - BodyViewTabButton and BodyViewTabs are defined in DesignSystem.swift (lines 258-302)
+  - The previous gradient implementation used AnyShapeStyle to allow different return types (LinearGradient vs Color.clear) in the ternary
+  - Animation can be added at the container level (BodyViewTabs) to animate all child changes tied to the selection value
+---
+
+## 2026-01-10 - US-007
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Updated legendCard to use .neumorphicCard() modifier instead of manual background/cornerRadius
+  - Updated legend item colors from generic .gray/.orange/.green to design system colors (.zoneAvailable, .zoneRecent, .zoneRested)
+  - Verified VStack spacing (24pt) and horizontal padding (20pt) were already correct
+  - All cards now consistently use .neumorphicCard() modifier
+- Files changed:
+  - OmniSiteTracker/Views/HomeView.swift
+- **Learnings for future iterations:**
+  - HomeView.swift is located at OmniSiteTracker/Views/HomeView.swift
+  - The legendCard was the only card not using .neumorphicCard() - other cards (body diagram section, recentPlacementCard) were already updated
+  - Zone colors (zoneAvailable, zoneRecent, zoneRested) are defined in DesignSystem.swift and should be used instead of generic system colors
+---
+
+## 2026-01-10 - US-008
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Added pulse animation to recommended zone button using @State isPulsing with .repeatForever animation
+  - Added haptic feedback on zone tap using UIImpactFeedbackGenerator with .medium style
+  - Added pressed state to zone buttons: scale(0.95) and opacity(0.8) using simultaneousGesture with DragGesture
+  - Added smooth transition animation (.easeInOut(duration: 0.3)) when switching front/back views on body image and zones
+  - Added import UIKit for UIImpactFeedbackGenerator
+- Files changed:
+  - OmniSiteTracker/Views/Components/BodyDiagramView.swift
+- **Learnings for future iterations:**
+  - BodyDiagramView and ZoneWithLine are in OmniSiteTracker/Views/Components/BodyDiagramView.swift
+  - Zone buttons are rendered by ZoneWithLine struct which takes geometry, color, recommended flag, and onTap callback
+  - Use simultaneousGesture with DragGesture(minimumDistance: 0) to detect press/release for button feedback (works with Button's action)
+  - Pulse animation uses @State bool that triggers .repeatForever animation when set to true in onAppear
+  - Use onChange(of: recommended) to update pulse state when recommendation changes dynamically
+---
+
+## 2026-01-10 - US-009
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Updated dotted connector lines to use Color.textMuted.opacity(0.4) for lighter appearance
+  - Changed recommended zone border ring from Color.appHighlight to Color.appAccent
+  - Increased zone button height from 44pt to 48pt for minimum touch accessibility
+  - Verified zone buttons already use flat solid backgrounds (color.opacity(0.9)) - no gradients
+  - Verified zone colors already updated in US-001: zoneAvailable (#94A3B8), zoneRecent (#F4A683), zoneRested (#7DCFB6)
+- Files changed:
+  - OmniSiteTracker/Views/Components/BodyDiagramView.swift
+- **Learnings for future iterations:**
+  - Zone button styling is in ZoneWithLine struct in BodyDiagramView.swift (lines 106-222)
+  - Zone colors come from viewModel.statusColor(for: zone.location) which maps to DesignSystem colors
+  - buttonSize (75pt width) is a constant in ZoneWithLine, height is set inline in .frame()
+  - Recommended zone highlight uses .overlay with a conditional stroke color and lineWidth
+---
+
+## 2026-01-10 - US-010
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Redesigned RecommendationCard with soft card style and subtle accent tint (appAccent.opacity(0.05))
+  - Added "Recommended" pill badge with star.fill icon and solid appAccent background
+  - Updated location name to use rounded font (.system(.title3, design: .rounded))
+  - Removed all LinearGradient fills - location indicator now uses solid appAccent
+  - Removed heavy shadows and stroke borders from recommendation content area
+  - Updated internal background to use appBackgroundSecondary instead of gradient
+  - Updated CompactRecommendationBadge to use star.fill icon and solid Capsule fill (no gradient)
+  - Updated "All sites are well rotated" state to use checkmark.circle.fill and rounded font
+- Files changed:
+  - OmniSiteTracker/Views/Components/RecommendationCard.swift
+- **Learnings for future iterations:**
+  - RecommendationCard.swift is at OmniSiteTracker/Views/Components/RecommendationCard.swift
+  - Card has custom background with accent tint overlay instead of using .neumorphicCard() modifier (to add subtle color)
+  - CompactRecommendationBadge is also in RecommendationCard.swift and should follow the same design patterns
+  - Use Capsule().fill() for pill shapes instead of cornerRadius on background
+---
+
+## 2026-01-10 - US-011
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Updated history list items (placementCard) to use .softCard() modifier instead of custom shadows
+  - Added color-coded circle indicator (14pt) for location using zone colors
+  - Card shows location name with rounded font, date/time, and optional note with note.text icon
+  - Set card internal padding to 16pt
+  - Set spacing between list items to 12pt using nested VStack
+  - Updated filter sheet from List to ScrollView with .softCard() styled buttons
+  - Added pill-styled count badges with Capsule background
+  - Updated filter indicator with pill background and color indicator
+  - All fonts updated to rounded design (.system(..., design: .rounded))
+- Files changed:
+  - OmniSiteTracker/Views/HistoryView.swift
+- **Learnings for future iterations:**
+  - HistoryView.swift is at OmniSiteTracker/Views/HistoryView.swift
+  - Filter sheet used native List component - converted to ScrollView + VStack for custom styling
+  - Placement cards are rendered by placementCard() function, grouped by day via daySection()
+  - To nest ForEach with specific spacing between items, wrap in VStack(spacing: N) { ForEach... }
+  - Use .softCard() for consistent card styling (same as .neumorphicCard() in this design system)
+---
+
+## 2026-01-10 - US-012
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Updated DateRangePickerView PresetButton to use solid Color.appAccent instead of LinearGradient
+  - Removed AnyShapeStyle wrapper from PresetButton fill - simplified to ternary with Color values
+  - Added rounded font design (.system(.caption, design: .rounded)) to preset buttons
+  - Updated ExportablePatternView background from LinearGradient to flat Color.appBackground
+  - Verified all section cards already use .neumorphicCard() modifier (ComplianceScoreView, HeatmapBodyDiagramView, ZoneStatisticsListView, UsageTrendChartView, LocationBreakdownChartView, DateRangePickerView)
+  - Verified VStack spacing already set to 24pt in PatternsView
+- Files changed:
+  - OmniSiteTracker/Views/Components/DateRangePickerView.swift
+  - OmniSiteTracker/Views/PatternsView.swift
+- **Learnings for future iterations:**
+  - DateRangePickerView.swift is at OmniSiteTracker/Views/Components/DateRangePickerView.swift
+  - PresetButton is a private struct inside DateRangePickerView.swift
+  - ExportablePatternView is used for image export and is defined in PatternsView.swift alongside PatternsPDFGenerator
+  - All chart components in the Patterns screen already had .neumorphicCard() applied from previous stories
+---
+
+## 2026-01-10 - US-013
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Updated ring stroke width from 12pt to 10pt for better visibility
+  - Updated score colors: red (#EF4444) for <50, appWarning for 50-75, appSuccess for >75
+  - Added small icons to stat tiles: gauge icon for Distribution, clock icon for Rest Compliance
+  - Verified background ring already used appBackgroundSecondary (no change needed)
+  - No gradient effects present in the ring (already clean)
+- Files changed:
+  - OmniSiteTracker/Views/Components/ComplianceScoreView.swift
+- **Learnings for future iterations:**
+  - ComplianceScoreView.swift is at OmniSiteTracker/Views/Components/ComplianceScoreView.swift
+  - ScoreGauge is a private struct that renders the circular progress ring
+  - ScoreComponent is a private struct that renders each stat tile (Distribution, Rest Compliance)
+  - Score color logic is duplicated in both ScoreGauge (scoreColor) and ScoreComponent (progressColor) - both needed to be updated
+  - The red color #EF4444 converts to RGB (0.937, 0.267, 0.267)
+---
+
+## 2026-01-10 - US-014
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Updated heatmap color scale from gray/orange/red to gray/lavender/coral (#94A3B8 → #A78BBA → #F4A683)
+  - Updated heatmapColor computed property in HeatmapZoneIndicator with new color interpolation values
+  - Updated HeatmapLegend with new color constants (grayColor, lavenderColor, coralColor) and matching gradient
+  - Updated ZoneDetailPopover background from WarmGradientBackground() to .ultraThinMaterial for frosted glass effect
+- Files changed:
+  - OmniSiteTracker/Views/Components/HeatmapBodyDiagramView.swift
+- **Learnings for future iterations:**
+  - HeatmapBodyDiagramView.swift is at OmniSiteTracker/Views/Components/HeatmapBodyDiagramView.swift
+  - HeatmapZoneIndicator contains the heatmapColor computed property that interpolates colors based on intensity
+  - HeatmapLegend is a separate struct in the same file that displays the color scale gradient
+  - ZoneDetailPopover is the sheet that appears when tapping a zone - uses presentationDetents for height
+  - Color interpolation math: for 3 color stops, first half (0-0.5) interpolates between colors 1-2, second half (0.5-1.0) between colors 2-3
+---
+
+## 2026-01-10 - US-015
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Updated progress bar fills to use new pastel heatmap colors (gray → lavender → soft coral)
+  - Updated intensityColor computed property with same color interpolation as HeatmapBodyDiagramView
+  - Changed zone name font to rounded design (.system(.subheadline, design: .rounded, weight: .semibold))
+  - Changed placements count font to rounded design (.system(.caption, design: .rounded))
+  - Set minimum row height to 48pt using .frame(minHeight: 48)
+  - Icon already present before zone name using location.iconName - no change needed
+  - Progress bar background already set to appBackgroundSecondary - no change needed
+- Files changed:
+  - OmniSiteTracker/Views/Components/ZoneStatisticsListView.swift
+- **Learnings for future iterations:**
+  - ZoneStatisticsListView.swift is at OmniSiteTracker/Views/Components/ZoneStatisticsListView.swift
+  - ZoneStatisticsRow is a private struct that renders each row with icon, name, count, and progress bar
+  - The intensityColor computed property needs to match the heatmap colors in HeatmapBodyDiagramView for visual consistency
+  - Use .frame(minHeight: N) to set minimum touch target height while allowing content to determine actual height
+---
+
+## 2026-01-10 - US-016
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Updated bar chart fill to use solid Color.appAccent instead of LinearGradient
+  - Removed unused barGradient computed property
+  - Updated X and Y axis labels to use textSecondary color
+  - Updated X and Y axis grid lines to use appBackgroundSecondary with 0.5pt stroke
+  - Updated axis ticks to use textMuted color with 0.5pt stroke
+  - Increased bar corner radius from 4pt to 6pt for softer appearance
+  - Updated documentation comment to reference pastel palette
+- Files changed:
+  - OmniSiteTracker/Views/Components/UsageTrendChartView.swift
+- **Learnings for future iterations:**
+  - UsageTrendChartView.swift is at OmniSiteTracker/Views/Components/UsageTrendChartView.swift
+  - Swift Charts axis styling uses AxisMarks with AxisGridLine, AxisTick, and AxisValueLabel
+  - Grid lines and ticks can be styled with StrokeStyle and .foregroundStyle modifier
+  - AxisValueLabel uses .foregroundStyle for color styling
+  - When removing gradient, also remove the computed property to keep code clean
+---
+
+## 2026-01-10 - US-017
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Updated location color mapping to use pastel palette (appAccent, appSecondary, appSuccess, appWarning, appInfo)
+  - Used opacity variants (0.7) for additional locations to stay within pastel palette
+  - Updated X and Y axis labels to use textSecondary color
+  - Updated grid lines to use appBackgroundSecondary with 0.5pt stroke width
+  - Updated axis ticks to use textMuted color with 0.5pt stroke
+  - Updated documentation comment to reference pastel palette
+- Files changed:
+  - OmniSiteTracker/Views/Components/LocationBreakdownChartView.swift
+- **Learnings for future iterations:**
+  - LocationBreakdownChartView.swift is at OmniSiteTracker/Views/Components/LocationBreakdownChartView.swift
+  - For stacked bar charts with more categories than colors, use opacity variants (e.g., .opacity(0.7)) to distinguish while maintaining palette
+  - Swift Charts uses .chartForegroundStyleScale with KeyValuePairs<String, Color> for custom color mapping
+  - Axis styling is identical to UsageTrendChartView - use same pattern for consistency
+---
+
+## 2026-01-10 - US-018
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Updated StatusBadge to use solid color fill instead of LinearGradient
+  - Removed gradient fill (colors: [color, color.opacity(0.8)]) and replaced with simple .fill(color)
+  - Verified capsule/pill shape already maintained
+  - Verified horizontal padding (12pt) and vertical padding (6pt) already correct
+  - Verified .semibold font weight already correct
+- Files changed:
+  - OmniSiteTracker/Utilities/DesignSystem.swift
+- **Learnings for future iterations:**
+  - StatusBadge is at OmniSiteTracker/Utilities/DesignSystem.swift (lines 217-233)
+  - StatusBadge already had most styling correct - only the gradient fill needed to be removed
+  - Most badge/pill components in SwiftUI use Capsule().fill() for the background shape
+---
+
+## 2026-01-10 - US-019
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Updated PlacementConfirmationSheet background from Color.appBackground to .ultraThinMaterial for frosted glass effect
+  - Updated confirm button from NeumorphicButtonStyle() to PrimaryButtonStyle() (pill shape, solid appAccent)
+  - Cancel button already used NeumorphicSecondaryButtonStyle (capsule with light fill) - no change needed
+  - Updated location name font from .headline to .system(.title2, design: .rounded, weight: .bold)
+  - Spacing (24pt) and padding (24pt) already correctly set - no change needed
+- Files changed:
+  - OmniSiteTracker/Views/Components/PlacementConfirmationSheet.swift
+- **Learnings for future iterations:**
+  - PlacementConfirmationSheet.swift is at OmniSiteTracker/Views/Components/PlacementConfirmationSheet.swift
+  - Sheet uses VStack(spacing: 24) for major sections which matches design system
+  - NeumorphicSecondaryButtonStyle is already correctly styled per US-004 (capsule with appAccent.opacity(0.1) fill)
+  - PrimaryButtonStyle is the preferred button style for primary actions (pill shape, solid appAccent)
+---
+
+## 2026-01-10 - US-020
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Replaced Form with ScrollView + VStack for custom card styling
+  - Added .ultraThinMaterial background for frosted glass effect
+  - Created custom LocationPickerView with clean card-based selection UI
+  - Updated form fields with rounded corners (12pt) and cardBackground fill
+  - Replaced standard Form sections with custom card layouts and textSecondary labels
+  - Updated buttons to use pill styles: PrimaryButtonStyle for Save, NeumorphicSecondaryButtonStyle for Cancel
+  - Added destructive pill button for Delete using red color (#EF4444)
+  - Set consistent 20pt horizontal padding and 20pt spacing between sections
+  - Updated toolbar buttons to use rounded font and appAccent color
+- Files changed:
+  - OmniSiteTracker/Views/Components/PlacementEditSheet.swift
+- **Learnings for future iterations:**
+  - PlacementEditSheet.swift is at OmniSiteTracker/Views/Components/PlacementEditSheet.swift
+  - SwiftUI Form provides default styling but cannot be easily customized - replace with ScrollView + VStack for full control
+  - Use .labelsHidden() on DatePicker when displaying in a custom card context
+  - NavigationLink with custom label styling allows for card-styled pickers
+  - For destructive buttons with pill style, use PrimaryButtonStyle(accentColor: Color(red: 0.937, green: 0.267, blue: 0.267))
+  - LocationPickerView can use @Environment(\.dismiss) to close after selection
+---
+
+## 2026-01-10 - US-021
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Added init() to ContentView to configure UITabBarAppearance for modern wellness aesthetic
+  - Set tab bar background to white using UITabBarAppearance
+  - Set unselected tab item color to textMuted (#94A3B8) using stackedLayoutAppearance.normal
+  - Applied appearance to both standardAppearance and scrollEdgeAppearance
+  - Selected tab color already handled by .tint(Color.appAccent) on TabView
+- Files changed:
+  - OmniSiteTracker/Views/ContentView.swift
+- **Learnings for future iterations:**
+  - ContentView.swift is at OmniSiteTracker/Views/ContentView.swift
+  - SwiftUI TabView tint color only affects selected items - unselected items need UITabBarAppearance
+  - Use UITabBarAppearance in an init() to customize tab bar appearance before the view appears
+  - Set both standardAppearance and scrollEdgeAppearance for consistent behavior with different backgrounds
+  - stackedLayoutAppearance.normal controls unselected tab items (icon and title)
+---
+
+## 2026-01-10 - US-022
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Updated success toast to use Capsule() shape instead of .cornerRadius(25) for proper pill shape
+  - Background already used solid Color.appSuccess (no gradient) - no change needed
+  - White icon and text already in place - no change needed
+  - Smooth slide-in animation already implemented with .spring() - no change needed
+- Files changed:
+  - OmniSiteTracker/Views/HomeView.swift
+- **Learnings for future iterations:**
+  - Success toast (successToast) is defined in HomeView.swift (lines 182-199)
+  - Use Capsule().fill(color) for proper pill shape instead of .cornerRadius() for consistency with other pill components
+  - Toast uses .spring(response: 0.4, dampingFraction: 0.7) animation for slide-in effect
+  - Toast appears via .overlay(alignment: .top) with .transition(.move(edge: .top).combined(with: .opacity))
+---
+
+## 2026-01-10 - US-023
+Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+- What was implemented:
+  - Removed GlassCardStyle and glassCard() extension (were deprecated and unused)
+  - Removed glassBackground color (unused)
+  - Removed neumorphicLight color (unused)
+  - Added appDanger color (#EF4444) for consistent error/destructive styling
+  - Renamed neumorphicDark to subtleBorder with legacy alias for backward compatibility
+  - Added documentation comments to PrimaryButtonStyle, NeumorphicButtonStyle, NeumorphicSecondaryButtonStyle
+  - Added documentation comments to SectionHeader, StatusBadge, BodyViewTabButton, BodyViewTabs
+  - Updated ComplianceScoreView to use .appDanger instead of hardcoded red
+  - Updated PlacementEditSheet delete button to use .appDanger
+  - Updated PatternsView scoreColor to use .appDanger
+- Files changed:
+  - OmniSiteTracker/Utilities/DesignSystem.swift
+  - OmniSiteTracker/Views/Components/ComplianceScoreView.swift
+  - OmniSiteTracker/Views/Components/PlacementEditSheet.swift
+  - OmniSiteTracker/Views/PatternsView.swift
+- **Learnings for future iterations:**
+  - appDanger (#EF4444, rgb 0.937/0.267/0.267) is now the standard color for errors, destructive actions, and low scores
+  - Use .appDanger instead of hardcoding Color(red: 0.937, green: 0.267, blue: 0.267) for consistency
+  - PDF export code in PatternsView.swift uses UIColor for drawing context - these can keep hardcoded values for print quality
+  - Heatmap color interpolation in HeatmapBodyDiagramView and ZoneStatisticsListView needs raw color values for gradient calculations
+  - Always check for unused colors/styles before final cleanup - use Grep to find usages
+---

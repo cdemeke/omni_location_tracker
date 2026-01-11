@@ -1,0 +1,375 @@
+{
+  "project": "OmniSiteTracker",
+  "branchName": "ralph/ui-redesign-wellness-aesthetic",
+  "description": "UI Redesign - Modern Wellness Aesthetic - Redesign the app with a cleaner, modern wellness-style aesthetic featuring cool pastel colors, flat card-based layout, pill buttons, and enhanced body diagram interactivity",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create New Color Palette",
+      "description": "As a user, I want the app to use calming cool pastel colors so that the interface feels modern and wellness-focused.",
+      "acceptanceCriteria": [
+        "Update appBackground to soft off-white (#F8FAFC / rgb 0.973, 0.980, 0.988)",
+        "Update appBackgroundSecondary to very light gray (#F1F5F9 / rgb 0.945, 0.961, 0.976)",
+        "Update cardBackground to white (#FFFFFF)",
+        "Update appAccent to soft blue (#6B9FD4 / rgb 0.420, 0.624, 0.831)",
+        "Update appSecondary to soft lavender (#A78BBA / rgb 0.655, 0.545, 0.729)",
+        "Update appSuccess to soft mint (#7DCFB6 / rgb 0.490, 0.812, 0.714)",
+        "Update appWarning to soft peach (#F4A683 / rgb 0.957, 0.651, 0.514)",
+        "Update textPrimary to dark slate (#1E293B / rgb 0.118, 0.161, 0.231)",
+        "Update textSecondary to slate gray (#64748B / rgb 0.392, 0.455, 0.545)",
+        "Update textMuted to light slate (#94A3B8 / rgb 0.580, 0.639, 0.722)",
+        "Remove or update warm earthy tone colors (old appAccent, appHighlight, zoneAvailable, etc.)",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Implement New Card Style",
+      "description": "As a user, I want cards to be clean and minimal so that content is easier to scan and the interface feels less busy.",
+      "acceptanceCriteria": [
+        "Create new SoftCardStyle ViewModifier with flat white background (Color.cardBackground)",
+        "Use 20pt corner radius for rounded appearance",
+        "Use minimal shadow: Color.black.opacity(0.04), radius 8, y offset 2",
+        "Remove gradient overlays and stroke borders from card style",
+        "Update NeumorphicCardStyle to use new SoftCardStyle implementation",
+        "Remove or deprecate GlassCardStyle modifier",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Update Typography System",
+      "description": "As a user, I want typography to be clean and highly readable so that information is easy to consume at a glance.",
+      "acceptanceCriteria": [
+        "Update SectionHeader to use .system(.title3, design: .rounded) with .bold weight",
+        "Update SectionHeader subtitle to use .system(.subheadline, design: .rounded)",
+        "Ensure SectionHeader uses new textPrimary and textSecondary colors",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Create Pill Button Styles",
+      "description": "As a user, I want buttons to be pill-shaped and touch-friendly so that they are easy to tap and visually consistent.",
+      "acceptanceCriteria": [
+        "Update PrimaryButtonStyle to use Capsule shape instead of RoundedRectangle",
+        "Remove gradient fills from PrimaryButtonStyle - use solid appAccent color",
+        "Set minimum height of 48pt for touch accessibility",
+        "Use horizontal padding of 28pt",
+        "Keep subtle scale animation on press (0.97)",
+        "Update NeumorphicButtonStyle similarly (solid color, capsule shape)",
+        "Update NeumorphicSecondaryButtonStyle to use capsule with light fill (appAccent.opacity(0.1))",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Update Background Style",
+      "description": "As a user, I want a clean, flat background so that the interface feels calm and uncluttered.",
+      "acceptanceCriteria": [
+        "Update WarmGradientBackground to use single solid color (Color.appBackground)",
+        "Rename WarmGradientBackground to AppBackground (or keep name but change implementation)",
+        "Background should be flat off-white (#F8FAFC) matching new appBackground color",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Redesign Segmented Tab Control",
+      "description": "As a user, I want the front/back toggle to be a clean segmented control so that it matches the modern aesthetic.",
+      "acceptanceCriteria": [
+        "Update BodyViewTabButton to use solid appAccent color when selected (no gradient)",
+        "Unselected state: transparent background with textSecondary color",
+        "Update BodyViewTabs container to use appBackgroundSecondary for pill background",
+        "Add smooth animation when selection changes",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Redesign Home Screen Layout",
+      "description": "As a user, I want the home screen to have clear visual hierarchy with generous spacing so that I can quickly find what I need.",
+      "acceptanceCriteria": [
+        "Update VStack spacing to 24pt between major sections",
+        "Update horizontal padding to 20pt",
+        "Ensure all cards use the new soft card style (.neumorphicCard())",
+        "Update legendCard to use new card background color",
+        "Remove any remaining gradient or heavy shadow effects",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Enhance Body Diagram Interactivity",
+      "description": "As a user, I want the body diagram to provide better visual feedback when I interact with it so that I feel confident about my selections.",
+      "acceptanceCriteria": [
+        "Add pulse animation to recommended zone button using .animation with repeatForever",
+        "Add haptic feedback on zone tap using UIImpactFeedbackGenerator with .medium style",
+        "Add pressed state to zone buttons: scale(0.95) and opacity(0.8) when pressed",
+        "Add smooth transition animation when switching front/back views using .animation(.easeInOut)",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Update Zone Button Design",
+      "description": "As a user, I want zone buttons on the body diagram to be clean and easy to tap so that logging placements is effortless.",
+      "acceptanceCriteria": [
+        "Update zone buttons to use flat solid backgrounds (remove gradients)",
+        "Update zoneAvailable color to soft gray-blue (#94A3B8 or similar)",
+        "Update zoneRecent color to soft peach (#F4A683)",
+        "Update zoneRested color to soft mint (#7DCFB6)",
+        "Recommended zone: add subtle border ring using appAccent color",
+        "Update dotted connector lines to use lighter color (textMuted.opacity(0.4))",
+        "Ensure zone buttons have minimum 48pt touch target",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Redesign Recommendation Card",
+      "description": "As a user, I want the recommendation card to be prominent but not overwhelming so that I notice it without it dominating the screen.",
+      "acceptanceCriteria": [
+        "Update RecommendationCard to use soft card style",
+        "Add subtle accent tint to background (appAccent.opacity(0.05))",
+        "Update 'Recommended' badge to use pill shape with solid appAccent background",
+        "Ensure location name uses new textPrimary color with rounded font",
+        "Add subtle icon (star.fill or checkmark.circle.fill) near recommendation",
+        "Remove heavy shadows or borders",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Redesign History Screen Layout",
+      "description": "As a user, I want the history screen to display placement records in clean, scannable cards so that I can quickly review my history.",
+      "acceptanceCriteria": [
+        "Update history list items to use new soft card style",
+        "Each card shows: location name, date/time, optional note",
+        "Use color-coded circle indicator for location (matching zone colors)",
+        "Set card internal padding to 16pt",
+        "Set spacing between list items to 12pt",
+        "Update any filter UI elements to match new design system",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Redesign Patterns Screen Layout",
+      "description": "As a user, I want the patterns/analytics screen to present data in clean stat tiles and simple charts so that insights are easy to understand.",
+      "acceptanceCriteria": [
+        "Update all section cards to use new soft card style",
+        "Set spacing between sections to 24pt",
+        "Update DateRangePickerView preset buttons to use new colors and pill shape",
+        "Remove any heavy visual elements (gradients, dark shadows)",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Redesign Compliance Score Display",
+      "description": "As a user, I want the rotation score to be displayed as a clean progress ring with stat tiles so that my compliance is easy to understand at a glance.",
+      "acceptanceCriteria": [
+        "Update progress ring to use new appAccent color for progress",
+        "Set ring stroke width to 10pt for better visibility",
+        "Use appBackgroundSecondary for background ring",
+        "Remove any gradient effects from the ring",
+        "Update score colors: red for <50 (#EF4444), appWarning for 50-75, appSuccess for >75",
+        "Add small icons to stat tiles (gauge for distribution, clock for rest compliance)",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Redesign Heatmap Body Diagram",
+      "description": "As a user, I want the heatmap visualization to use a clean color scale so that usage patterns are clear without being visually harsh.",
+      "acceptanceCriteria": [
+        "Update heatmap color scale: gray (#94A3B8) at 0, lavender (#A78BBA) at 0.5, soft coral (#F4A683) at 1.0",
+        "Update HeatmapLegend gradient to match new color scale",
+        "Update ZoneDetailPopover to use frosted glass background (.ultraThinMaterial)",
+        "Ensure zone buttons use new heatmap colors",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Update Zone Statistics List",
+      "description": "As a user, I want zone statistics to be displayed as clean stat rows so that I can compare usage across zones easily.",
+      "acceptanceCriteria": [
+        "Update progress bar fills to use new pastel heatmap colors",
+        "Set progress bar background to appBackgroundSecondary",
+        "Use rounded font for zone names (.system(.subheadline, design: .rounded, weight: .semibold))",
+        "Set minimum row height to 48pt for touch accessibility",
+        "Add small icon before each zone name using location.iconName",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Update UsageTrendChartView Colors",
+      "description": "As a user, I want the usage trend chart to use the new pastel colors so that it matches the overall design.",
+      "acceptanceCriteria": [
+        "Update bar chart fill to use solid appAccent color (no gradient)",
+        "Update axis labels to use textSecondary color",
+        "Minimize grid lines (use very subtle appBackgroundSecondary color if needed)",
+        "Use cornerRadius on bars for softer appearance",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Update LocationBreakdownChartView Colors",
+      "description": "As a user, I want the location breakdown chart to use the new pastel colors so that it matches the overall design.",
+      "acceptanceCriteria": [
+        "Update location color mapping to use new pastel palette",
+        "Use appAccent, appSecondary, appSuccess, appWarning, appInfo for different locations",
+        "Update axis labels to use textSecondary color",
+        "Minimize grid lines",
+        "Typecheck passes"
+      ],
+      "priority": 17,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Update Status Badge Component",
+      "description": "As a user, I want status badges to be clean pill shapes so that they are easy to read and visually consistent.",
+      "acceptanceCriteria": [
+        "Update StatusBadge to remove gradient fills - use solid color",
+        "Ensure capsule/pill shape is maintained",
+        "Set horizontal padding to 12pt, vertical to 6pt",
+        "Use .semibold font weight for badge text",
+        "Typecheck passes"
+      ],
+      "priority": 18,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Update Confirmation Sheet Design",
+      "description": "As a user, I want the placement confirmation sheet to be clean and focused so that confirming a placement is quick and clear.",
+      "acceptanceCriteria": [
+        "Update PlacementConfirmationSheet background to use .ultraThinMaterial for frosted effect",
+        "Update confirm button to use new PrimaryButtonStyle (pill shape, solid appAccent)",
+        "Update cancel button to use secondary style (light fill, accent text)",
+        "Use rounded font for location name (.system(.title2, design: .rounded, weight: .bold))",
+        "Set generous spacing (24pt) between major elements",
+        "Typecheck passes"
+      ],
+      "priority": 19,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "Update Edit Sheet Design",
+      "description": "As a user, I want the placement edit sheet to match the new design system so that the experience is consistent throughout the app.",
+      "acceptanceCriteria": [
+        "Update PlacementEditSheet background to use .ultraThinMaterial for frosted effect",
+        "Update form fields to have clean, minimal styling with rounded corners",
+        "Update buttons to use new pill button styles",
+        "Ensure consistent padding (20pt) and spacing",
+        "Typecheck passes"
+      ],
+      "priority": 20,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-021",
+      "title": "Update Tab Bar Styling",
+      "description": "As a user, I want the bottom tab bar to match the new aesthetic so that navigation feels integrated with the overall design.",
+      "acceptanceCriteria": [
+        "Set tab bar tint color to appAccent for selected items",
+        "Use textMuted color for unselected tab items",
+        "Ensure clean white or very light background for tab bar",
+        "Add .tint(Color.appAccent) to TabView",
+        "Typecheck passes"
+      ],
+      "priority": 21,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-022",
+      "title": "Update Success Toast Design",
+      "description": "As a user, I want success messages to be clean and noticeable so that I have clear feedback when actions complete.",
+      "acceptanceCriteria": [
+        "Update success toast background to use appSuccess color (solid, no gradient)",
+        "Maintain pill/capsule shape with generous corner radius",
+        "Use white icon and text",
+        "Keep smooth slide-in animation",
+        "Typecheck passes"
+      ],
+      "priority": 22,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-023",
+      "title": "Final Design System Cleanup",
+      "description": "As a developer, I want unused design components removed so that the codebase is clean and maintainable.",
+      "acceptanceCriteria": [
+        "Remove deprecated warm earthy color definitions (old appAccent values if renamed)",
+        "Remove GlassCardStyle if no longer used",
+        "Ensure all color references in app use new palette",
+        "Add brief documentation comments to new design components",
+        "Verify all views compile and use consistent styling",
+        "Typecheck passes"
+      ],
+      "priority": 23,
+      "passes": true,
+      "notes": ""
+    }
+  ]
+}

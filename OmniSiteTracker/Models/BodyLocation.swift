@@ -17,7 +17,8 @@ enum BodyLocation: String, Codable, CaseIterable, Identifiable {
     case lowerAbdomen = "lower_abdomen"
     case leftThigh = "left_thigh"
     case rightThigh = "right_thigh"
-    case lowerBack = "lower_back"
+    case leftLowerBack = "left_lower_back"
+    case rightLowerBack = "right_lower_back"
 
     var id: String { rawValue }
 
@@ -38,8 +39,10 @@ enum BodyLocation: String, Codable, CaseIterable, Identifiable {
             return "Left Thigh"
         case .rightThigh:
             return "Right Thigh"
-        case .lowerBack:
-            return "Lower Back"
+        case .leftLowerBack:
+            return "Left Lower Back"
+        case .rightLowerBack:
+            return "Right Lower Back"
         }
     }
 
@@ -60,8 +63,10 @@ enum BodyLocation: String, Codable, CaseIterable, Identifiable {
             return "L. Thigh"
         case .rightThigh:
             return "R. Thigh"
-        case .lowerBack:
-            return "Low. Back"
+        case .leftLowerBack:
+            return "L. Low. Back"
+        case .rightLowerBack:
+            return "R. Low. Back"
         }
     }
 
@@ -82,8 +87,10 @@ enum BodyLocation: String, Codable, CaseIterable, Identifiable {
             return "Left\nThigh"
         case .rightThigh:
             return "Right\nThigh"
-        case .lowerBack:
-            return "Lower Back"
+        case .leftLowerBack:
+            return "Left\nLower Back"
+        case .rightLowerBack:
+            return "Right\nLower Back"
         }
     }
 
@@ -96,7 +103,7 @@ enum BodyLocation: String, Codable, CaseIterable, Identifiable {
             return "circle.fill"
         case .leftThigh, .rightThigh:
             return "figure.stand"
-        case .lowerBack:
+        case .leftLowerBack, .rightLowerBack:
             return "rectangle.fill"
         }
     }
@@ -106,7 +113,7 @@ enum BodyLocation: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .abdomenLeft, .abdomenRight, .lowerAbdomen, .leftThigh, .rightThigh:
             return true
-        case .leftArm, .rightArm, .lowerBack:
+        case .leftArm, .rightArm, .leftLowerBack, .rightLowerBack:
             return false
         }
     }
@@ -126,7 +133,11 @@ enum BodyLocation: String, Codable, CaseIterable, Identifiable {
             return .rightThigh
         case .rightThigh:
             return .leftThigh
-        case .lowerAbdomen, .lowerBack:
+        case .leftLowerBack:
+            return .rightLowerBack
+        case .rightLowerBack:
+            return .leftLowerBack
+        case .lowerAbdomen:
             return nil
         }
     }

@@ -14,9 +14,13 @@
 		C7A00009291A00010000005 /* BodyDiagramView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0000A291A00010000005 /* BodyDiagramView.swift */; };
 		C7A0000B291A00010000006 /* PlacementConfirmationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0000C291A00010000006 /* PlacementConfirmationSheet.swift */; };
 		C7A0000D291A00010000007 /* RecommendationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0000E291A00010000007 /* RecommendationCard.swift */; };
-		C7A0001B291A0001000000E /* PlacementEditSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0001C291A0001000000E /* PlacementEditSheet.swift */; };
 		C7A0000F291A00010000008 /* BodyLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00010291A00010000008 /* BodyLocation.swift */; };
 		C7A00011291A00010000009 /* PlacementLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00012291A00010000009 /* PlacementLog.swift */; };
+		C7A00013291A0001000000A /* PlacementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00014291A0001000000A /* PlacementViewModel.swift */; };
+		C7A00015291A0001000000B /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00016291A0001000000B /* DesignSystem.swift */; };
+		C7A00017291A0001000000C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C7A00018291A0001000000C /* Assets.xcassets */; };
+		C7A00019291A0001000000D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C7A0001A291A0001000000D /* Preview Assets.xcassets */; };
+		C7A0001B291A0001000000E /* PlacementEditSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0001C291A0001000000E /* PlacementEditSheet.swift */; };
 		C7A0001D291A0001000000F /* HeatmapModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0001E291A0001000000F /* HeatmapModels.swift */; };
 		C7A0001F291A00010000010 /* PatternsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00020291A00010000010 /* PatternsView.swift */; };
 		C7A00021291A00010000011 /* DateRangePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00022291A00010000011 /* DateRangePickerView.swift */; };
@@ -25,10 +29,10 @@
 		C7A00027291A00010000014 /* UsageTrendChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00028291A00010000014 /* UsageTrendChartView.swift */; };
 		C7A00029291A00010000015 /* LocationBreakdownChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0002A291A00010000015 /* LocationBreakdownChartView.swift */; };
 		C7A0002B291A00010000016 /* ComplianceScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0002C291A00010000016 /* ComplianceScoreView.swift */; };
-		C7A00013291A0001000000A /* PlacementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00014291A0001000000A /* PlacementViewModel.swift */; };
-		C7A00015291A0001000000B /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00016291A0001000000B /* DesignSystem.swift */; };
-		C7A00017291A0001000000C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C7A00018291A0001000000C /* Assets.xcassets */; };
-		C7A00019291A0001000000D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C7A0001A291A0001000000D /* Preview Assets.xcassets */; };
+		C7A0002D291A00010000017 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0002E291A00010000017 /* OnboardingView.swift */; };
+		C7A0002F291A00010000018 /* HelpButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00030291A00010000018 /* HelpButton.swift */; };
+		C7A00031291A00010000019 /* HelpTooltip.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00032291A00010000019 /* HelpTooltip.swift */; };
+		C7A00033291A0001000001A /* OnboardingTopicSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00034291A0001000001A /* OnboardingTopicSheet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,9 +44,13 @@
 		C7A0000A291A00010000005 /* BodyDiagramView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyDiagramView.swift; sourceTree = "<group>"; };
 		C7A0000C291A00010000006 /* PlacementConfirmationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacementConfirmationSheet.swift; sourceTree = "<group>"; };
 		C7A0000E291A00010000007 /* RecommendationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationCard.swift; sourceTree = "<group>"; };
-		C7A0001C291A0001000000E /* PlacementEditSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacementEditSheet.swift; sourceTree = "<group>"; };
 		C7A00010291A00010000008 /* BodyLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyLocation.swift; sourceTree = "<group>"; };
 		C7A00012291A00010000009 /* PlacementLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacementLog.swift; sourceTree = "<group>"; };
+		C7A00014291A0001000000A /* PlacementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacementViewModel.swift; sourceTree = "<group>"; };
+		C7A00016291A0001000000B /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		C7A00018291A0001000000C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C7A0001A291A0001000000D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		C7A0001C291A0001000000E /* PlacementEditSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacementEditSheet.swift; sourceTree = "<group>"; };
 		C7A0001E291A0001000000F /* HeatmapModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeatmapModels.swift; sourceTree = "<group>"; };
 		C7A00020291A00010000010 /* PatternsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatternsView.swift; sourceTree = "<group>"; };
 		C7A00022291A00010000011 /* DateRangePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateRangePickerView.swift; sourceTree = "<group>"; };
@@ -51,10 +59,10 @@
 		C7A00028291A00010000014 /* UsageTrendChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageTrendChartView.swift; sourceTree = "<group>"; };
 		C7A0002A291A00010000015 /* LocationBreakdownChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationBreakdownChartView.swift; sourceTree = "<group>"; };
 		C7A0002C291A00010000016 /* ComplianceScoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplianceScoreView.swift; sourceTree = "<group>"; };
-		C7A00014291A0001000000A /* PlacementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacementViewModel.swift; sourceTree = "<group>"; };
-		C7A00016291A0001000000B /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
-		C7A00018291A0001000000C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		C7A0001A291A0001000000D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		C7A0002E291A00010000017 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		C7A00030291A00010000018 /* HelpButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpButton.swift; sourceTree = "<group>"; };
+		C7A00032291A00010000019 /* HelpTooltip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpTooltip.swift; sourceTree = "<group>"; };
+		C7A00034291A0001000001A /* OnboardingTopicSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTopicSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -399,7 +407,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.omnisite.tracker;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chrisdemeke.omnisite.tracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -430,7 +438,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.omnisite.tracker;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chrisdemeke.omnisite.tracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

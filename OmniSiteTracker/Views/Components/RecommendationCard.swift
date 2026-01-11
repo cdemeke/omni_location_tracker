@@ -7,15 +7,30 @@
 
 import SwiftUI
 
+/// Local help button for RecommendationCard
+private struct RecommendationHelpButton: View {
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            Image(systemName: "questionmark.circle")
+                .font(.system(size: 18))
+                .foregroundColor(.textMuted)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 /// Card displaying the recommended next placement location
 struct RecommendationCard: View {
     let recommendation: SiteRecommendation?
     let onTap: (BodyLocation) -> Void
+    var onHelpTapped: (() -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             // Header
-            HStack {
+            HStack(alignment: .top) {
                 Image(systemName: "lightbulb.fill")
                     .foregroundColor(.appHighlight)
                     .font(.title3)
@@ -25,6 +40,10 @@ struct RecommendationCard: View {
                     .foregroundColor(.textPrimary)
 
                 Spacer()
+
+                if let onHelpTapped {
+                    RecommendationHelpButton(onTap: onHelpTapped)
+                }
             }
 
             if let recommendation = recommendation {

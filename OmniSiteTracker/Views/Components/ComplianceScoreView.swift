@@ -148,16 +148,14 @@ private struct ScoreComponent: View {
 // MARK: - Preview
 
 #Preview {
-    let sampleScore = RotationScore(
-        score: 72,
-        distributionScore: 35,
-        restComplianceScore: 37,
-        explanation: "Good rotation pattern! You're using most sites evenly. Consider varying your rest days slightly for optimal compliance."
-    )
-
-    return ScrollView {
-        ComplianceScoreView(rotationScore: sampleScore)
-            .padding()
+    ScrollView {
+        ComplianceScoreView(rotationScore: RotationScore(
+            score: 72,
+            distributionScore: 35,
+            restComplianceScore: 37,
+            explanation: "Good rotation pattern! You're using most sites evenly. Consider varying your rest days slightly for optimal compliance."
+        ))
+        .padding()
     }
     .background(WarmGradientBackground())
 }

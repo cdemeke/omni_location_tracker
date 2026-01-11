@@ -25,7 +25,8 @@ struct HeatmapBodyDiagramView: View {
     private let backZones: [PlacementZone] = [
         PlacementZone(location: .leftArm, corner: .topLeft, bodyX: 0.25, bodyY: 0.42),
         PlacementZone(location: .rightArm, corner: .topRight, bodyX: 0.75, bodyY: 0.42),
-        PlacementZone(location: .lowerBack, corner: .bottomCenter, bodyX: 0.50, bodyY: 0.58),
+        PlacementZone(location: .leftLowerBack, corner: .bottomLeft, bodyX: 0.42, bodyY: 0.58),
+        PlacementZone(location: .rightLowerBack, corner: .bottomRight, bodyX: 0.58, bodyY: 0.58),
     ]
 
     // Crop parameters (same as BodyDiagramView)
@@ -301,18 +302,17 @@ private struct StatRow: View {
 // MARK: - Preview
 
 #Preview {
-    let sampleData: [HeatmapData] = [
+    HeatmapBodyDiagramView(heatmapData: [
         HeatmapData(location: .abdomenLeft, usageCount: 10, intensity: 1.0, lastUsed: Date(), percentageOfTotal: 25),
         HeatmapData(location: .abdomenRight, usageCount: 8, intensity: 0.8, lastUsed: Date(), percentageOfTotal: 20),
         HeatmapData(location: .leftThigh, usageCount: 5, intensity: 0.5, lastUsed: Date(), percentageOfTotal: 12.5),
         HeatmapData(location: .rightThigh, usageCount: 3, intensity: 0.3, lastUsed: Date(), percentageOfTotal: 7.5),
         HeatmapData(location: .leftArm, usageCount: 6, intensity: 0.6, lastUsed: Date(), percentageOfTotal: 15),
         HeatmapData(location: .rightArm, usageCount: 4, intensity: 0.4, lastUsed: Date(), percentageOfTotal: 10),
-        HeatmapData(location: .lowerBack, usageCount: 2, intensity: 0.2, lastUsed: Date(), percentageOfTotal: 5),
+        HeatmapData(location: .leftLowerBack, usageCount: 2, intensity: 0.2, lastUsed: Date(), percentageOfTotal: 2.5),
+        HeatmapData(location: .rightLowerBack, usageCount: 2, intensity: 0.2, lastUsed: Date(), percentageOfTotal: 2.5),
         HeatmapData(location: .lowerAbdomen, usageCount: 2, intensity: 0.2, lastUsed: Date(), percentageOfTotal: 5),
-    ]
-
-    return HeatmapBodyDiagramView(heatmapData: sampleData)
-        .padding()
-        .background(WarmGradientBackground())
+    ])
+    .padding()
+    .background(WarmGradientBackground())
 }

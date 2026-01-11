@@ -9,6 +9,105 @@ import SwiftUI
 import SwiftData
 import UIKit
 
+// MARK: - Local Components (workaround for scope issues)
+
+private struct PatternsHelpButton: View {
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            Image(systemName: "questionmark.circle")
+                .font(.system(size: 18))
+                .foregroundColor(.textMuted)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private struct PatternsHelpTooltip: View {
+    let message: String
+    let onDismiss: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(message)
+                .font(.subheadline)
+                .foregroundColor(.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Button(action: onDismiss) {
+                Text("Got it")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.appAccent)
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+        .padding(16)
+        .frame(maxWidth: 280)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.black.opacity(0.2), radius: 12, x: 0, y: 4)
+        )
+        .transition(.opacity)
+    }
+}
+
+private struct PatternsAboutModal: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Image("AppLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 80, height: 80)
+                .clipShape(RoundedRectangle(cornerRadius: 18))
+                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+
+            Text("OmniSite")
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.textPrimary)
+
+            Text("This app was developed by a father caring for his child with Type 1 Diabetes.\n\nIt's intended to help ensure you're rotating pump placement locations and minimizing the chance of scar tissue developing.")
+                .font(.body)
+                .foregroundColor(.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
+
+            VStack(spacing: 8) {
+                Text("Made with love.")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.textPrimary)
+
+                Text("Love you, Theo.")
+                    .font(.headline)
+                    .foregroundColor(.appAccent)
+            }
+            .padding(.top, 8)
+
+            Spacer()
+
+            Button {
+                dismiss()
+            } label: {
+                Text("Close")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.appAccent)
+                    .cornerRadius(12)
+            }
+        }
+        .padding(24)
+        .background(Color.appBackground)
+    }
+}
+
 /// Patterns screen showing usage analytics and rotation heatmaps
 struct PatternsView: View {
     @Environment(\.modelContext) private var modelContext
@@ -25,10 +124,50 @@ struct PatternsView: View {
     @State private var exportedPDFURL: URL?
     @State private var showingPDFShareSheet = false
 
+    // Help tooltip state
+    @State private var showingScoreHelp = false
+    @State private var showingHeatmapHelp = false
+    @State private var showingAboutModal = false
+    @State private var scrollOffset: CGFloat = 0
+    @AppStorage("hasSeenPatternsHelp") private var hasSeenHelp = false
+
+    private var showNavBarLogo: Bool {
+        scrollOffset < 100
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
+                    // Custom large title with icon
+                    HStack(spacing: 12) {
+                        Button {
+                            showingAboutModal = true
+                        } label: {
+                            Image("AppLogo")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 40, height: 40)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+                        Text("Patterns")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(.textPrimary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        GeometryReader { geo in
+                            Color.clear
+                                .onChange(of: geo.frame(in: .global).minY) { _, newValue in
+                                    scrollOffset = newValue
+                                }
+                                .onAppear {
+                                    scrollOffset = geo.frame(in: .global).minY
+                                }
+                        }
+                    )
+
                     // Selected date range display
                     selectedRangeHeader
 
@@ -38,13 +177,29 @@ struct PatternsView: View {
                     if hasPlacementData {
                         // Rotation Score section
                         VStack(alignment: .leading, spacing: 16) {
-                            SectionHeader("Rotation Score")
+                            HStack(alignment: .top) {
+                                SectionHeader("Rotation Score")
+                                Spacer()
+                                PatternsHelpButton {
+                                    withAnimation {
+                                        showingScoreHelp = true
+                                    }
+                                }
+                            }
                             ComplianceScoreView(rotationScore: rotationScore)
                         }
 
                         // Usage Heatmap section
                         VStack(alignment: .leading, spacing: 16) {
-                            SectionHeader("Usage Heatmap")
+                            HStack(alignment: .top) {
+                                SectionHeader("Usage Heatmap")
+                                Spacer()
+                                PatternsHelpButton {
+                                    withAnimation {
+                                        showingHeatmapHelp = true
+                                    }
+                                }
+                            }
                             HeatmapBodyDiagramView(heatmapData: heatmapData)
                         }
 
@@ -73,9 +228,30 @@ struct PatternsView: View {
                 .padding(20)
             }
             .background(WarmGradientBackground())
-            .navigationTitle("Patterns")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    if showNavBarLogo {
+                        Button {
+                            showingAboutModal = true
+                        } label: {
+                            Image("AppLogo")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 32, height: 32)
+                                .clipShape(Circle())
+                        }
+                        .transition(.opacity)
+                    }
+                }
+                ToolbarItem(placement: .principal) {
+                    if showNavBarLogo {
+                        Text("Patterns")
+                            .font(.headline)
+                            .foregroundColor(.textPrimary)
+                            .transition(.opacity)
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     shareButton
                 }
@@ -101,8 +277,62 @@ struct PatternsView: View {
                     ShareSheet(activityItems: [pdfURL])
                 }
             }
+            .sheet(isPresented: $showingAboutModal) {
+                PatternsAboutModal()
+                    .presentationDetents([.medium])
+            }
             .onAppear {
                 viewModel.configure(with: modelContext)
+                // Auto-show score tooltip on first visit after delay
+                if !hasSeenHelp {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        withAnimation {
+                            showingScoreHelp = true
+                        }
+                    }
+                }
+            }
+            .overlay {
+                if showingScoreHelp {
+                    Color.black.opacity(0.6)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation {
+                                showingScoreHelp = false
+                            }
+                            if !hasSeenHelp {
+                                hasSeenHelp = true
+                            }
+                        }
+                    PatternsHelpTooltip(
+                        message: "Your rotation score (0-100) based on distribution balance and rest compliance."
+                    ) {
+                        withAnimation {
+                            showingScoreHelp = false
+                        }
+                        if !hasSeenHelp {
+                            hasSeenHelp = true
+                        }
+                    }
+                }
+            }
+            .overlay {
+                if showingHeatmapHelp {
+                    Color.black.opacity(0.6)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation {
+                                showingHeatmapHelp = false
+                            }
+                        }
+                    PatternsHelpTooltip(
+                        message: "Warmer colors = more frequently used. Aim for even distribution across all sites."
+                    ) {
+                        withAnimation {
+                            showingHeatmapHelp = false
+                        }
+                    }
+                }
             }
         }
     }
@@ -155,6 +385,13 @@ struct PatternsView: View {
                 .foregroundColor(.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 20)
+
+            Text("At least 5 placements are needed to generate pattern insights.")
+                .font(.caption)
+                .foregroundColor(.textMuted)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 60)

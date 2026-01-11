@@ -52,7 +52,8 @@ struct BodyDiagramView: View {
     private let backZones: [PlacementZone] = [
         PlacementZone(location: .leftArm, corner: .topLeft, bodyX: 0.25, bodyY: 0.42),
         PlacementZone(location: .rightArm, corner: .topRight, bodyX: 0.75, bodyY: 0.42),
-        PlacementZone(location: .lowerBack, corner: .bottomCenter, bodyX: 0.50, bodyY: 0.58),
+        PlacementZone(location: .leftLowerBack, corner: .bottomLeft, bodyX: 0.42, bodyY: 0.58),
+        PlacementZone(location: .rightLowerBack, corner: .bottomRight, bodyX: 0.58, bodyY: 0.58),
     ]
 
     // Crop parameters

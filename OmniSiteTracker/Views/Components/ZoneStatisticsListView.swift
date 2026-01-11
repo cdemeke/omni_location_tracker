@@ -111,20 +111,19 @@ private struct ZoneStatisticsRow: View {
 // MARK: - Preview
 
 #Preview {
-    let sampleData: [HeatmapData] = [
-        HeatmapData(location: .abdomenLeft, usageCount: 10, intensity: 1.0, lastUsed: Date(), percentageOfTotal: 25),
-        HeatmapData(location: .abdomenRight, usageCount: 8, intensity: 0.8, lastUsed: Date(), percentageOfTotal: 20),
-        HeatmapData(location: .leftArm, usageCount: 6, intensity: 0.6, lastUsed: Date(), percentageOfTotal: 15),
-        HeatmapData(location: .leftThigh, usageCount: 5, intensity: 0.5, lastUsed: Date(), percentageOfTotal: 12.5),
-        HeatmapData(location: .rightArm, usageCount: 4, intensity: 0.4, lastUsed: Date(), percentageOfTotal: 10),
-        HeatmapData(location: .rightThigh, usageCount: 3, intensity: 0.3, lastUsed: Date(), percentageOfTotal: 7.5),
-        HeatmapData(location: .lowerBack, usageCount: 2, intensity: 0.2, lastUsed: Date(), percentageOfTotal: 5),
-        HeatmapData(location: .lowerAbdomen, usageCount: 2, intensity: 0.2, lastUsed: Date(), percentageOfTotal: 5),
-    ]
-
-    return ScrollView {
-        ZoneStatisticsListView(heatmapData: sampleData)
-            .padding()
+    ScrollView {
+        ZoneStatisticsListView(heatmapData: [
+            HeatmapData(location: .abdomenLeft, usageCount: 10, intensity: 1.0, lastUsed: Date(), percentageOfTotal: 25),
+            HeatmapData(location: .abdomenRight, usageCount: 8, intensity: 0.8, lastUsed: Date(), percentageOfTotal: 20),
+            HeatmapData(location: .leftArm, usageCount: 6, intensity: 0.6, lastUsed: Date(), percentageOfTotal: 15),
+            HeatmapData(location: .leftThigh, usageCount: 5, intensity: 0.5, lastUsed: Date(), percentageOfTotal: 12.5),
+            HeatmapData(location: .rightArm, usageCount: 4, intensity: 0.4, lastUsed: Date(), percentageOfTotal: 10),
+            HeatmapData(location: .rightThigh, usageCount: 3, intensity: 0.3, lastUsed: Date(), percentageOfTotal: 7.5),
+            HeatmapData(location: .leftLowerBack, usageCount: 2, intensity: 0.2, lastUsed: Date(), percentageOfTotal: 2.5),
+            HeatmapData(location: .rightLowerBack, usageCount: 2, intensity: 0.2, lastUsed: Date(), percentageOfTotal: 2.5),
+            HeatmapData(location: .lowerAbdomen, usageCount: 2, intensity: 0.2, lastUsed: Date(), percentageOfTotal: 5),
+        ])
+        .padding()
     }
     .background(WarmGradientBackground())
 }

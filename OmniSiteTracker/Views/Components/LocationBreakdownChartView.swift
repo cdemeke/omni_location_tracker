@@ -88,7 +88,8 @@ struct LocationBreakdownChartView: View {
             BodyLocation.lowerAbdomen.shortName: Color.appWarning,
             BodyLocation.leftThigh.shortName: Color.appHighlight,
             BodyLocation.rightThigh.shortName: Color(red: 0.65, green: 0.55, blue: 0.75),
-            BodyLocation.lowerBack.shortName: Color(red: 0.55, green: 0.65, blue: 0.60)
+            BodyLocation.leftLowerBack.shortName: Color(red: 0.55, green: 0.65, blue: 0.60),
+            BodyLocation.rightLowerBack.shortName: Color(red: 0.60, green: 0.55, blue: 0.65)
         ]
     }
 }
@@ -96,26 +97,18 @@ struct LocationBreakdownChartView: View {
 // MARK: - Preview
 
 #Preview {
-    let calendar = Calendar.current
-    let today = Date()
-
-    // Generate sample data for each location
-    var sampleData: [BodyLocation: [TrendDataPoint]] = [:]
-
-    for location in BodyLocation.allCases {
-        var dataPoints: [TrendDataPoint] = []
-        for dayOffset in (0..<14).reversed() {
-            let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) ?? today
-            let count = Int.random(in: 0...2)
-            dataPoints.append(TrendDataPoint(date: date, count: count, location: location))
-        }
-        sampleData[location] = dataPoints
-    }
-
-    return ScrollView {
+    ScrollView {
         VStack(spacing: 24) {
             SectionHeader("Location Breakdown")
-            LocationBreakdownChartView(locationTrendData: sampleData)
+            LocationBreakdownChartView(locationTrendData: Dictionary(uniqueKeysWithValues: BodyLocation.allCases.map { location in
+                (location, (0..<14).reversed().map { dayOffset in
+                    TrendDataPoint(
+                        date: Calendar.current.date(byAdding: .day, value: -dayOffset, to: Date()) ?? Date(),
+                        count: Int.random(in: 0...2),
+                        location: location
+                    )
+                })
+            }))
         }
         .padding()
     }

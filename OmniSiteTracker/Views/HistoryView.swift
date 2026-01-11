@@ -8,6 +8,92 @@
 import SwiftUI
 import SwiftData
 
+// MARK: - Local Components (workaround for scope issues)
+
+private struct HistoryHelpTooltip: View {
+    let message: String
+    let onDismiss: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(message)
+                .font(.subheadline)
+                .foregroundColor(.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Button(action: onDismiss) {
+                Text("Got it")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.appAccent)
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+        .padding(16)
+        .frame(maxWidth: 280)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.black.opacity(0.2), radius: 12, x: 0, y: 4)
+        )
+        .transition(.opacity)
+    }
+}
+
+private struct HistoryAboutModal: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Image("AppLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 80, height: 80)
+                .clipShape(RoundedRectangle(cornerRadius: 18))
+                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+
+            Text("OmniSite")
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.textPrimary)
+
+            Text("This app was developed by a father caring for his child with Type 1 Diabetes.\n\nIt's intended to help ensure you're rotating pump placement locations and minimizing the chance of scar tissue developing.")
+                .font(.body)
+                .foregroundColor(.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
+
+            VStack(spacing: 8) {
+                Text("Made with love.")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.textPrimary)
+
+                Text("Love you, Theo.")
+                    .font(.headline)
+                    .foregroundColor(.appAccent)
+            }
+            .padding(.top, 8)
+
+            Spacer()
+
+            Button {
+                dismiss()
+            } label: {
+                Text("Close")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.appAccent)
+                    .cornerRadius(12)
+            }
+        }
+        .padding(24)
+        .background(Color.appBackground)
+    }
+}
+
 /// History screen showing past placement records
 struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
@@ -15,6 +101,14 @@ struct HistoryView: View {
     @State private var selectedFilter: BodyLocation?
     @State private var showingFilterSheet = false
     @State private var placementToEdit: PlacementLog?
+    @State private var showingHistoryHelp = false
+    @State private var showingAboutModal = false
+    @State private var scrollOffset: CGFloat = 0
+    @AppStorage("hasSeenHistoryHelp") private var hasSeenHelp = false
+
+    private var showNavBarLogo: Bool {
+        scrollOffset < 100
+    }
 
     var body: some View {
         NavigationStack {
@@ -26,15 +120,68 @@ struct HistoryView: View {
                 }
             }
             .background(Color.appBackground.ignoresSafeArea())
-            .navigationTitle("History")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    if showNavBarLogo {
+                        Button {
+                            showingAboutModal = true
+                        } label: {
+                            Image("AppLogo")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 32, height: 32)
+                                .clipShape(Circle())
+                        }
+                        .transition(.opacity)
+                    }
+                }
+                ToolbarItem(placement: .principal) {
+                    if showNavBarLogo {
+                        Text("History")
+                            .font(.headline)
+                            .foregroundColor(.textPrimary)
+                            .transition(.opacity)
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     filterButton
                 }
             }
             .onAppear {
                 viewModel.configure(with: modelContext)
+                // Auto-show tooltip on first visit after delay
+                if !hasSeenHelp {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        withAnimation {
+                            showingHistoryHelp = true
+                        }
+                    }
+                }
+            }
+            .overlay {
+                if showingHistoryHelp {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation {
+                                showingHistoryHelp = false
+                            }
+                            if !hasSeenHelp {
+                                hasSeenHelp = true
+                            }
+                        }
+                    HistoryHelpTooltip(
+                        message: "Your complete placement history. Swipe left to delete, tap to edit."
+                    ) {
+                        withAnimation {
+                            showingHistoryHelp = false
+                        }
+                        if !hasSeenHelp {
+                            hasSeenHelp = true
+                        }
+                    }
+                }
             }
             .sheet(isPresented: $showingFilterSheet) {
                 filterSheet
@@ -55,6 +202,10 @@ struct HistoryView: View {
                     }
                 )
                 .presentationDetents([.medium, .large])
+            }
+            .sheet(isPresented: $showingAboutModal) {
+                HistoryAboutModal()
+                    .presentationDetents([.medium])
             }
         }
     }
@@ -82,6 +233,35 @@ struct HistoryView: View {
     private var historyList: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
+                // Custom large title with icon
+                HStack(spacing: 12) {
+                    Button {
+                        showingAboutModal = true
+                    } label: {
+                        Image("AppLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 40, height: 40)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    Text("History")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.textPrimary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    GeometryReader { geo in
+                        Color.clear
+                            .onChange(of: geo.frame(in: .global).minY) { _, newValue in
+                                scrollOffset = newValue
+                            }
+                            .onAppear {
+                                scrollOffset = geo.frame(in: .global).minY
+                            }
+                    }
+                )
+
                 // Summary stats
                 summarySection
 

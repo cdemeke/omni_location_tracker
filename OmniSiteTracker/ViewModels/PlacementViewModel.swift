@@ -47,17 +47,12 @@ final class PlacementViewModel {
     private var _lastUsedDates: [BodyLocation: Date] = [:]
 
     /// Cached recommendation - updated when placements change
-    private var _cachedRecommendation: SiteRecommendation?
-    private var _recommendationComputed = false
+    private(set) var _cachedRecommendation: SiteRecommendation?
 
     var lastUsedDates: [BodyLocation: Date] { _lastUsedDates }
 
     var recommendedSite: SiteRecommendation? {
-        if !_recommendationComputed {
-            _cachedRecommendation = computeRecommendation()
-            _recommendationComputed = true
-        }
-        return _cachedRecommendation
+        _cachedRecommendation
     }
 
     func configure(with modelContext: ModelContext) {
@@ -92,9 +87,8 @@ final class PlacementViewModel {
         }
         _lastUsedDates = dates
 
-        // Invalidate recommendation cache
-        _recommendationComputed = false
-        _cachedRecommendation = nil
+        // Compute recommendation eagerly (avoids mutation during property access)
+        _cachedRecommendation = computeRecommendation()
     }
 
     func logPlacement(at location: BodyLocation, note: String? = nil) {
