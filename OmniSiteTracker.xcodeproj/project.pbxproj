@@ -37,6 +37,7 @@
 		C7A00037291A0001000001C /* CustomSite.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00038291A0001000001C /* CustomSite.swift */; };
 		C7A00039291A0001000001D /* DisabledDefaultSite.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0003A291A0001000001D /* DisabledDefaultSite.swift */; };
 		C7A0003B291A0001000001E /* NotificationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0003C291A0001000001E /* NotificationSettings.swift */; };
+		C7A0003D291A0001000001F /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0003E291A0001000001F /* SettingsViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -71,6 +72,7 @@
 		C7A00038291A0001000001C /* CustomSite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSite.swift; sourceTree = "<group>"; };
 		C7A0003A291A0001000001D /* DisabledDefaultSite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisabledDefaultSite.swift; sourceTree = "<group>"; };
 		C7A0003C291A0001000001E /* NotificationSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettings.swift; sourceTree = "<group>"; };
+		C7A0003E291A0001000001F /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +134,7 @@
 			isa = PBXGroup;
 			children = (
 				C7A00014291A0001000000A /* PlacementViewModel.swift */,
+				C7A0003E291A0001000001F /* SettingsViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -275,6 +278,7 @@
 				C7A00037291A0001000001C /* CustomSite.swift in Sources */,
 				C7A00039291A0001000001D /* DisabledDefaultSite.swift in Sources */,
 				C7A0003B291A0001000001E /* NotificationSettings.swift in Sources */,
+				C7A0003D291A0001000001F /* SettingsViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
