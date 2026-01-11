@@ -35,6 +35,7 @@
 		C7A00033291A0001000001A /* OnboardingTopicSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00034291A0001000001A /* OnboardingTopicSheet.swift */; };
 		C7A00035291A0001000001B /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00036291A0001000001B /* UserSettings.swift */; };
 		C7A00037291A0001000001C /* CustomSite.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00038291A0001000001C /* CustomSite.swift */; };
+		C7A00039291A0001000001D /* DisabledDefaultSite.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0003A291A0001000001D /* DisabledDefaultSite.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -67,6 +68,7 @@
 		C7A00034291A0001000001A /* OnboardingTopicSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTopicSheet.swift; sourceTree = "<group>"; };
 		C7A00036291A0001000001B /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
 		C7A00038291A0001000001C /* CustomSite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSite.swift; sourceTree = "<group>"; };
+		C7A0003A291A0001000001D /* DisabledDefaultSite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisabledDefaultSite.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,6 +117,7 @@
 			children = (
 				C7A00010291A00010000008 /* BodyLocation.swift */,
 				C7A00038291A0001000001C /* CustomSite.swift */,
+				C7A0003A291A0001000001D /* DisabledDefaultSite.swift */,
 				C7A0001E291A0001000000F /* HeatmapModels.swift */,
 				C7A00012291A00010000009 /* PlacementLog.swift */,
 				C7A00036291A0001000001B /* UserSettings.swift */,
@@ -267,6 +270,7 @@
 				C7A00015291A0001000000B /* DesignSystem.swift in Sources */,
 				C7A00035291A0001000001B /* UserSettings.swift in Sources */,
 				C7A00037291A0001000001C /* CustomSite.swift in Sources */,
+				C7A00039291A0001000001D /* DisabledDefaultSite.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
