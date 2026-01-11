@@ -68,6 +68,9 @@ struct SettingsView: View {
 
                     // MARK: - Notifications Section
                     notificationsSection
+
+                    // MARK: - About Section
+                    aboutSection
                 }
                 .padding(20)
             }
@@ -552,6 +555,104 @@ struct SettingsView: View {
             }
             .padding(16)
             .neumorphicCard()
+        }
+    }
+
+    // MARK: - About Section
+
+    private var aboutSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            SectionHeader("About")
+
+            VStack(spacing: 0) {
+                // App Version
+                HStack {
+                    Text("Version")
+                        .font(.body)
+                        .foregroundColor(.textPrimary)
+
+                    Spacer()
+
+                    Text(appVersion)
+                        .font(.body)
+                        .foregroundColor(.textSecondary)
+                }
+                .padding(.vertical, 12)
+
+                Divider()
+                    .background(Color.textSecondary.opacity(0.3))
+
+                // Attribution
+                HStack {
+                    Text("Made with ❤️ for Theo")
+                        .font(.body)
+                        .foregroundColor(.textPrimary)
+
+                    Spacer()
+                }
+                .padding(.vertical, 12)
+
+                Divider()
+                    .background(Color.textSecondary.opacity(0.3))
+
+                // Privacy Policy
+                Button(action: openPrivacyPolicy) {
+                    HStack {
+                        Text("Privacy Policy")
+                            .font(.body)
+                            .foregroundColor(.textPrimary)
+
+                        Spacer()
+
+                        Image(systemName: "arrow.up.right")
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                    }
+                    .padding(.vertical, 12)
+                }
+                .buttonStyle(PlainButtonStyle())
+
+                Divider()
+                    .background(Color.textSecondary.opacity(0.3))
+
+                // Send Feedback
+                Button(action: sendFeedback) {
+                    HStack {
+                        Text("Send Feedback")
+                            .font(.body)
+                            .foregroundColor(.textPrimary)
+
+                        Spacer()
+
+                        Image(systemName: "envelope")
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                    }
+                    .padding(.vertical, 12)
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            .padding(16)
+            .neumorphicCard()
+        }
+    }
+
+    /// App version from Bundle info dictionary
+    private var appVersion: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        return "\(version) (\(build))"
+    }
+
+    private func openPrivacyPolicy() {
+        if let url = URL(string: "https://example.com/privacy") {
+            UIApplication.shared.open(url)
+        }
+    }
+
+    private func sendFeedback() {
+        if let url = URL(string: "mailto:feedback@omnisitetracker.app") {
+            UIApplication.shared.open(url)
         }
     }
 
