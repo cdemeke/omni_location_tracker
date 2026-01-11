@@ -19,6 +19,16 @@ struct SettingsView: View {
     @State private var showDeleteConfirmation: Bool = false
     @State private var siteToDelete: CustomSite?
     @State private var showAddCustomSiteSheet: Bool = false
+    @State private var newSiteName: String = ""
+    @State private var newSiteIcon: String = "star.fill"
+    @State private var showDuplicateNameError: Bool = false
+
+    /// Curated list of SF Symbols for custom site icons
+    private let availableIcons = [
+        "star.fill", "circle.fill", "square.fill", "triangle.fill", "heart.fill",
+        "bolt.fill", "leaf.fill", "drop.fill", "flame.fill", "moon.fill",
+        "sun.max.fill", "cross.fill", "pills.fill", "bandage.fill", "syringe.fill"
+    ]
 
     var body: some View {
         NavigationStack {
@@ -79,7 +89,121 @@ struct SettingsView: View {
                     Text("Are you sure you want to delete this site?")
                 }
             }
+            .sheet(isPresented: $showAddCustomSiteSheet) {
+                addCustomSiteSheet
+            }
         }
+    }
+
+    // MARK: - Add Custom Site Sheet
+
+    private var addCustomSiteSheet: some View {
+        NavigationStack {
+            VStack(spacing: 24) {
+                // Site name text field
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Site Name")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.textSecondary)
+
+                    TextField("Enter site name", text: $newSiteName)
+                        .textFieldStyle(.roundedBorder)
+                        .onChange(of: newSiteName) { _, _ in
+                            // Clear error when user types
+                            showDuplicateNameError = false
+                        }
+
+                    if showDuplicateNameError {
+                        Text("A site with this name already exists")
+                            .font(.caption)
+                            .foregroundColor(.appWarning)
+                    }
+                }
+
+                // Icon picker
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Choose Icon")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.textSecondary)
+
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 5), spacing: 12) {
+                        ForEach(availableIcons, id: \.self) { iconName in
+                            iconButton(for: iconName)
+                        }
+                    }
+                }
+
+                Spacer()
+            }
+            .padding(20)
+            .background(WarmGradientBackground())
+            .navigationTitle("Add Custom Site")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        resetSheetState()
+                        showAddCustomSiteSheet = false
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Add") {
+                        addCustomSite()
+                    }
+                    .disabled(newSiteName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+            }
+        }
+        .presentationDetents([.medium])
+    }
+
+    private func iconButton(for iconName: String) -> some View {
+        let isSelected = newSiteIcon == iconName
+
+        return Button(action: {
+            newSiteIcon = iconName
+        }) {
+            Image(systemName: iconName)
+                .font(.title2)
+                .foregroundColor(isSelected ? .white : .appAccent)
+                .frame(width: 44, height: 44)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(isSelected ? Color.appAccent : Color.cardBackground)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(isSelected ? Color.appAccent : Color.textSecondary.opacity(0.3), lineWidth: 1)
+                )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+
+    private func addCustomSite() {
+        let trimmedName = newSiteName.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Check if name already exists
+        let existingNames = customSites.map { $0.name.lowercased() }
+        if existingNames.contains(trimmedName.lowercased()) {
+            showDuplicateNameError = true
+            return
+        }
+
+        // Add the custom site
+        viewModel.addCustomSite(name: trimmedName, iconName: newSiteIcon)
+        customSites = viewModel.getCustomSites()
+
+        // Reset and dismiss
+        resetSheetState()
+        showAddCustomSiteSheet = false
+    }
+
+    private func resetSheetState() {
+        newSiteName = ""
+        newSiteIcon = "star.fill"
+        showDuplicateNameError = false
     }
 
     // MARK: - Rotation Settings Section
