@@ -39,9 +39,11 @@ struct BodyDiagramView: View {
     let viewModel: PlacementViewModel
     let onLocationSelected: (BodyLocation) -> Void
     @Binding var selectedView: BodyView
+    /// Set of enabled body locations to display. If nil, all locations are shown.
+    var enabledLocations: Set<BodyLocation>?
 
     // Front view zones - buttons in corners, body points where lines connect
-    private let frontZones: [PlacementZone] = [
+    private let allFrontZones: [PlacementZone] = [
         PlacementZone(location: .abdomenLeft, corner: .topLeft, bodyX: 0.42, bodyY: 0.52),
         PlacementZone(location: .abdomenRight, corner: .topRight, bodyX: 0.58, bodyY: 0.52),
         PlacementZone(location: .leftThigh, corner: .bottomLeft, bodyX: 0.42, bodyY: 0.78),
@@ -49,12 +51,24 @@ struct BodyDiagramView: View {
     ]
 
     // Back view zones
-    private let backZones: [PlacementZone] = [
+    private let allBackZones: [PlacementZone] = [
         PlacementZone(location: .leftArm, corner: .topLeft, bodyX: 0.25, bodyY: 0.42),
         PlacementZone(location: .rightArm, corner: .topRight, bodyX: 0.75, bodyY: 0.42),
         PlacementZone(location: .leftLowerBack, corner: .bottomLeft, bodyX: 0.42, bodyY: 0.58),
         PlacementZone(location: .rightLowerBack, corner: .bottomRight, bodyX: 0.58, bodyY: 0.58),
     ]
+
+    /// Front zones filtered by enabled locations
+    private var frontZones: [PlacementZone] {
+        guard let enabled = enabledLocations else { return allFrontZones }
+        return allFrontZones.filter { enabled.contains($0.location) }
+    }
+
+    /// Back zones filtered by enabled locations
+    private var backZones: [PlacementZone] {
+        guard let enabled = enabledLocations else { return allBackZones }
+        return allBackZones.filter { enabled.contains($0.location) }
+    }
 
     // Crop parameters
     private let cropTop: CGFloat = 0.10

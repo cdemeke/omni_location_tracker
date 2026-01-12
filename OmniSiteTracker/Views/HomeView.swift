@@ -191,6 +191,7 @@ struct SelectedLocation: Identifiable {
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = PlacementViewModel()
+    @State private var settingsViewModel = SettingsViewModel()
     @State private var selectedLocation: SelectedLocation?
     @State private var showingSuccessToast = false
     @State private var selectedBodyView: BodyView = .front
@@ -199,6 +200,7 @@ struct HomeView: View {
     @State private var showingDiagramHelp = false
     @State private var showingAboutModal = false
     @State private var scrollOffset: CGFloat = 0
+    @State private var enabledLocations: Set<BodyLocation> = Set(BodyLocation.allCases)
 
     private var showNavBarLogo: Bool {
         scrollOffset < 100
@@ -269,7 +271,8 @@ struct HomeView: View {
                             onLocationSelected: { location in
                                 selectedLocation = SelectedLocation(location: location)
                             },
-                            selectedView: $selectedBodyView
+                            selectedView: $selectedBodyView,
+                            enabledLocations: enabledLocations
                         )
                         .frame(height: 350)
 
@@ -340,6 +343,8 @@ struct HomeView: View {
             }
             .onAppear {
                 viewModel.configure(with: modelContext)
+                settingsViewModel.configure(with: modelContext)
+                loadEnabledLocations()
             }
             .sheet(item: $selectedLocation) { selected in
                 PlacementConfirmationSheet(
@@ -506,6 +511,13 @@ struct HomeView: View {
                 showingSuccessToast = false
             }
         }
+    }
+
+    /// Loads enabled body locations from settings
+    private func loadEnabledLocations() {
+        let disabledLocations = settingsViewModel.getDisabledDefaultSites()
+        let allLocations = Set(BodyLocation.allCases)
+        enabledLocations = allLocations.subtracting(Set(disabledLocations))
     }
 }
 
