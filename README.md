@@ -66,7 +66,7 @@ You can add unlimited custom body sites through Settings with personalized names
 
 ## Screenshots
 
-![OmniSite Tracker App Overview](screenshots/app-overview.png)
+![OmniSite Tracker App Overview](screenshots/app_img.png)
 
 *From left to right: Home screen with body diagram and recommendations, Placement confirmation sheet, History view with usage summary, Patterns view with heatmap visualization*
 
