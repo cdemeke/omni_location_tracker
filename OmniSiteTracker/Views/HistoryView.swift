@@ -401,12 +401,12 @@ struct HistoryView: View {
             HStack(spacing: 14) {
                 // Status indicator
                 Circle()
-                    .fill(viewModel.statusColor(for: placement.location))
+                    .fill(placement.location.map { viewModel.statusColor(for: $0) } ?? Color.gray.opacity(0.4))
                     .frame(width: 14, height: 14)
 
                 // Placement info
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(placement.location.displayName)
+                    Text(placement.location?.displayName ?? placement.customSiteName ?? "Unknown")
                         .font(.headline)
                         .foregroundColor(.textPrimary)
 

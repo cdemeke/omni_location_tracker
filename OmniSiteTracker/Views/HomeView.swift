@@ -455,11 +455,11 @@ struct HomeView: View {
 
             HStack(spacing: 12) {
                 Circle()
-                    .fill(viewModel.statusColor(for: placement.location))
+                    .fill(placement.location.map { viewModel.statusColor(for: $0) } ?? Color.gray.opacity(0.4))
                     .frame(width: 12, height: 12)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(placement.location.displayName)
+                    Text(placement.location?.displayName ?? placement.customSiteName ?? "Unknown")
                         .font(.headline)
                         .foregroundColor(.textPrimary)
 

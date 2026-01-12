@@ -86,11 +86,12 @@ final class PlacementViewModel {
 
     /// Updates cached computed values after placements change
     private func updateCaches() {
-        // Update lastUsedDates cache
+        // Update lastUsedDates cache (only for default BodyLocation placements, not custom sites)
         var dates: [BodyLocation: Date] = [:]
         for placement in placements {
-            if dates[placement.location] == nil {
-                dates[placement.location] = placement.placedAt
+            guard let location = placement.location else { continue }
+            if dates[location] == nil {
+                dates[location] = placement.placedAt
             }
         }
         _lastUsedDates = dates
@@ -217,7 +218,7 @@ final class PlacementViewModel {
     }
 
     func placements(for location: BodyLocation) -> [PlacementLog] {
-        placements.filter { $0.location == location }
+        placements.filter { $0.location == location && !$0.isCustomSite }
     }
 
     var mostRecentPlacement: PlacementLog? {
@@ -249,19 +250,20 @@ extension PlacementViewModel {
             placement.placedAt >= startDate && placement.placedAt <= endDate
         }
 
-        // Count placements per location
+        // Count placements per location (only default BodyLocation placements, not custom sites)
         var countsByLocation: [BodyLocation: Int] = [:]
         var lastUsedByLocation: [BodyLocation: Date] = [:]
 
         for placement in filteredPlacements {
-            countsByLocation[placement.location, default: 0] += 1
+            guard let location = placement.location else { continue }
+            countsByLocation[location, default: 0] += 1
 
             // Track last used date (most recent first due to sorting)
-            if lastUsedByLocation[placement.location] == nil {
-                lastUsedByLocation[placement.location] = placement.placedAt
-            } else if let existing = lastUsedByLocation[placement.location],
+            if lastUsedByLocation[location] == nil {
+                lastUsedByLocation[location] = placement.placedAt
+            } else if let existing = lastUsedByLocation[location],
                       placement.placedAt > existing {
-                lastUsedByLocation[placement.location] = placement.placedAt
+                lastUsedByLocation[location] = placement.placedAt
             }
         }
 
@@ -345,7 +347,8 @@ extension PlacementViewModel {
         var countsByLocation: [BodyLocation: Int] = [:]
 
         for placement in placements {
-            countsByLocation[placement.location, default: 0] += 1
+            guard let location = placement.location else { continue }
+            countsByLocation[location, default: 0] += 1
         }
 
         let totalPlacements = placements.count
@@ -374,11 +377,12 @@ extension PlacementViewModel {
     /// Calculates rest compliance score based on adherence to minimum rest period between same-site uses.
     /// Each violation reduces the score proportionally.
     private func calculateRestComplianceScore(from placements: [PlacementLog]) -> Int {
-        // Group placements by location and sort by date
+        // Group placements by location and sort by date (only for default BodyLocation placements)
         var placementsByLocation: [BodyLocation: [PlacementLog]] = [:]
 
         for placement in placements {
-            placementsByLocation[placement.location, default: []].append(placement)
+            guard let location = placement.location else { continue }
+            placementsByLocation[location, default: []].append(placement)
         }
 
         // Sort each location's placements by date
@@ -555,6 +559,7 @@ extension PlacementViewModel {
         }
 
         for placement in filteredPlacements {
+            guard let location = placement.location else { continue }
             let periodStart: Date
             switch groupBy {
             case .day:
@@ -563,7 +568,7 @@ extension PlacementViewModel {
                 periodStart = calendar.dateInterval(of: .weekOfYear, for: placement.placedAt)?.start
                     ?? calendar.startOfDay(for: placement.placedAt)
             }
-            countsByLocationAndPeriod[placement.location, default: [:]][periodStart, default: 0] += 1
+            countsByLocationAndPeriod[location, default: [:]][periodStart, default: 0] += 1
         }
 
         // Generate periods for the entire date range (including zero-count periods)

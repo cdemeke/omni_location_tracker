@@ -29,7 +29,7 @@ struct PlacementEditSheet: View {
         self.onSave = onSave
         self.onDelete = onDelete
         self.onCancel = onCancel
-        self._selectedLocation = State(initialValue: placement.location)
+        self._selectedLocation = State(initialValue: placement.location ?? .abdomenRight)
         self._selectedDate = State(initialValue: placement.placedAt)
         self._note = State(initialValue: placement.note ?? "")
     }
