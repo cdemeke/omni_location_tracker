@@ -117,6 +117,8 @@ struct PatternsView: View {
     @State private var viewModel = PlacementViewModel()
     @State private var settingsViewModel = SettingsViewModel()
     @State private var enabledLocations: Set<BodyLocation> = Set(BodyLocation.allCases)
+    @State private var showDisabledSitesInHistory: Bool = true
+    @State private var customSites: [CustomSite] = []
 
     // Date range state with defaults
     @State private var startDate: Date = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
@@ -290,6 +292,8 @@ struct PatternsView: View {
                 viewModel.configure(with: modelContext)
                 settingsViewModel.configure(with: modelContext)
                 loadEnabledLocations()
+                showDisabledSitesInHistory = settingsViewModel.getShowDisabledSitesInHistory()
+                customSites = settingsViewModel.getCustomSites()
                 // Auto-show score tooltip on first visit after delay
                 if !hasSeenHelp {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -346,14 +350,38 @@ struct PatternsView: View {
 
     // MARK: - Computed Data
 
+    /// Disabled locations set for filtering
+    private var disabledLocationsSet: Set<BodyLocation> {
+        Set(settingsViewModel.getDisabledDefaultSites())
+    }
+
     /// Rotation score recalculates when date range changes
     private var rotationScore: RotationScore {
         viewModel.calculateRotationScore(from: startDate, to: endDate)
     }
 
     /// Heatmap data recalculates when date range changes
+    /// Respects showDisabledSitesInHistory setting by filtering disabled locations
     private var heatmapData: [HeatmapData] {
-        viewModel.generateHeatmapData(from: startDate, to: endDate)
+        let allData = viewModel.generateHeatmapData(from: startDate, to: endDate)
+        if showDisabledSitesInHistory {
+            return allData
+        } else {
+            // Filter out disabled locations and zero out their counts
+            return allData.map { data in
+                if disabledLocationsSet.contains(data.location) {
+                    // Return heatmap data with zero values for disabled locations
+                    return HeatmapData(
+                        location: data.location,
+                        usageCount: 0,
+                        intensity: 0,
+                        lastUsed: nil,
+                        percentageOfTotal: 0
+                    )
+                }
+                return data
+            }
+        }
     }
 
     /// Trend data recalculates when date range changes
@@ -362,11 +390,19 @@ struct PatternsView: View {
     }
 
     /// Location breakdown trend data recalculates when date range changes
+    /// Respects showDisabledSitesInHistory setting by filtering disabled locations
     private var locationTrendData: [BodyLocation: [TrendDataPoint]] {
         // Auto-select grouping: day for ranges < 30 days, week for >= 30 days
         let daysDifference = Calendar.current.dateComponents([.day], from: startDate, to: endDate).day ?? 0
         let grouping: DateGrouping = daysDifference < 30 ? .day : .week
-        return viewModel.getLocationTrend(from: startDate, to: endDate, groupBy: grouping)
+        let allData = viewModel.getLocationTrend(from: startDate, to: endDate, groupBy: grouping)
+
+        if showDisabledSitesInHistory {
+            return allData
+        } else {
+            // Filter out disabled locations from the trend data
+            return allData.filter { !disabledLocationsSet.contains($0.key) }
+        }
     }
 
     /// Check if there is any placement data in the selected date range

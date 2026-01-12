@@ -110,6 +110,8 @@ struct HistoryView: View {
     @State private var showingAboutModal = false
     @State private var scrollOffset: CGFloat = 0
     @State private var customSites: [CustomSite] = []
+    @State private var showDisabledSitesInHistory: Bool = true
+    @State private var disabledDefaultSites: Set<BodyLocation> = []
     @AppStorage("hasSeenHistoryHelp") private var hasSeenHelp = false
 
     private var showNavBarLogo: Bool {
@@ -158,6 +160,8 @@ struct HistoryView: View {
                 viewModel.configure(with: modelContext)
                 settingsViewModel.configure(with: modelContext)
                 customSites = settingsViewModel.getCustomSites()
+                showDisabledSitesInHistory = settingsViewModel.getShowDisabledSitesInHistory()
+                disabledDefaultSites = Set(settingsViewModel.getDisabledDefaultSites())
                 // Auto-show tooltip on first visit after delay
                 if !hasSeenHelp {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -316,7 +320,7 @@ struct HistoryView: View {
     }
 
     private func siteUsageCard(_ location: BodyLocation) -> some View {
-        let count = viewModel.placements(for: location).count
+        let count = displayFilteredPlacements.filter { $0.location == location }.count
         let lastUsed = viewModel.daysSinceLastUse(for: location)
 
         return Button {
@@ -682,25 +686,51 @@ struct HistoryView: View {
         .presentationDetents([.medium])
     }
 
-    /// Custom sites that have at least one placement in history
+    /// Placements filtered by display preference setting
+    /// When showDisabledSitesInHistory is OFF, filters out:
+    /// - Placements for currently disabled default sites
+    /// - Placements for deleted custom sites (custom site no longer exists)
+    private var displayFilteredPlacements: [PlacementLog] {
+        if showDisabledSitesInHistory {
+            // Show all placements regardless of site status
+            return viewModel.placements
+        } else {
+            // Filter out disabled default sites and deleted custom sites
+            let existingCustomSiteIds = Set(customSites.map { $0.id })
+            return viewModel.placements.filter { placement in
+                if let location = placement.location {
+                    // Default site placement - check if site is enabled
+                    return !disabledDefaultSites.contains(location)
+                } else if let customSiteId = placement.customSiteId {
+                    // Custom site placement - check if custom site still exists
+                    return existingCustomSiteIds.contains(customSiteId)
+                }
+                // Unknown placement type - show it
+                return true
+            }
+        }
+    }
+
+    /// Custom sites that have at least one placement in history (respecting display preference)
     private var customSitesWithPlacements: [CustomSite] {
         let customSiteIdsWithPlacements = Set(
-            viewModel.placements.compactMap { $0.customSiteId }
+            displayFilteredPlacements.compactMap { $0.customSiteId }
         )
         return customSites.filter { customSiteIdsWithPlacements.contains($0.id) }
     }
 
-    /// Count of placements for a given custom site
+    /// Count of placements for a given custom site (respecting display preference)
     private func customSitePlacementCount(for customSiteId: UUID) -> Int {
-        viewModel.placements.filter { $0.customSiteId == customSiteId }.count
+        displayFilteredPlacements.filter { $0.customSiteId == customSiteId }.count
     }
 
     private var filteredPlacementsByDay: [(date: Date, placements: [PlacementLog])] {
         let calendar = Calendar.current
+        let basePlacements = displayFilteredPlacements
 
         if let filter = selectedFilter {
             // Filter by BodyLocation
-            let filtered = viewModel.placements.filter { $0.location == filter }
+            let filtered = basePlacements.filter { $0.location == filter }
             let grouped = Dictionary(grouping: filtered) { placement in
                 calendar.startOfDay(for: placement.placedAt)
             }
@@ -709,7 +739,7 @@ struct HistoryView: View {
                 .map { (date: $0.key, placements: $0.value) }
         } else if let customSiteId = selectedCustomSiteFilter {
             // Filter by custom site
-            let filtered = viewModel.placements.filter { $0.customSiteId == customSiteId }
+            let filtered = basePlacements.filter { $0.customSiteId == customSiteId }
             let grouped = Dictionary(grouping: filtered) { placement in
                 calendar.startOfDay(for: placement.placedAt)
             }
@@ -717,7 +747,13 @@ struct HistoryView: View {
                 .sorted { $0.key > $1.key }
                 .map { (date: $0.key, placements: $0.value) }
         } else {
-            return viewModel.placementsByDay
+            // Group all filtered placements by day
+            let grouped = Dictionary(grouping: basePlacements) { placement in
+                calendar.startOfDay(for: placement.placedAt)
+            }
+            return grouped
+                .sorted { $0.key > $1.key }
+                .map { (date: $0.key, placements: $0.value) }
         }
     }
 
