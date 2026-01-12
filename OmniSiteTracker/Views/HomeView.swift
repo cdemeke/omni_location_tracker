@@ -384,6 +384,7 @@ struct HomeView: View {
             .sheet(item: $selectedCustomSite) { selected in
                 CustomSitePlacementConfirmationSheet(
                     customSite: selected.customSite,
+                    viewModel: viewModel,
                     onConfirm: {
                         selectedCustomSite = nil
                         showSuccessToast()

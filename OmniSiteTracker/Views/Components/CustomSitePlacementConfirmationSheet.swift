@@ -11,6 +11,7 @@ import SwiftUI
 /// Sheet presented when user selects a custom site for placement
 struct CustomSitePlacementConfirmationSheet: View {
     let customSite: CustomSite
+    let viewModel: PlacementViewModel
     let onConfirm: () -> Void
     let onCancel: () -> Void
 
@@ -132,8 +133,7 @@ struct CustomSitePlacementConfirmationSheet: View {
         VStack(spacing: 12) {
             // Primary confirm button - large tap target
             Button {
-                // Note: Actual logging of custom site placements requires US-019 to update PlacementLog
-                // For now, we complete the confirmation flow but the placement won't be saved to the database
+                viewModel.logPlacement(at: customSite, note: showingNote ? note : nil)
                 onConfirm()
             } label: {
                 HStack {
@@ -161,6 +161,7 @@ struct CustomSitePlacementConfirmationSheet: View {
 #Preview {
     CustomSitePlacementConfirmationSheet(
         customSite: CustomSite(name: "Upper Arm", iconName: "star.fill"),
+        viewModel: PlacementViewModel(),
         onConfirm: {},
         onCancel: {}
     )

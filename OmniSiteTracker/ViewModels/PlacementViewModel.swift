@@ -103,9 +103,10 @@ final class PlacementViewModel {
     func logPlacement(at location: BodyLocation, note: String? = nil) {
         guard let modelContext else { return }
 
+        let placedAt = Date.now
         let newPlacement = PlacementLog(
             location: location,
-            placedAt: .now,
+            placedAt: placedAt,
             note: note?.isEmpty == true ? nil : note
         )
 
@@ -114,6 +115,41 @@ final class PlacementViewModel {
         do {
             try modelContext.save()
             fetchPlacements()
+
+            // Schedule notification for when this site will be ready again
+            NotificationManager.shared.updateNotificationsAfterPlacement(
+                modelContext: modelContext,
+                location: location,
+                placedAt: placedAt
+            )
+        } catch {
+            // Silent fail - data will be available next launch
+        }
+    }
+
+    func logPlacement(at customSite: CustomSite, note: String? = nil) {
+        guard let modelContext else { return }
+
+        let placedAt = Date.now
+        let newPlacement = PlacementLog(
+            customSite: customSite,
+            placedAt: placedAt,
+            note: note?.isEmpty == true ? nil : note
+        )
+
+        modelContext.insert(newPlacement)
+
+        do {
+            try modelContext.save()
+            fetchPlacements()
+
+            // Schedule notification for when this custom site will be ready again
+            NotificationManager.shared.updateNotificationsAfterPlacement(
+                modelContext: modelContext,
+                customSiteId: customSite.id,
+                customSiteName: customSite.name,
+                placedAt: placedAt
+            )
         } catch {
             // Silent fail - data will be available next launch
         }

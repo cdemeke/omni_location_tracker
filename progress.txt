@@ -1,0 +1,317 @@
+## Codebase Patterns
+- SwiftData models use `@Model` decorator and should be added to the Schema array in OmniSiteTrackerApp.swift
+- Models stored as enums use raw string values (e.g., `locationRawValue: String`) with computed properties to convert back to the enum type
+- New Swift files must be added to project.pbxproj in four places: PBXBuildFile section, PBXFileReference section, the appropriate PBXGroup, and PBXSourcesBuildPhase section
+- Build target is iOS 17.0, use iPhone 15 (OS 17.5) simulator for testing
+- Singleton patterns use static `getOrCreate(context:)` method with FetchDescriptor
+- ViewModels use @Observable macro and configure(with modelContext:) method for SwiftData access
+- Views use WarmGradientBackground() for background (defined in DesignSystem.swift)
+- Main tab views are added to ContentView.swift's TabView with .tabItem and .tag() for selection
+- PlacementViewModel.minimumRestDays is a dynamic computed property (not static) that reads from UserSettings
+- BodyDiagramView accepts optional `enabledLocations: Set<BodyLocation>?` to filter which zones are displayed
+- HeatmapBodyDiagramView also accepts optional `enabledLocations: Set<BodyLocation>?` using same pattern as BodyDiagramView
+- CustomSite placements use CustomSitePlacementConfirmationSheet component (separate from BodyLocation placements)
+- HomeView loads enabled custom sites via `settingsViewModel.getCustomSites().filter { $0.isEnabled }`
+- PlacementLog.location is now optional (BodyLocation?) - use guard let or nil-coalescing when iterating placements
+- PlacementLog.isCustomSite computed property determines if placement is for a custom site (customSiteId != nil)
+- Display custom site name: `placement.location?.displayName ?? placement.customSiteName ?? "Unknown"`
+- HistoryView uses `customSites` array (loaded from SettingsViewModel) to look up custom site icons for display
+- Custom site filtering uses `selectedCustomSiteFilter: UUID?` separate from `selectedFilter: BodyLocation?`
+- `customSitesWithPlacements` computed property filters custom sites to only those with actual placements
+- HistoryView and PatternsView respect `showDisabledSitesInHistory` setting via `displayFilteredPlacements` computed property
+- When setting is OFF, filter placements by: disabled default sites (check `disabledDefaultSites` Set) and deleted custom sites (check against `customSites` array)
+- HeatmapData filtering uses `.map {}` to zero out values for disabled locations while keeping them in the array structure
+- NotificationManager.swift is in Utilities folder and uses UNUserNotificationCenter for local notifications
+- NotificationManager is a singleton accessed via `NotificationManager.shared`
+- Notifications are scheduled for when sites become ready (rest days from placement date, at user's preferred time minus daysBeforeReminder)
+- Custom site logging uses PlacementViewModel.logPlacement(at customSite:) overload (not BodyLocation parameter)
+- CustomSitePlacementConfirmationSheet accepts viewModel parameter to actually log placements
+
+---
+
+## 2026-01-11 - US-022
+- What was implemented: Created NotificationManager class for scheduling local notifications when sites become ready to use again
+- Files changed:
+  - OmniSiteTracker/Utilities/NotificationManager.swift (created - singleton for handling UNUserNotificationCenter)
+  - OmniSiteTracker/ViewModels/PlacementViewModel.swift (added logPlacement(at customSite:) method, integrated NotificationManager calls on placement logging)
+  - OmniSiteTracker/Views/Components/CustomSitePlacementConfirmationSheet.swift (added viewModel parameter, actually logs placement now)
+  - OmniSiteTracker/Views/HomeView.swift (passes viewModel to CustomSitePlacementConfirmationSheet)
+  - OmniSiteTracker.xcodeproj/project.pbxproj (added NotificationManager.swift to Utilities group)
+- **Learnings for future iterations:**
+  - NotificationManager uses singleton pattern (not @Observable) since it doesn't need SwiftUI reactivity
+  - Use UNUserNotificationCenter.current() for iOS local notifications
+  - UNCalendarNotificationTrigger with dateMatching for scheduling at specific date/time
+  - Notification identifiers use prefix pattern (e.g., "site_ready_") plus location/site ID for uniqueness and easy cancellation
+  - When adding new utility classes, add to Utilities PBXGroup in project.pbxproj (not Models or ViewModels)
+  - Custom site placements now properly log to database via the new PlacementViewModel.logPlacement(at:) overload
+---
+
+## 2026-01-11 - US-021
+- What was implemented: Integrated showDisabledSitesInHistory display preference with HistoryView and PatternsView
+- Files changed:
+  - OmniSiteTracker/Views/HistoryView.swift (added showDisabledSitesInHistory state, disabledDefaultSites Set, displayFilteredPlacements computed property, updated all placement filtering to use displayFilteredPlacements)
+  - OmniSiteTracker/Views/PatternsView.swift (added showDisabledSitesInHistory state, customSites array, disabledLocationsSet, filtered heatmapData and locationTrendData)
+- **Learnings for future iterations:**
+  - Use `displayFilteredPlacements` as the single source of truth for filtered placement arrays
+  - For HistoryView: filter disabled default sites using `disabledDefaultSites.contains(location)` and deleted custom sites using `existingCustomSiteIds.contains(customSiteId)`
+  - For PatternsView heatmap: zero out HeatmapData values for disabled locations instead of removing them (keeps grid structure)
+  - Load `showDisabledSitesInHistory` and related data in `onAppear` alongside other SettingsViewModel data
+  - Zone statistics automatically respect the filtered heatmapData since ZoneStatisticsListView receives heatmapData as input
+---
+
+## 2026-01-11 - US-020
+- What was implemented: Integrated custom sites with HistoryView to display custom site placements
+- Files changed:
+  - OmniSiteTracker/ViewModels/SettingsViewModel.swift (added getCustomSite(byId:) method)
+  - OmniSiteTracker/Views/HistoryView.swift (added settingsViewModel, custom site state, custom site icon in placementCard, custom site filtering, custom sites summary section)
+- **Learnings for future iterations:**
+  - Custom site icon lookup uses customSites array cached at view load, then matches by customSiteId
+  - Pattern: `placement.customSiteId.flatMap { id in customSites.first { $0.id == id } }` for optional chain lookup
+  - Custom site filter indicator and summary section only shown when `customSitesWithPlacements` is non-empty
+  - When toggling filters, clear both selectedFilter and selectedCustomSiteFilter to ensure mutual exclusivity
+  - Default star.fill icon used as fallback if custom site was deleted but placement remains in history
+---
+
+## 2026-01-11 - US-019
+- What was implemented: Updated PlacementLog model to support custom site placements
+- Files changed:
+  - OmniSiteTracker/Models/PlacementLog.swift (added customSiteId, customSiteName fields, isCustomSite computed property, init for custom sites)
+  - OmniSiteTracker/ViewModels/PlacementViewModel.swift (updated to handle optional placement.location in caches and calculations)
+  - OmniSiteTracker/Views/Components/PlacementEditSheet.swift (updated to handle optional location with fallback)
+  - OmniSiteTracker/Views/HomeView.swift (updated placementCard to handle optional location/custom site name)
+  - OmniSiteTracker/Views/HistoryView.swift (updated placementCard to handle optional location/custom site name)
+- **Learnings for future iterations:**
+  - When making location optional, all places that read placement.location must use guard let or nil-coalescing
+  - PlacementViewModel methods like updateCaches, generateHeatmapData, calculateDistributionScore, calculateRestComplianceScore, getLocationTrend all iterate placements and need to handle nil locations
+  - Views displaying placements need to show customSiteName when location is nil
+  - Use `placement.location.map { viewModel.statusColor(for: $0) } ?? Color.gray.opacity(0.4)` pattern for optional chaining with closures
+---
+
+## 2026-01-11 - US-018
+- What was implemented: Added Custom Sites section to HomeView for logging placements at user-defined custom sites
+- Files changed:
+  - OmniSiteTracker/Views/HomeView.swift (added SelectedCustomSite wrapper, enabledCustomSites state, customSitesSection view, customSiteButton helper, loadEnabledCustomSites function, sheet for custom site confirmation)
+  - OmniSiteTracker/Views/Components/CustomSitePlacementConfirmationSheet.swift (created - mirrors PlacementConfirmationSheet for custom sites)
+  - OmniSiteTracker.xcodeproj/project.pbxproj (added CustomSitePlacementConfirmationSheet.swift to project)
+- **Learnings for future iterations:**
+  - Custom sites displayed in horizontal ScrollView with tappable buttons (icon + name)
+  - SelectedCustomSite wrapper needed for sheet(item:) since CustomSite requires Identifiable wrapper
+  - CustomSitePlacementConfirmationSheet mirrors PlacementConfirmationSheet structure but simplified (no last-used tracking for custom sites)
+  - Custom site section only shown when enabledCustomSites.isEmpty is false
+  - Note: Actual logging of custom site placements requires US-019 to update PlacementLog model
+---
+
+## 2026-01-11 - US-017
+- What was implemented: Integrated site toggles with HeatmapBodyDiagramView so disabled sites don't appear on heatmap diagram
+- Files changed:
+  - OmniSiteTracker/Views/Components/HeatmapBodyDiagramView.swift (added enabledLocations parameter and filtering logic for frontZones/backZones)
+  - OmniSiteTracker/Views/PatternsView.swift (added settingsViewModel, enabledLocations state, and loadEnabledLocations() helper)
+- **Learnings for future iterations:**
+  - HeatmapBodyDiagramView now mirrors BodyDiagramView's pattern with enabledLocations parameter
+  - Both use allFrontZones/allBackZones as private let arrays, then frontZones/backZones as computed properties that filter
+  - PatternsView uses the same loadEnabledLocations() pattern as HomeView
+  - When enabledLocations is nil, all zones are shown (backward compatible with Preview)
+---
+
+## 2026-01-11 - US-016
+- What was implemented: Integrated site toggles with BodyDiagramView so disabled sites don't appear on body diagram
+- Files changed:
+  - OmniSiteTracker/Views/Components/BodyDiagramView.swift (added enabledLocations parameter and filtering logic for frontZones/backZones)
+  - OmniSiteTracker/Views/HomeView.swift (added settingsViewModel, enabledLocations state, and loadEnabledLocations() helper)
+- **Learnings for future iterations:**
+  - BodyDiagramView now accepts optional `enabledLocations: Set<BodyLocation>?` parameter for filtering zones
+  - When nil, all zones are shown (backward compatible with Preview)
+  - frontZones and backZones are now computed properties that filter allFrontZones/allBackZones
+  - HomeView uses SettingsViewModel.getDisabledDefaultSites() to compute enabled locations
+  - Set.subtracting() is useful for computing enabled from disabled locations
+---
+
+## 2026-01-11 - US-015
+- What was implemented: Integrated rest duration setting with PlacementViewModel so recommendations respect user's custom rest duration
+- Files changed:
+  - OmniSiteTracker/ViewModels/PlacementViewModel.swift (replaced static minimumRestDays constant with dynamic computed property that reads from UserSettings)
+  - OmniSiteTracker/Views/Components/PlacementConfirmationSheet.swift (updated to use viewModel.minimumRestDays instance property)
+- **Learnings for future iterations:**
+  - PlacementViewModel now reads minimumRestDays from UserSettings via getOrCreate() singleton pattern
+  - Changed from `static let minimumRestDays: Int = 3` to instance computed property `var minimumRestDays: Int`
+  - All usages of `Self.minimumRestDays` changed to `minimumRestDays` instance property
+  - Other views using PlacementViewModel access rest days via `viewModel.minimumRestDays` instead of `PlacementViewModel.minimumRestDays`
+  - Dynamic messages use string interpolation like `"Allow \(minimumRestDays)+ days between same-site uses."`
+---
+
+## 2026-01-11 - US-014
+- What was implemented: Added Reset to Defaults button with confirmation alert and success toast to SettingsView
+- Files changed:
+  - OmniSiteTracker/ViewModels/SettingsViewModel.swift (added resetToDefaults() method)
+  - OmniSiteTracker/Views/SettingsView.swift (added resetToDefaultsSection, toastView, performReset() function, showResetConfirmation and showResetSuccessToast state properties, confirmation alert)
+- **Learnings for future iterations:**
+  - Reset functionality requires both: ViewModel method to persist changes AND View method to refresh local @State properties
+  - Success toast uses .overlay(alignment: .bottom) with conditional rendering and withAnimation for smooth entrance/exit
+  - DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) to auto-hide toast after delay
+  - Button with destructive appearance uses .appWarning color with .stroke() for outline style
+  - Confirmation alert uses Button("Reset", role: .destructive) for destructive action highlighting
+  - FetchDescriptor without predicates fetches all records, use for-loop with modelContext.delete() for batch deletion
+---
+
+## 2026-01-11 - US-013
+- What was implemented: Added About Section UI to SettingsView with app version, attribution, Privacy Policy link, and Send Feedback email link
+- Files changed:
+  - OmniSiteTracker/Views/SettingsView.swift (added aboutSection, appVersion computed property, openPrivacyPolicy() and sendFeedback() helper methods)
+- **Learnings for future iterations:**
+  - Get app version via Bundle.main.infoDictionary?["CFBundleShortVersionString"] and build via CFBundleVersion
+  - Use UIApplication.shared.open() for opening external URLs (Safari) and mailto: links
+  - About section is typically placed at the bottom of settings, after all configurable options
+  - Use arrow.up.right SF Symbol to indicate external link, envelope for email
+  - PlainButtonStyle() on buttons within VStack prevents unwanted tap highlighting on row layout
+---
+
+## 2026-01-11 - US-012
+- What was implemented: Added Notification Settings UI section to SettingsView with master toggle, DatePicker for reminder time, Stepper for days before reminder, and notification permission handling
+- Files changed:
+  - OmniSiteTracker/ViewModels/SettingsViewModel.swift (added getNotificationSettings, updateNotificationsEnabled, updateReminderTime, updateDaysBeforeReminder methods)
+  - OmniSiteTracker/Views/SettingsView.swift (added notificationsSection, notification state properties, permission request logic, and openSettings helper)
+- **Learnings for future iterations:**
+  - Use UNUserNotificationCenter for requesting and checking notification permissions
+  - DatePicker with displayedComponents: .hourAndMinute for time-only picker
+  - Extract hour/minute from Date using Calendar.current.dateComponents([.hour, .minute], from:)
+  - Notification permission denied state requires checking on .onAppear with getNotificationSettings()
+  - Use custom Binding(get:set:) for toggle that triggers permission request on enable
+  - UIApplication.openSettingsURLString opens the app's settings page in iOS Settings app
+---
+
+## 2026-01-11 - US-011
+- What was implemented: Added Data Display Preference UI section to SettingsView with toggle for hiding disabled sites from History and Patterns views
+- Files changed:
+  - OmniSiteTracker/Views/SettingsView.swift (added dataDisplaySection with Toggle and helper text)
+- **Learnings for future iterations:**
+  - Settings section follows consistent pattern: SectionHeader, inner content with .neumorphicCard()
+  - Toggle state bound to @State property, synced with ViewModel on appear and onChange
+  - Helper text explains the setting's effect in user-friendly terms
+  - Simple toggles don't need custom Binding - can use direct $binding with onChange to persist
+---
+
+## 2026-01-11 - US-010
+- What was implemented: Added Add Custom Site Sheet to SettingsView with name TextField, icon picker grid, and validation
+- Files changed:
+  - OmniSiteTracker/Views/SettingsView.swift (added addCustomSiteSheet, iconButton helper, addCustomSite, resetSheetState functions and state properties)
+- **Learnings for future iterations:**
+  - Sheet uses .presentationDetents([.medium]) for half-screen presentation
+  - Icon picker uses LazyVGrid with 5 columns for 15 curated SF Symbols
+  - Selected icon highlights with Color.appAccent background and white foreground
+  - Name validation trims whitespace and compares case-insensitively to existing names
+  - Add button disabled state uses .disabled() with trimmed name check
+  - Error message shown via @State showDuplicateNameError which clears on text change via onChange
+  - Sheet state (name, icon, error) resets via resetSheetState() on Cancel or successful Add
+---
+
+## 2026-01-11 - US-009
+- What was implemented: Added Custom Sites List UI to SettingsView for managing user-defined custom site locations
+- Files changed:
+  - OmniSiteTracker/Views/SettingsView.swift (added customSitesSection, customSiteRow helper, delete confirmation alert, and state properties)
+- **Learnings for future iterations:**
+  - Custom sites list uses ForEach with `id: \.id` since CustomSite is a SwiftData model
+  - Delete confirmation uses two-step process: set siteToDelete, then show alert (allows message to display site name)
+  - Toggle binding for custom sites updates via ViewModel.toggleCustomSite() then refreshes local customSites array
+  - Empty state shows "No custom sites yet" centered in card when customSites.isEmpty
+  - Add button uses showAddCustomSiteSheet @State for presenting sheet (implemented in US-010)
+  - PlainButtonStyle() on delete button prevents button press highlight from affecting row layout
+---
+
+## 2026-01-11 - US-008
+- What was implemented: Added Body Sites toggle UI to SettingsView allowing users to enable/disable default body locations
+- Files changed:
+  - OmniSiteTracker/Views/SettingsView.swift (added bodySitesSection, bodySiteRow helper, toggleSite function, and alert)
+- **Learnings for future iterations:**
+  - Use Set<BodyLocation> to track disabled sites locally, then sync with ViewModel via toggleDefaultSite()
+  - Toggle binding requires custom Binding(get:set:) to handle validation before toggle state changes
+  - Check enabledCount before allowing disable to prevent user from disabling all sites (must keep at least 1 enabled)
+  - ForEach with Divider uses `if location != BodyLocation.allCases.last` to avoid trailing divider
+  - SwitchToggleStyle(tint: .appAccent) provides consistent toggle appearance with app color scheme
+---
+
+## 2026-01-11 - US-007
+- What was implemented: Added Rest Duration Setting UI to SettingsView with Rotation Settings section
+- Files changed:
+  - OmniSiteTracker/Views/SettingsView.swift (added rotationSettingsSection with Stepper)
+- **Learnings for future iterations:**
+  - Use @State property in View to bind Stepper value, sync with ViewModel on appear and onChange
+  - SectionHeader component from DesignSystem.swift provides consistent section titles
+  - .neumorphicCard() modifier wraps content in styled card - apply to inner content, not section header
+  - Stepper with labelsHidden() combined with separate Text for value gives more control over layout
+  - onChange(of:) closure with { _, newValue } signature for iOS 17+ to auto-save settings
+---
+
+## 2026-01-11 - US-006
+- What was implemented: Created SettingsView basic structure with Settings tab in ContentView
+- Files changed:
+  - OmniSiteTracker/Views/SettingsView.swift (created)
+  - OmniSiteTracker/Views/ContentView.swift (added Settings tab as 4th tab)
+  - OmniSiteTracker.xcodeproj/project.pbxproj (added file references)
+- **Learnings for future iterations:**
+  - SettingsView follows same structure as other views: NavigationStack with ScrollView and VStack
+  - Tab items use Label(text, systemImage:) with SF Symbols
+  - Settings uses "gearshape.fill" SF Symbol for consistency with iOS conventions
+  - Views do not need to be added to OmniSiteTrackerApp.swift schema - only SwiftData models need that
+  - project.pbxproj adds Views to the Views PBXGroup (not Models or ViewModels)
+---
+
+## 2026-01-11 - US-005
+- What was implemented: Created SettingsViewModel to manage settings state and persistence
+- Files changed:
+  - OmniSiteTracker/ViewModels/SettingsViewModel.swift (created)
+  - OmniSiteTracker.xcodeproj/project.pbxproj (added file references)
+- **Learnings for future iterations:**
+  - SettingsViewModel uses @Observable macro (not @Model) since it's a ViewModel, not a SwiftData model
+  - ViewModel does not need to be added to the Schema array in OmniSiteTrackerApp.swift
+  - ViewModel follows same pattern as PlacementViewModel with configure(with modelContext:) method
+  - DisabledDefaultSite query uses #Predicate with locationRawValue comparison to find specific disabled sites
+  - For toggling disabled sites: presence of DisabledDefaultSite record = disabled, absence = enabled
+---
+
+## 2026-01-11 - US-004
+- What was implemented: Created NotificationSettings SwiftData model for persisting notification preferences
+- Files changed:
+  - OmniSiteTracker/Models/NotificationSettings.swift (created)
+  - OmniSiteTracker/OmniSiteTrackerApp.swift (added NotificationSettings to schema)
+  - OmniSiteTracker.xcodeproj/project.pbxproj (added file references)
+- **Learnings for future iterations:**
+  - NotificationSettings follows same singleton pattern as UserSettings with getOrCreate(context:)
+  - NotificationSettings stores time as separate hour/minute Int fields for flexibility
+  - All 4 data models (UserSettings, CustomSite, DisabledDefaultSite, NotificationSettings) are now in place for the Settings feature
+---
+
+## 2026-01-11 - US-003
+- What was implemented: Created DisabledDefaultSite SwiftData model for tracking which default body locations the user has disabled
+- Files changed:
+  - OmniSiteTracker/Models/DisabledDefaultSite.swift (created)
+  - OmniSiteTracker/OmniSiteTrackerApp.swift (added DisabledDefaultSite to schema)
+  - OmniSiteTracker.xcodeproj/project.pbxproj (added file references)
+- **Learnings for future iterations:**
+  - DisabledDefaultSite stores enum values as raw strings (locationRawValue) with a computed property to convert back to BodyLocation
+  - Added convenience initializer that takes BodyLocation directly and converts to raw value internally
+  - Similar to CustomSite, this model does not use singleton pattern since users can have multiple disabled sites
+---
+
+## 2026-01-11 - US-002
+- What was implemented: Created CustomSite SwiftData model for storing user-defined custom site locations
+- Files changed:
+  - OmniSiteTracker/Models/CustomSite.swift (created)
+  - OmniSiteTracker/OmniSiteTrackerApp.swift (added CustomSite to schema)
+  - OmniSiteTracker.xcodeproj/project.pbxproj (added file references)
+- **Learnings for future iterations:**
+  - CustomSite does not use singleton pattern since users can have multiple custom sites
+  - For non-singleton models, no getOrCreate method is needed
+  - Model follows same structure as UserSettings with id, name, properties, and createdAt timestamp
+---
+
+## 2026-01-11 - US-001
+- What was implemented: Created UserSettings SwiftData model for persisting user preferences
+- Files changed:
+  - OmniSiteTracker/Models/UserSettings.swift (created)
+  - OmniSiteTracker/OmniSiteTrackerApp.swift (added UserSettings to schema)
+  - OmniSiteTracker.xcodeproj/project.pbxproj (added file references)
+- **Learnings for future iterations:**
+  - SwiftData models must be added to the Schema array in OmniSiteTrackerApp.swift init()
+  - Use FetchDescriptor<T>() with context.fetch() for singleton pattern
+  - project.pbxproj requires entries in: PBXBuildFile, PBXFileReference, PBXGroup (Models), and PBXSourcesBuildPhase
+---

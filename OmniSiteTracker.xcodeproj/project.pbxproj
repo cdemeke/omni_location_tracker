@@ -40,6 +40,7 @@
 		C7A0003D291A0001000001F /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0003E291A0001000001F /* SettingsViewModel.swift */; };
 		C7A0003F291A00010000020 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00040291A00010000020 /* SettingsView.swift */; };
 		C7A00041291A00010000021 /* CustomSitePlacementConfirmationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00042291A00010000021 /* CustomSitePlacementConfirmationSheet.swift */; };
+		C7A00043291A00010000022 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00044291A00010000022 /* NotificationManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -77,6 +78,7 @@
 		C7A0003E291A0001000001F /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		C7A00040291A00010000020 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		C7A00042291A00010000021 /* CustomSitePlacementConfirmationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSitePlacementConfirmationSheet.swift; sourceTree = "<group>"; };
+		C7A00044291A00010000022 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -160,6 +162,7 @@
 			isa = PBXGroup;
 			children = (
 				C7A00016291A0001000000B /* DesignSystem.swift */,
+				C7A00044291A00010000022 /* NotificationManager.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -287,6 +290,7 @@
 				C7A0003D291A0001000001F /* SettingsViewModel.swift in Sources */,
 				C7A0003F291A00010000020 /* SettingsView.swift in Sources */,
 				C7A00041291A00010000021 /* CustomSitePlacementConfirmationSheet.swift in Sources */,
+				C7A00043291A00010000022 /* NotificationManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
