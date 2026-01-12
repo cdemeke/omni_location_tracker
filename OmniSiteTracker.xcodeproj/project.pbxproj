@@ -39,6 +39,7 @@
 		C7A0003B291A0001000001E /* NotificationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0003C291A0001000001E /* NotificationSettings.swift */; };
 		C7A0003D291A0001000001F /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A0003E291A0001000001F /* SettingsViewModel.swift */; };
 		C7A0003F291A00010000020 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00040291A00010000020 /* SettingsView.swift */; };
+		C7A00041291A00010000021 /* CustomSitePlacementConfirmationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00042291A00010000021 /* CustomSitePlacementConfirmationSheet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -75,6 +76,7 @@
 		C7A0003C291A0001000001E /* NotificationSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettings.swift; sourceTree = "<group>"; };
 		C7A0003E291A0001000001F /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		C7A00040291A00010000020 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		C7A00042291A00010000021 /* CustomSitePlacementConfirmationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSitePlacementConfirmationSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -175,6 +177,7 @@
 			children = (
 				C7A0000A291A00010000005 /* BodyDiagramView.swift */,
 				C7A0002C291A00010000016 /* ComplianceScoreView.swift */,
+				C7A00042291A00010000021 /* CustomSitePlacementConfirmationSheet.swift */,
 				C7A00022291A00010000011 /* DateRangePickerView.swift */,
 				C7A00024291A00010000012 /* HeatmapBodyDiagramView.swift */,
 				C7A0002A291A00010000015 /* LocationBreakdownChartView.swift */,
@@ -283,6 +286,7 @@
 				C7A0003B291A0001000001E /* NotificationSettings.swift in Sources */,
 				C7A0003D291A0001000001F /* SettingsViewModel.swift in Sources */,
 				C7A0003F291A00010000020 /* SettingsView.swift in Sources */,
+				C7A00041291A00010000021 /* CustomSitePlacementConfirmationSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

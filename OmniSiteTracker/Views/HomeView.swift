@@ -187,6 +187,17 @@ struct SelectedLocation: Identifiable {
     let location: BodyLocation
 }
 
+/// Wrapper to make CustomSite work with sheet(item:)
+struct SelectedCustomSite: Identifiable {
+    let id: UUID
+    let customSite: CustomSite
+
+    init(customSite: CustomSite) {
+        self.id = customSite.id
+        self.customSite = customSite
+    }
+}
+
 /// Main home screen with body diagram and quick logging
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
@@ -201,6 +212,8 @@ struct HomeView: View {
     @State private var showingAboutModal = false
     @State private var scrollOffset: CGFloat = 0
     @State private var enabledLocations: Set<BodyLocation> = Set(BodyLocation.allCases)
+    @State private var enabledCustomSites: [CustomSite] = []
+    @State private var selectedCustomSite: SelectedCustomSite?
 
     private var showNavBarLogo: Bool {
         scrollOffset < 100
@@ -287,6 +300,11 @@ struct HomeView: View {
                     .padding(20)
                     .neumorphicCard()
 
+                    // Custom sites section (only shown if custom sites exist)
+                    if !enabledCustomSites.isEmpty {
+                        customSitesSection
+                    }
+
                     // Recent placement card
                     if let recent = viewModel.mostRecentPlacement {
                         recentPlacementCard(recent)
@@ -345,6 +363,7 @@ struct HomeView: View {
                 viewModel.configure(with: modelContext)
                 settingsViewModel.configure(with: modelContext)
                 loadEnabledLocations()
+                loadEnabledCustomSites()
             }
             .sheet(item: $selectedLocation) { selected in
                 PlacementConfirmationSheet(
@@ -356,6 +375,21 @@ struct HomeView: View {
                     },
                     onCancel: {
                         selectedLocation = nil
+                    }
+                )
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+                .presentationBackground(Color.appBackground)
+            }
+            .sheet(item: $selectedCustomSite) { selected in
+                CustomSitePlacementConfirmationSheet(
+                    customSite: selected.customSite,
+                    onConfirm: {
+                        selectedCustomSite = nil
+                        showSuccessToast()
+                    },
+                    onCancel: {
+                        selectedCustomSite = nil
                     }
                 )
                 .presentationDetents([.medium])
@@ -518,6 +552,60 @@ struct HomeView: View {
         let disabledLocations = settingsViewModel.getDisabledDefaultSites()
         let allLocations = Set(BodyLocation.allCases)
         enabledLocations = allLocations.subtracting(Set(disabledLocations))
+    }
+
+    /// Loads enabled custom sites from settings
+    private func loadEnabledCustomSites() {
+        enabledCustomSites = settingsViewModel.getCustomSites().filter { $0.isEnabled }
+    }
+
+    /// Custom sites section displayed below body diagram
+    private var customSitesSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            SectionHeader(
+                "Custom Sites",
+                subtitle: "Tap to log a placement"
+            )
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(enabledCustomSites, id: \.id) { customSite in
+                        customSiteButton(for: customSite)
+                    }
+                }
+                .padding(.horizontal, 4)
+            }
+        }
+        .padding(20)
+        .neumorphicCard()
+    }
+
+    /// Button for a custom site in the horizontal scroll
+    private func customSiteButton(for customSite: CustomSite) -> some View {
+        Button {
+            selectedCustomSite = SelectedCustomSite(customSite: customSite)
+        } label: {
+            VStack(spacing: 8) {
+                ZStack {
+                    Circle()
+                        .fill(Color.appAccent.opacity(0.15))
+                        .frame(width: 52, height: 52)
+
+                    Image(systemName: customSite.iconName)
+                        .font(.title2)
+                        .foregroundColor(.appAccent)
+                }
+
+                Text(customSite.name)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(.textPrimary)
+                    .lineLimit(1)
+            }
+            .frame(width: 80)
+            .padding(.vertical, 8)
+        }
+        .buttonStyle(.plain)
     }
 }
 
