@@ -35,10 +35,18 @@ struct SiteRecommendation: Equatable {
 /// Uses @Observable for SwiftUI integration with cached computations for performance
 @Observable
 final class PlacementViewModel {
-    /// Minimum days between using the same site
-    static let minimumRestDays: Int = 3
+    /// Default minimum rest days (used when UserSettings hasn't been configured)
+    private static let defaultMinimumRestDays: Int = 3
 
     private var modelContext: ModelContext?
+
+    /// Dynamic minimum rest days from UserSettings
+    /// Falls back to default if settings cannot be fetched
+    var minimumRestDays: Int {
+        guard let modelContext else { return Self.defaultMinimumRestDays }
+        let settings = UserSettings.getOrCreate(context: modelContext)
+        return settings.minimumRestDays
+    }
 
     /// All placement logs, sorted by date (most recent first)
     private(set) var placements: [PlacementLog] = []
@@ -149,7 +157,7 @@ final class PlacementViewModel {
         guard let days = daysSinceLastUse(for: location) else {
             return true
         }
-        return days >= Self.minimumRestDays
+        return days >= minimumRestDays
     }
 
     private func computeRecommendation() -> SiteRecommendation? {
@@ -183,7 +191,7 @@ final class PlacementViewModel {
 
         let eligibleCandidates = sortedCandidates.filter { candidate in
             guard let days = candidate.days else { return true }
-            return days >= Self.minimumRestDays
+            return days >= minimumRestDays
         }
 
         if let best = eligibleCandidates.first {
@@ -309,7 +317,7 @@ extension PlacementViewModel {
         let distributionScore = calculateDistributionScore(from: filteredPlacements)
 
         // Calculate rest compliance score (0-50)
-        // Measures adherence to 3-day rest period between same-site uses
+        // Measures adherence to minimum rest period between same-site uses
         let restComplianceScore = calculateRestComplianceScore(from: filteredPlacements)
 
         let totalScore = distributionScore + restComplianceScore
@@ -363,7 +371,7 @@ extension PlacementViewModel {
         return max(0, min(50, score))
     }
 
-    /// Calculates rest compliance score based on adherence to 3-day rest between same-site uses.
+    /// Calculates rest compliance score based on adherence to minimum rest period between same-site uses.
     /// Each violation reduces the score proportionally.
     private func calculateRestComplianceScore(from placements: [PlacementLog]) -> Int {
         // Group placements by location and sort by date
@@ -395,7 +403,7 @@ extension PlacementViewModel {
 
                 totalChecks += 1
 
-                if daysBetween < Self.minimumRestDays {
+                if daysBetween < minimumRestDays {
                     violations += 1
                 }
             }
@@ -446,7 +454,7 @@ extension PlacementViewModel {
         } else if restComplianceScore >= 25 {
             parts.append("Some sites need longer rest.")
         } else {
-            parts.append("Allow 3+ days between same-site uses.")
+            parts.append("Allow \(minimumRestDays)+ days between same-site uses.")
         }
 
         return parts.joined(separator: " ")
@@ -606,9 +614,10 @@ extension PlacementViewModel {
             return Color.gray.opacity(0.4)
         }
 
-        if days < Self.minimumRestDays {
+        let restDays = minimumRestDays
+        if days < restDays {
             return Color.orange.opacity(0.7)
-        } else if days < Self.minimumRestDays * 2 {
+        } else if days < restDays * 2 {
             return Color.green.opacity(0.55)
         } else {
             return Color.green.opacity(0.7)
@@ -620,12 +629,13 @@ extension PlacementViewModel {
             return "Available"
         }
 
+        let restDays = minimumRestDays
         if days == 0 {
             return "Used today"
         } else if days == 1 {
             return "Used yesterday"
-        } else if days < Self.minimumRestDays {
-            return "Rest \(Self.minimumRestDays - days) more days"
+        } else if days < restDays {
+            return "Rest \(restDays - days) more days"
         } else {
             return "Ready (\(days)d rest)"
         }

@@ -101,7 +101,7 @@ struct PlacementConfirmationSheet: View {
 
             // Warning if recently used
             if let days = viewModel.daysSinceLastUse(for: location),
-               days < PlacementViewModel.minimumRestDays {
+               days < viewModel.minimumRestDays {
                 HStack(alignment: .top, spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundColor(.appWarning)
