@@ -35,10 +35,18 @@ struct SiteRecommendation: Equatable {
 /// Uses @Observable for SwiftUI integration with cached computations for performance
 @Observable
 final class PlacementViewModel {
-    /// Minimum days between using the same site
-    static let minimumRestDays: Int = 3
+    /// Default minimum rest days (used when UserSettings hasn't been configured)
+    private static let defaultMinimumRestDays: Int = 3
 
     private var modelContext: ModelContext?
+
+    /// Dynamic minimum rest days from UserSettings
+    /// Falls back to default if settings cannot be fetched
+    var minimumRestDays: Int {
+        guard let modelContext else { return Self.defaultMinimumRestDays }
+        let settings = UserSettings.getOrCreate(context: modelContext)
+        return settings.minimumRestDays
+    }
 
     /// All placement logs, sorted by date (most recent first)
     private(set) var placements: [PlacementLog] = []
@@ -78,11 +86,12 @@ final class PlacementViewModel {
 
     /// Updates cached computed values after placements change
     private func updateCaches() {
-        // Update lastUsedDates cache
+        // Update lastUsedDates cache (only for default BodyLocation placements, not custom sites)
         var dates: [BodyLocation: Date] = [:]
         for placement in placements {
-            if dates[placement.location] == nil {
-                dates[placement.location] = placement.placedAt
+            guard let location = placement.location else { continue }
+            if dates[location] == nil {
+                dates[location] = placement.placedAt
             }
         }
         _lastUsedDates = dates
@@ -94,9 +103,10 @@ final class PlacementViewModel {
     func logPlacement(at location: BodyLocation, note: String? = nil) {
         guard let modelContext else { return }
 
+        let placedAt = Date.now
         let newPlacement = PlacementLog(
             location: location,
-            placedAt: .now,
+            placedAt: placedAt,
             note: note?.isEmpty == true ? nil : note
         )
 
@@ -105,6 +115,41 @@ final class PlacementViewModel {
         do {
             try modelContext.save()
             fetchPlacements()
+
+            // Schedule notification for when this site will be ready again
+            NotificationManager.shared.updateNotificationsAfterPlacement(
+                modelContext: modelContext,
+                location: location,
+                placedAt: placedAt
+            )
+        } catch {
+            // Silent fail - data will be available next launch
+        }
+    }
+
+    func logPlacement(at customSite: CustomSite, note: String? = nil) {
+        guard let modelContext else { return }
+
+        let placedAt = Date.now
+        let newPlacement = PlacementLog(
+            customSite: customSite,
+            placedAt: placedAt,
+            note: note?.isEmpty == true ? nil : note
+        )
+
+        modelContext.insert(newPlacement)
+
+        do {
+            try modelContext.save()
+            fetchPlacements()
+
+            // Schedule notification for when this custom site will be ready again
+            NotificationManager.shared.updateNotificationsAfterPlacement(
+                modelContext: modelContext,
+                customSiteId: customSite.id,
+                customSiteName: customSite.name,
+                placedAt: placedAt
+            )
         } catch {
             // Silent fail - data will be available next launch
         }
@@ -149,7 +194,7 @@ final class PlacementViewModel {
         guard let days = daysSinceLastUse(for: location) else {
             return true
         }
-        return days >= Self.minimumRestDays
+        return days >= minimumRestDays
     }
 
     private func computeRecommendation() -> SiteRecommendation? {
@@ -183,7 +228,7 @@ final class PlacementViewModel {
 
         let eligibleCandidates = sortedCandidates.filter { candidate in
             guard let days = candidate.days else { return true }
-            return days >= Self.minimumRestDays
+            return days >= minimumRestDays
         }
 
         if let best = eligibleCandidates.first {
@@ -209,7 +254,7 @@ final class PlacementViewModel {
     }
 
     func placements(for location: BodyLocation) -> [PlacementLog] {
-        placements.filter { $0.location == location }
+        placements.filter { $0.location == location && !$0.isCustomSite }
     }
 
     var mostRecentPlacement: PlacementLog? {
@@ -241,19 +286,20 @@ extension PlacementViewModel {
             placement.placedAt >= startDate && placement.placedAt <= endDate
         }
 
-        // Count placements per location
+        // Count placements per location (only default BodyLocation placements, not custom sites)
         var countsByLocation: [BodyLocation: Int] = [:]
         var lastUsedByLocation: [BodyLocation: Date] = [:]
 
         for placement in filteredPlacements {
-            countsByLocation[placement.location, default: 0] += 1
+            guard let location = placement.location else { continue }
+            countsByLocation[location, default: 0] += 1
 
             // Track last used date (most recent first due to sorting)
-            if lastUsedByLocation[placement.location] == nil {
-                lastUsedByLocation[placement.location] = placement.placedAt
-            } else if let existing = lastUsedByLocation[placement.location],
+            if lastUsedByLocation[location] == nil {
+                lastUsedByLocation[location] = placement.placedAt
+            } else if let existing = lastUsedByLocation[location],
                       placement.placedAt > existing {
-                lastUsedByLocation[placement.location] = placement.placedAt
+                lastUsedByLocation[location] = placement.placedAt
             }
         }
 
@@ -309,7 +355,7 @@ extension PlacementViewModel {
         let distributionScore = calculateDistributionScore(from: filteredPlacements)
 
         // Calculate rest compliance score (0-50)
-        // Measures adherence to 3-day rest period between same-site uses
+        // Measures adherence to minimum rest period between same-site uses
         let restComplianceScore = calculateRestComplianceScore(from: filteredPlacements)
 
         let totalScore = distributionScore + restComplianceScore
@@ -337,7 +383,8 @@ extension PlacementViewModel {
         var countsByLocation: [BodyLocation: Int] = [:]
 
         for placement in placements {
-            countsByLocation[placement.location, default: 0] += 1
+            guard let location = placement.location else { continue }
+            countsByLocation[location, default: 0] += 1
         }
 
         let totalPlacements = placements.count
@@ -363,14 +410,15 @@ extension PlacementViewModel {
         return max(0, min(50, score))
     }
 
-    /// Calculates rest compliance score based on adherence to 3-day rest between same-site uses.
+    /// Calculates rest compliance score based on adherence to minimum rest period between same-site uses.
     /// Each violation reduces the score proportionally.
     private func calculateRestComplianceScore(from placements: [PlacementLog]) -> Int {
-        // Group placements by location and sort by date
+        // Group placements by location and sort by date (only for default BodyLocation placements)
         var placementsByLocation: [BodyLocation: [PlacementLog]] = [:]
 
         for placement in placements {
-            placementsByLocation[placement.location, default: []].append(placement)
+            guard let location = placement.location else { continue }
+            placementsByLocation[location, default: []].append(placement)
         }
 
         // Sort each location's placements by date
@@ -395,7 +443,7 @@ extension PlacementViewModel {
 
                 totalChecks += 1
 
-                if daysBetween < Self.minimumRestDays {
+                if daysBetween < minimumRestDays {
                     violations += 1
                 }
             }
@@ -446,7 +494,7 @@ extension PlacementViewModel {
         } else if restComplianceScore >= 25 {
             parts.append("Some sites need longer rest.")
         } else {
-            parts.append("Allow 3+ days between same-site uses.")
+            parts.append("Allow \(minimumRestDays)+ days between same-site uses.")
         }
 
         return parts.joined(separator: " ")
@@ -547,6 +595,7 @@ extension PlacementViewModel {
         }
 
         for placement in filteredPlacements {
+            guard let location = placement.location else { continue }
             let periodStart: Date
             switch groupBy {
             case .day:
@@ -555,7 +604,7 @@ extension PlacementViewModel {
                 periodStart = calendar.dateInterval(of: .weekOfYear, for: placement.placedAt)?.start
                     ?? calendar.startOfDay(for: placement.placedAt)
             }
-            countsByLocationAndPeriod[placement.location, default: [:]][periodStart, default: 0] += 1
+            countsByLocationAndPeriod[location, default: [:]][periodStart, default: 0] += 1
         }
 
         // Generate periods for the entire date range (including zero-count periods)
@@ -606,9 +655,10 @@ extension PlacementViewModel {
             return Color.gray.opacity(0.4)
         }
 
-        if days < Self.minimumRestDays {
+        let restDays = minimumRestDays
+        if days < restDays {
             return Color.orange.opacity(0.7)
-        } else if days < Self.minimumRestDays * 2 {
+        } else if days < restDays * 2 {
             return Color.green.opacity(0.55)
         } else {
             return Color.green.opacity(0.7)
@@ -620,12 +670,13 @@ extension PlacementViewModel {
             return "Available"
         }
 
+        let restDays = minimumRestDays
         if days == 0 {
             return "Used today"
         } else if days == 1 {
             return "Used yesterday"
-        } else if days < Self.minimumRestDays {
-            return "Rest \(Self.minimumRestDays - days) more days"
+        } else if days < restDays {
+            return "Rest \(restDays - days) more days"
         } else {
             return "Ready (\(days)d rest)"
         }

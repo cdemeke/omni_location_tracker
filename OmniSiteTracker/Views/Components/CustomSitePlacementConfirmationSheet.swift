@@ -1,16 +1,16 @@
 //
-//  PlacementConfirmationSheet.swift
+//  CustomSitePlacementConfirmationSheet.swift
 //  OmniSiteTracker
 //
-//  Confirmation sheet for logging a new pump placement.
-//  Optimized for quick 2-tap logging workflow.
+//  Confirmation sheet for logging a new pump placement at a custom site.
+//  Mirrors the PlacementConfirmationSheet flow for default body locations.
 //
 
 import SwiftUI
 
-/// Sheet presented when user selects a placement location
-struct PlacementConfirmationSheet: View {
-    let location: BodyLocation
+/// Sheet presented when user selects a custom site for placement
+struct CustomSitePlacementConfirmationSheet: View {
+    let customSite: CustomSite
     let viewModel: PlacementViewModel
     let onConfirm: () -> Void
     let onCancel: () -> Void
@@ -24,8 +24,8 @@ struct PlacementConfirmationSheet: View {
             // Header
             headerView
 
-            // Location info
-            locationInfoCard
+            // Custom site info
+            customSiteInfoCard
 
             // Optional note
             noteSection
@@ -51,26 +51,26 @@ struct PlacementConfirmationSheet: View {
         }
     }
 
-    private var locationInfoCard: some View {
+    private var customSiteInfoCard: some View {
         VStack(spacing: 16) {
-            // Location icon and name
+            // Custom site icon and name
             HStack(spacing: 16) {
                 ZStack {
                     Circle()
                         .fill(Color.appAccent.opacity(0.15))
                         .frame(width: 56, height: 56)
 
-                    Image(systemName: "mappin.circle.fill")
+                    Image(systemName: customSite.iconName)
                         .font(.title)
                         .foregroundColor(.appAccent)
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(location.displayName)
+                    Text(customSite.name)
                         .font(.headline)
                         .foregroundColor(.textPrimary)
 
-                    Text(viewModel.statusDescription(for: location))
+                    Text("Custom Site")
                         .font(.subheadline)
                         .foregroundColor(.textSecondary)
                 }
@@ -78,42 +78,14 @@ struct PlacementConfirmationSheet: View {
                 Spacer()
             }
 
-            // Last used info
-            if let days = viewModel.daysSinceLastUse(for: location) {
-                HStack {
-                    Image(systemName: "clock.arrow.circlepath")
-                        .foregroundColor(.textMuted)
-                    Text("Last used: \(days == 0 ? "Today" : "\(days) day\(days == 1 ? "" : "s") ago")")
-                        .font(.subheadline)
-                        .foregroundColor(.textSecondary)
-                    Spacer()
-                }
-            } else {
-                HStack {
-                    Image(systemName: "sparkles")
-                        .foregroundColor(.appHighlight)
-                    Text("First time using this site!")
-                        .font(.subheadline)
-                        .foregroundColor(.appHighlight)
-                    Spacer()
-                }
-            }
-
-            // Warning if recently used
-            if let days = viewModel.daysSinceLastUse(for: location),
-               days < viewModel.minimumRestDays {
-                HStack(alignment: .top, spacing: 8) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(.appWarning)
-                        .padding(.top, 2)
-                    Text("This site was used recently. Consider choosing another location for better rotation.")
-                        .font(.caption)
-                        .foregroundColor(.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(12)
-                .background(Color.appWarning.opacity(0.1))
-                .cornerRadius(10)
+            // First use indicator for custom sites
+            HStack {
+                Image(systemName: "sparkles")
+                    .foregroundColor(.appHighlight)
+                Text("Custom site placement")
+                    .font(.subheadline)
+                    .foregroundColor(.appHighlight)
+                Spacer()
             }
         }
         .padding(20)
@@ -161,7 +133,7 @@ struct PlacementConfirmationSheet: View {
         VStack(spacing: 12) {
             // Primary confirm button - large tap target
             Button {
-                viewModel.logPlacement(at: location, note: showingNote ? note : nil)
+                viewModel.logPlacement(at: customSite, note: showingNote ? note : nil)
                 onConfirm()
             } label: {
                 HStack {
@@ -187,8 +159,8 @@ struct PlacementConfirmationSheet: View {
 // MARK: - Preview
 
 #Preview {
-    PlacementConfirmationSheet(
-        location: .abdomenRight,
+    CustomSitePlacementConfirmationSheet(
+        customSite: CustomSite(name: "Upper Arm", iconName: "star.fill"),
         viewModel: PlacementViewModel(),
         onConfirm: {},
         onCancel: {}

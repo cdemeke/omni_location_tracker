@@ -101,12 +101,17 @@ private struct HistoryAboutModal: View {
 struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = PlacementViewModel()
+    @State private var settingsViewModel = SettingsViewModel()
     @State private var selectedFilter: BodyLocation?
+    @State private var selectedCustomSiteFilter: UUID?
     @State private var showingFilterSheet = false
     @State private var placementToEdit: PlacementLog?
     @State private var showingHistoryHelp = false
     @State private var showingAboutModal = false
     @State private var scrollOffset: CGFloat = 0
+    @State private var customSites: [CustomSite] = []
+    @State private var showDisabledSitesInHistory: Bool = true
+    @State private var disabledDefaultSites: Set<BodyLocation> = []
     @AppStorage("hasSeenHistoryHelp") private var hasSeenHelp = false
 
     private var showNavBarLogo: Bool {
@@ -153,6 +158,10 @@ struct HistoryView: View {
             }
             .onAppear {
                 viewModel.configure(with: modelContext)
+                settingsViewModel.configure(with: modelContext)
+                customSites = settingsViewModel.getCustomSites()
+                showDisabledSitesInHistory = settingsViewModel.getShowDisabledSitesInHistory()
+                disabledDefaultSites = Set(settingsViewModel.getDisabledDefaultSites())
                 // Auto-show tooltip on first visit after delay
                 if !hasSeenHelp {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -268,9 +277,16 @@ struct HistoryView: View {
                 // Summary stats
                 summarySection
 
+                // Custom sites summary (only if there are custom site placements)
+                if !customSitesWithPlacements.isEmpty {
+                    customSitesSummarySection
+                }
+
                 // Filter indicator
                 if let filter = selectedFilter {
                     filterIndicator(filter)
+                } else if let customSiteId = selectedCustomSiteFilter {
+                    customSiteFilterIndicator(customSiteId)
                 }
 
                 // Placement list grouped by day
@@ -304,14 +320,16 @@ struct HistoryView: View {
     }
 
     private func siteUsageCard(_ location: BodyLocation) -> some View {
-        let count = viewModel.placements(for: location).count
+        let count = displayFilteredPlacements.filter { $0.location == location }.count
         let lastUsed = viewModel.daysSinceLastUse(for: location)
 
         return Button {
             if selectedFilter == location {
                 selectedFilter = nil
+                selectedCustomSiteFilter = nil
             } else {
                 selectedFilter = location
+                selectedCustomSiteFilter = nil
             }
         } label: {
             VStack(spacing: 6) {
@@ -346,6 +364,67 @@ struct HistoryView: View {
         .buttonStyle(.plain)
     }
 
+    private var customSitesSummarySection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Custom Sites")
+                .font(.headline)
+                .foregroundColor(.textPrimary)
+
+            LazyVGrid(columns: [
+                GridItem(.flexible()),
+                GridItem(.flexible()),
+                GridItem(.flexible()),
+                GridItem(.flexible())
+            ], spacing: 12) {
+                ForEach(customSitesWithPlacements, id: \.id) { customSite in
+                    customSiteUsageCard(customSite)
+                }
+            }
+        }
+        .padding(20)
+        .neumorphicCard()
+    }
+
+    private func customSiteUsageCard(_ customSite: CustomSite) -> some View {
+        let count = customSitePlacementCount(for: customSite.id)
+
+        return Button {
+            if selectedCustomSiteFilter == customSite.id {
+                selectedCustomSiteFilter = nil
+            } else {
+                selectedFilter = nil
+                selectedCustomSiteFilter = customSite.id
+            }
+        } label: {
+            VStack(spacing: 6) {
+                Circle()
+                    .fill(Color.appAccent.opacity(0.2))
+                    .frame(width: 32, height: 32)
+                    .overlay {
+                        Image(systemName: customSite.iconName)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.appAccent)
+                    }
+                    .overlay {
+                        if selectedCustomSiteFilter == customSite.id {
+                            Circle()
+                                .stroke(Color.appAccent, lineWidth: 2)
+                        }
+                    }
+
+                Text(customSite.name)
+                    .font(.system(size: 9))
+                    .foregroundColor(.textSecondary)
+                    .lineLimit(1)
+
+                Text("\(count)")
+                    .font(.system(size: 8))
+                    .foregroundColor(.textMuted)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
     private func filterIndicator(_ filter: BodyLocation) -> some View {
         HStack {
             Text("Showing: \(filter.displayName)")
@@ -357,6 +436,31 @@ struct HistoryView: View {
             Button {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     selectedFilter = nil
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Text("Clear")
+                    Image(systemName: "xmark.circle.fill")
+                }
+                .font(.caption)
+                .foregroundColor(.appAccent)
+            }
+        }
+        .padding(.horizontal, 4)
+    }
+
+    private func customSiteFilterIndicator(_ customSiteId: UUID) -> some View {
+        let customSite = customSites.first { $0.id == customSiteId }
+        return HStack {
+            Text("Showing: \(customSite?.name ?? "Custom Site")")
+                .font(.subheadline)
+                .foregroundColor(.textSecondary)
+
+            Spacer()
+
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    selectedCustomSiteFilter = nil
                 }
             } label: {
                 HStack(spacing: 4) {
@@ -399,14 +503,26 @@ struct HistoryView: View {
             placementToEdit = placement
         } label: {
             HStack(spacing: 14) {
-                // Status indicator
-                Circle()
-                    .fill(viewModel.statusColor(for: placement.location))
-                    .frame(width: 14, height: 14)
+                // Status indicator or custom site icon
+                if placement.isCustomSite {
+                    // Custom site - show the icon
+                    let customSite = placement.customSiteId.flatMap { id in
+                        customSites.first { $0.id == id }
+                    }
+                    Image(systemName: customSite?.iconName ?? "star.fill")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.appAccent)
+                        .frame(width: 14, height: 14)
+                } else {
+                    // Default site - show status color circle
+                    Circle()
+                        .fill(placement.location.map { viewModel.statusColor(for: $0) } ?? Color.gray.opacity(0.4))
+                        .frame(width: 14, height: 14)
+                }
 
                 // Placement info
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(placement.location.displayName)
+                    Text(placement.location?.displayName ?? placement.customSiteName ?? "Unknown")
                         .font(.headline)
                         .foregroundColor(.textPrimary)
 
@@ -478,13 +594,14 @@ struct HistoryView: View {
                 Section {
                     Button {
                         selectedFilter = nil
+                        selectedCustomSiteFilter = nil
                         showingFilterSheet = false
                     } label: {
                         HStack {
                             Text("All Locations")
                                 .foregroundColor(.textPrimary)
                             Spacer()
-                            if selectedFilter == nil {
+                            if selectedFilter == nil && selectedCustomSiteFilter == nil {
                                 Image(systemName: "checkmark")
                                     .foregroundColor(.appAccent)
                             }
@@ -496,6 +613,7 @@ struct HistoryView: View {
                     ForEach(BodyLocation.allCases) { location in
                         Button {
                             selectedFilter = location
+                            selectedCustomSiteFilter = nil
                             showingFilterSheet = false
                         } label: {
                             HStack {
@@ -520,6 +638,40 @@ struct HistoryView: View {
                         }
                     }
                 }
+
+                // Custom sites section (only if there are custom sites with placements)
+                if !customSitesWithPlacements.isEmpty {
+                    Section("Filter by Custom Site") {
+                        ForEach(customSitesWithPlacements, id: \.id) { customSite in
+                            Button {
+                                selectedFilter = nil
+                                selectedCustomSiteFilter = customSite.id
+                                showingFilterSheet = false
+                            } label: {
+                                HStack {
+                                    Image(systemName: customSite.iconName)
+                                        .font(.caption)
+                                        .foregroundColor(.appAccent)
+                                        .frame(width: 12)
+
+                                    Text(customSite.name)
+                                        .foregroundColor(.textPrimary)
+
+                                    Spacer()
+
+                                    Text("\(customSitePlacementCount(for: customSite.id))")
+                                        .font(.caption)
+                                        .foregroundColor(.textMuted)
+
+                                    if selectedCustomSiteFilter == customSite.id {
+                                        Image(systemName: "checkmark")
+                                            .foregroundColor(.appAccent)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
             .navigationTitle("Filter History")
             .navigationBarTitleDisplayMode(.inline)
@@ -534,10 +686,60 @@ struct HistoryView: View {
         .presentationDetents([.medium])
     }
 
+    /// Placements filtered by display preference setting
+    /// When showDisabledSitesInHistory is OFF, filters out:
+    /// - Placements for currently disabled default sites
+    /// - Placements for deleted custom sites (custom site no longer exists)
+    private var displayFilteredPlacements: [PlacementLog] {
+        if showDisabledSitesInHistory {
+            // Show all placements regardless of site status
+            return viewModel.placements
+        } else {
+            // Filter out disabled default sites and deleted custom sites
+            let existingCustomSiteIds = Set(customSites.map { $0.id })
+            return viewModel.placements.filter { placement in
+                if let location = placement.location {
+                    // Default site placement - check if site is enabled
+                    return !disabledDefaultSites.contains(location)
+                } else if let customSiteId = placement.customSiteId {
+                    // Custom site placement - check if custom site still exists
+                    return existingCustomSiteIds.contains(customSiteId)
+                }
+                // Unknown placement type - show it
+                return true
+            }
+        }
+    }
+
+    /// Custom sites that have at least one placement in history (respecting display preference)
+    private var customSitesWithPlacements: [CustomSite] {
+        let customSiteIdsWithPlacements = Set(
+            displayFilteredPlacements.compactMap { $0.customSiteId }
+        )
+        return customSites.filter { customSiteIdsWithPlacements.contains($0.id) }
+    }
+
+    /// Count of placements for a given custom site (respecting display preference)
+    private func customSitePlacementCount(for customSiteId: UUID) -> Int {
+        displayFilteredPlacements.filter { $0.customSiteId == customSiteId }.count
+    }
+
     private var filteredPlacementsByDay: [(date: Date, placements: [PlacementLog])] {
+        let calendar = Calendar.current
+        let basePlacements = displayFilteredPlacements
+
         if let filter = selectedFilter {
-            let filtered = viewModel.placements.filter { $0.location == filter }
-            let calendar = Calendar.current
+            // Filter by BodyLocation
+            let filtered = basePlacements.filter { $0.location == filter }
+            let grouped = Dictionary(grouping: filtered) { placement in
+                calendar.startOfDay(for: placement.placedAt)
+            }
+            return grouped
+                .sorted { $0.key > $1.key }
+                .map { (date: $0.key, placements: $0.value) }
+        } else if let customSiteId = selectedCustomSiteFilter {
+            // Filter by custom site
+            let filtered = basePlacements.filter { $0.customSiteId == customSiteId }
             let grouped = Dictionary(grouping: filtered) { placement in
                 calendar.startOfDay(for: placement.placedAt)
             }
@@ -545,7 +747,13 @@ struct HistoryView: View {
                 .sorted { $0.key > $1.key }
                 .map { (date: $0.key, placements: $0.value) }
         } else {
-            return viewModel.placementsByDay
+            // Group all filtered placements by day
+            let grouped = Dictionary(grouping: basePlacements) { placement in
+                calendar.startOfDay(for: placement.placedAt)
+            }
+            return grouped
+                .sorted { $0.key > $1.key }
+                .map { (date: $0.key, placements: $0.value) }
         }
     }
 
