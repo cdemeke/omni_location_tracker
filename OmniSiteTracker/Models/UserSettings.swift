@@ -26,7 +26,7 @@ final class UserSettings {
 
     /// Initializes user settings with default values
     init(
-        minimumRestDays: Int = 3,
+        minimumRestDays: Int = 18,
         showDisabledSitesInHistory: Bool = true,
         createdAt: Date = .now,
         updatedAt: Date = .now

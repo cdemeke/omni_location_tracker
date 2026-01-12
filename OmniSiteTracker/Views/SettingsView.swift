@@ -46,18 +46,6 @@ struct SettingsView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    // Custom large title with icon
-                    HStack(spacing: 12) {
-                        Image(systemName: "gearshape.fill")
-                            .font(.title)
-                            .foregroundColor(.appAccent)
-                        Text("Settings")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundColor(.textPrimary)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
                     // MARK: - Rotation Settings Section
                     rotationSettingsSection
 
@@ -125,7 +113,7 @@ struct SettingsView: View {
                     performReset()
                 }
             } message: {
-                Text("Reset all settings to defaults? This will reset rest days to 3, enable all default sites, delete all custom sites, and disable notifications.")
+                Text("Reset all settings to defaults? This will reset rest days to 18, enable all default sites, delete all custom sites, and disable notifications.")
             }
             .overlay(alignment: .bottom) {
                 if showResetSuccessToast {
@@ -613,46 +601,6 @@ struct SettingsView: View {
                     Spacer()
                 }
                 .padding(.vertical, 12)
-
-                Divider()
-                    .background(Color.textSecondary.opacity(0.3))
-
-                // Privacy Policy
-                Button(action: openPrivacyPolicy) {
-                    HStack {
-                        Text("Privacy Policy")
-                            .font(.body)
-                            .foregroundColor(.textPrimary)
-
-                        Spacer()
-
-                        Image(systemName: "arrow.up.right")
-                            .font(.caption)
-                            .foregroundColor(.textSecondary)
-                    }
-                    .padding(.vertical, 12)
-                }
-                .buttonStyle(PlainButtonStyle())
-
-                Divider()
-                    .background(Color.textSecondary.opacity(0.3))
-
-                // Send Feedback
-                Button(action: sendFeedback) {
-                    HStack {
-                        Text("Send Feedback")
-                            .font(.body)
-                            .foregroundColor(.textPrimary)
-
-                        Spacer()
-
-                        Image(systemName: "envelope")
-                            .font(.caption)
-                            .foregroundColor(.textSecondary)
-                    }
-                    .padding(.vertical, 12)
-                }
-                .buttonStyle(PlainButtonStyle())
             }
             .padding(16)
             .neumorphicCard()
@@ -664,18 +612,6 @@ struct SettingsView: View {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
         return "\(version) (\(build))"
-    }
-
-    private func openPrivacyPolicy() {
-        if let url = URL(string: "https://example.com/privacy") {
-            UIApplication.shared.open(url)
-        }
-    }
-
-    private func sendFeedback() {
-        if let url = URL(string: "mailto:feedback@omnisitetracker.app") {
-            UIApplication.shared.open(url)
-        }
     }
 
     // MARK: - Notification Helpers
@@ -773,7 +709,7 @@ struct SettingsView: View {
         viewModel.resetToDefaults()
 
         // Refresh all local state to match default values
-        restDays = 3
+        restDays = 18
         disabledSites = []
         customSites = []
         showDisabledSitesInHistory = true
