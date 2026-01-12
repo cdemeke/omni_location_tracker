@@ -19,6 +19,7 @@ Many pump users struggle to remember which sites they've used recently, especial
 
 ## Features
 
+### Core Tracking
 - **Interactive Body Diagram** - Visual front/back body views with corner-positioned zone buttons connected by dotted lines to body locations
 - **Smart Recommendations** - Algorithmic suggestions for the next optimal site based on:
   - Days since last use at each location
@@ -29,20 +30,45 @@ Many pump users struggle to remember which sites they've used recently, especial
   - Gray: Available (never used or fully rested)
   - Orange: Recent (used within recommended rest period)
   - Green: Rested (ready for use again)
-- **Modern UI Design** - Warm, earthy glassmorphism aesthetic with smooth animations
+
+### Patterns & Analytics
+- **Heatmap Visualization** - Visual representation of site usage frequency across all body locations
+- **Usage Analytics** - Track patterns over time to identify rotation habits and imbalances
+
+### Customization
+- **Custom Sites** - Add your own body sites with custom names and icons beyond the default locations
+- **Configurable Rest Period** - Adjust minimum rest days (default: 18 days) to match your healthcare provider's recommendations
+- **Site Management** - Enable/disable individual body sites to match your preferences or medical needs
+- **History Display Preferences** - Option to show or hide disabled sites in History and Patterns views
+
+### Notifications
+- **Smart Reminders** - Get notified when sites become available again
+- **Configurable Timing** - Set your preferred reminder time and how many days before a site is ready
+
+### Modern UI Design
+- Warm, earthy glassmorphism aesthetic with smooth animations
+- Tab-based navigation: Home, History, Patterns, and Settings
 
 ## Supported Placement Sites
 
+### Default Sites
+
 | Front View | Back View |
 |------------|-----------|
-| Left Abdomen | Left Arm |
-| Right Abdomen | Right Arm |
-| Left Thigh | Lower Back |
+| Abdomen (Left) | Left Arm (Back) |
+| Abdomen (Right) | Right Arm (Back) |
+| Lower Abdomen | Left Lower Back |
+| Left Thigh | Right Lower Back |
 | Right Thigh | |
+
+### Custom Sites
+You can add unlimited custom body sites through Settings with personalized names and icons from a curated selection of SF Symbols.
 
 ## Screenshots
 
-*Coming soon*
+![OmniSite Tracker App Overview](screenshots/app-overview.png)
+
+*From left to right: Home screen with body diagram and recommendations, Placement confirmation sheet, History view with usage summary, Patterns view with heatmap visualization*
 
 ## Requirements
 
@@ -70,18 +96,26 @@ Many pump users struggle to remember which sites they've used recently, especial
 OmniSiteTracker/
 ├── Models/
 │   ├── BodyLocation.swift        # Enum defining valid placement sites
-│   └── PlacementLog.swift        # SwiftData model for placement records
+│   ├── PlacementLog.swift        # SwiftData model for placement records
+│   ├── UserSettings.swift        # User preferences (rest days, display options)
+│   ├── CustomSite.swift          # User-defined custom body sites
+│   ├── DisabledSite.swift        # Tracks which sites are disabled
+│   └── NotificationSettings.swift # Reminder configuration
 ├── Views/
 │   ├── HomeView.swift            # Main dashboard with body diagram
 │   ├── HistoryView.swift         # Placement history with filtering
+│   ├── PatternsView.swift        # Heatmap visualization and analytics
+│   ├── SettingsView.swift        # App preferences and configuration
 │   ├── ContentView.swift         # Tab-based navigation
 │   └── Components/
 │       ├── BodyDiagramView.swift          # Interactive body visualization
+│       ├── HeatmapBodyDiagramView.swift   # Heatmap body visualization
 │       ├── RecommendationCard.swift       # Smart site suggestion card
 │       ├── PlacementConfirmationSheet.swift # New placement logging
 │       └── PlacementEditSheet.swift       # Edit/delete existing placements
 ├── ViewModels/
-│   └── PlacementViewModel.swift  # Business logic and data management
+│   ├── PlacementViewModel.swift  # Placement business logic
+│   └── SettingsViewModel.swift   # Settings management logic
 └── Utilities/
     └── DesignSystem.swift        # Colors, styles, and reusable components
 ```
