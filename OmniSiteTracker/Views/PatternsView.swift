@@ -115,6 +115,8 @@ private struct PatternsAboutModal: View {
 struct PatternsView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = PlacementViewModel()
+    @State private var settingsViewModel = SettingsViewModel()
+    @State private var enabledLocations: Set<BodyLocation> = Set(BodyLocation.allCases)
 
     // Date range state with defaults
     @State private var startDate: Date = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
@@ -203,7 +205,7 @@ struct PatternsView: View {
                                     }
                                 }
                             }
-                            HeatmapBodyDiagramView(heatmapData: heatmapData)
+                            HeatmapBodyDiagramView(heatmapData: heatmapData, enabledLocations: enabledLocations)
                         }
 
                         // Zone Statistics section
@@ -286,6 +288,8 @@ struct PatternsView: View {
             }
             .onAppear {
                 viewModel.configure(with: modelContext)
+                settingsViewModel.configure(with: modelContext)
+                loadEnabledLocations()
                 // Auto-show score tooltip on first visit after delay
                 if !hasSeenHelp {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -468,6 +472,13 @@ struct PatternsView: View {
             exportedPDFURL = pdfURL
             showingPDFShareSheet = true
         }
+    }
+
+    /// Loads enabled body locations from settings
+    private func loadEnabledLocations() {
+        let disabledLocations = settingsViewModel.getDisabledDefaultSites()
+        let allLocations = Set(BodyLocation.allCases)
+        enabledLocations = allLocations.subtracting(Set(disabledLocations))
     }
 }
 

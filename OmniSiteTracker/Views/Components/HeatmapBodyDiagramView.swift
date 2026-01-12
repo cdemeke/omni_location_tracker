@@ -10,24 +10,38 @@ import SwiftUI
 
 struct HeatmapBodyDiagramView: View {
     let heatmapData: [HeatmapData]
+    /// Set of enabled body locations to display. If nil, all locations are shown.
+    var enabledLocations: Set<BodyLocation>?
     @State private var selectedView: BodyView = .front
     @State private var selectedZone: HeatmapData? = nil
 
-    // Front view zones - same positioning as BodyDiagramView
-    private let frontZones: [PlacementZone] = [
+    // All front view zones - same positioning as BodyDiagramView
+    private let allFrontZones: [PlacementZone] = [
         PlacementZone(location: .abdomenLeft, corner: .topLeft, bodyX: 0.42, bodyY: 0.52),
         PlacementZone(location: .abdomenRight, corner: .topRight, bodyX: 0.58, bodyY: 0.52),
         PlacementZone(location: .leftThigh, corner: .bottomLeft, bodyX: 0.42, bodyY: 0.78),
         PlacementZone(location: .rightThigh, corner: .bottomRight, bodyX: 0.58, bodyY: 0.78),
     ]
 
-    // Back view zones
-    private let backZones: [PlacementZone] = [
+    // All back view zones
+    private let allBackZones: [PlacementZone] = [
         PlacementZone(location: .leftArm, corner: .topLeft, bodyX: 0.25, bodyY: 0.42),
         PlacementZone(location: .rightArm, corner: .topRight, bodyX: 0.75, bodyY: 0.42),
         PlacementZone(location: .leftLowerBack, corner: .bottomLeft, bodyX: 0.42, bodyY: 0.58),
         PlacementZone(location: .rightLowerBack, corner: .bottomRight, bodyX: 0.58, bodyY: 0.58),
     ]
+
+    /// Front zones filtered by enabled locations
+    private var frontZones: [PlacementZone] {
+        guard let enabled = enabledLocations else { return allFrontZones }
+        return allFrontZones.filter { enabled.contains($0.location) }
+    }
+
+    /// Back zones filtered by enabled locations
+    private var backZones: [PlacementZone] {
+        guard let enabled = enabledLocations else { return allBackZones }
+        return allBackZones.filter { enabled.contains($0.location) }
+    }
 
     // Crop parameters (same as BodyDiagramView)
     private let cropTop: CGFloat = 0.10
