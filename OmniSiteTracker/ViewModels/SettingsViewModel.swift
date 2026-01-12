@@ -107,6 +107,23 @@ final class SettingsViewModel {
         }
     }
 
+    /// Gets a custom site by its ID
+    /// - Parameter id: The UUID of the custom site to fetch
+    /// - Returns: The CustomSite if found, nil otherwise
+    func getCustomSite(byId id: UUID) -> CustomSite? {
+        guard let modelContext else { return nil }
+
+        let descriptor = FetchDescriptor<CustomSite>(
+            predicate: #Predicate { $0.id == id }
+        )
+
+        do {
+            return try modelContext.fetch(descriptor).first
+        } catch {
+            return nil
+        }
+    }
+
     /// Adds a new custom site
     /// - Parameters:
     ///   - name: The name of the custom site
