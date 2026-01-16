@@ -256,11 +256,47 @@ struct SettingsView: View {
                         .foregroundColor(.appAccent)
                         .frame(minWidth: 40)
 
-                    Stepper("", value: $restDays, in: 1...30)
-                        .labelsHidden()
-                        .onChange(of: restDays) { _, newValue in
-                            viewModel.updateRestDuration(days: newValue)
+                    // Custom stepper with themed buttons
+                    HStack(spacing: 0) {
+                        Button(action: {
+                            if restDays > 1 {
+                                restDays -= 1
+                                viewModel.updateRestDuration(days: restDays)
+                            }
+                        }) {
+                            Image(systemName: "minus")
+                                .font(.body.weight(.semibold))
+                                .foregroundColor(restDays > 1 ? .appAccent : .textSecondary.opacity(0.5))
+                                .frame(width: 44, height: 36)
                         }
+                        .disabled(restDays <= 1)
+
+                        Divider()
+                            .frame(height: 20)
+                            .background(Color.textSecondary.opacity(0.3))
+
+                        Button(action: {
+                            if restDays < 30 {
+                                restDays += 1
+                                viewModel.updateRestDuration(days: restDays)
+                            }
+                        }) {
+                            Image(systemName: "plus")
+                                .font(.body.weight(.semibold))
+                                .foregroundColor(restDays < 30 ? .appAccent : .textSecondary.opacity(0.5))
+                                .frame(width: 44, height: 36)
+                        }
+                        .disabled(restDays >= 30)
+                    }
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.cardBackground)
+                            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.appAccent.opacity(0.3), lineWidth: 1)
+                    )
                 }
 
                 Text("Days before a site can be used again")
