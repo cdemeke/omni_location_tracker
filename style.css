@@ -1,0 +1,137 @@
+:root {
+    --primary-color: #f7b731; /* Warm orange */
+    --secondary-color: #eb3b5a; /* Warm red */
+    --background-gradient: linear-gradient(135deg, #fff5e6 0%, #ffdfbf 100%);
+    --card-background: rgba(255, 255, 255, 0.8);
+    --text-color: #2f3542;
+    --accent-color: #2bcbba; /* Teal accent */
+    --glass-background: rgba(255, 255, 255, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.3);
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-color);
+    background: var(--background-gradient);
+    background-attachment: fixed;
+    margin: 0;
+    line-height: 1.6;
+}
+
+header {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.logo-container {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+    background: white;
+    border-radius: 28px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.logo-container img {
+    width: 100%;
+    height: 100%;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin: 0 0 10px;
+    font-weight: 800;
+}
+
+.subtitle {
+    font-size: 1.25rem;
+    color: #57606f;
+    margin-bottom: 30px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.glass-card {
+    background: var(--glass-background);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+    margin-bottom: 40px;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.feature-item {
+    padding: 20px;
+}
+
+.feature-icon {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.app-store-button {
+    display: inline-block;
+    background: black;
+    color: white;
+    padding: 12px 30px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: transform 0.2s;
+}
+
+.app-store-button:hover {
+    transform: scale(1.05);
+}
+
+footer {
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 0.9rem;
+    color: #747d8c;
+}
+
+footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.back-link {
+    display: block;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+h2 {
+    margin-top: 40px;
+    border-bottom: 2px solid var(--glass-border);
+    padding-bottom: 10px;
+}
+
+ul {
+    padding-left: 20px;
+}
+
+li {
+    margin-bottom: 10px;
+}

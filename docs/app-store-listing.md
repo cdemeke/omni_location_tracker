@@ -194,7 +194,7 @@ DATA DELETION
 You can delete all App data by deleting the App from your device.
 
 CONTACT
-If you have questions about this privacy policy, please contact: [your email]
+If you have questions about this privacy policy, please contact: demeke2+ominpod@gmail.com
 
 This policy may be updated from time to time. Please check back periodically.
 ```
@@ -203,9 +203,9 @@ This policy may be updated from time to time. Please check back periodically.
 
 ## Support Information
 
-**Support URL:** `https://[yourwebsite].com/support`
-**Marketing URL:** `https://[yourwebsite].com`
-**Privacy Policy URL:** `https://[yourwebsite].com/privacy`
+**Support URL:** `https://chrisdemeke.github.io/omni_location_tracker/support.html`
+**Marketing URL:** `https://chrisdemeke.github.io/omni_location_tracker/index.html`
+**Privacy Policy URL:** `https://chrisdemeke.github.io/omni_location_tracker/privacy.html`
 
 ---
 
