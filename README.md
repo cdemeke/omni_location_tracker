@@ -6,6 +6,12 @@ A SwiftUI iOS app for tracking and rotating insulin pump placement sites. Design
 ![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
+## Links
+
+- [Landing Page](https://cdemeke.github.io/omni_location_tracker/)
+- [Privacy Policy](https://cdemeke.github.io/omni_location_tracker/privacy.html)
+- [Support](https://cdemeke.github.io/omni_location_tracker/support.html)
+
 ## Why Site Rotation Matters
 
 For people living with Type 1 Diabetes who use insulin pumps (like the Omnipod), proper site rotation is critical for health and insulin effectiveness:

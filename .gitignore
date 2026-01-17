@@ -20,6 +20,11 @@ __pycache__/
 *.swo
 .DS_Store
 
+# Xcode
+*.xcuserstate
+*.xcscmblueprint
+xcuserdata/
+
 # Logs
 *.log
 logs/
