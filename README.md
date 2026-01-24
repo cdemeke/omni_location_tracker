@@ -85,7 +85,7 @@ You can add unlimited custom body sites through Settings with personalized names
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/omni_location_tracker.git
+   git clone https://github.com/cdemeke/omni_location_tracker.git
    ```
 2. Open `OmniSiteTracker.xcodeproj` in Xcode
 3. Build and run on your device or simulator
