@@ -58,6 +58,9 @@ struct SettingsView: View {
                     // MARK: - Data Display Section
                     dataDisplaySection
 
+                    // MARK: - Accessibility Section
+                    accessibilitySection
+
                     // MARK: - Notifications Section
                     notificationsSection
 
@@ -491,6 +494,152 @@ struct SettingsView: View {
             .padding(16)
             .neumorphicCard()
         }
+    }
+
+    // MARK: - Accessibility Section
+
+    private var accessibilitySection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            SectionHeader("Accessibility")
+
+            VStack(spacing: 16) {
+                // Extra Text Size Toggle
+                Toggle(isOn: Binding(
+                    get: { AccessibilityManager.shared.extraTextSize },
+                    set: { newValue in
+                        AccessibilityManager.shared.extraTextSize = newValue
+                        AccessibilityManager.shared.playConfirmationHaptic()
+                    }
+                )) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Extra Large Text")
+                            .font(.body)
+                            .foregroundColor(.textPrimary)
+                        Text("Increase text size beyond system setting")
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                    }
+                }
+                .toggleStyle(SwitchToggleStyle(tint: .appAccent))
+                .accessibilityLabel("Extra Large Text")
+                .accessibilityHint("Increases text size beyond the system Dynamic Type setting")
+
+                Divider()
+                    .background(Color.textSecondary.opacity(0.3))
+
+                // High Contrast Mode Toggle
+                Toggle(isOn: Binding(
+                    get: { AccessibilityManager.shared.highContrastMode },
+                    set: { newValue in
+                        AccessibilityManager.shared.highContrastMode = newValue
+                        AccessibilityManager.shared.playConfirmationHaptic()
+                    }
+                )) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("High Contrast Mode")
+                            .font(.body)
+                            .foregroundColor(.textPrimary)
+                        Text("Increase color contrast for better visibility")
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                    }
+                }
+                .toggleStyle(SwitchToggleStyle(tint: .appAccent))
+                .accessibilityLabel("High Contrast Mode")
+                .accessibilityHint("Increases color contrast throughout the app for users with visual impairments")
+
+                Divider()
+                    .background(Color.textSecondary.opacity(0.3))
+
+                // Haptic Feedback Toggle
+                Toggle(isOn: Binding(
+                    get: { AccessibilityManager.shared.hapticFeedbackEnabled },
+                    set: { newValue in
+                        AccessibilityManager.shared.hapticFeedbackEnabled = newValue
+                        if newValue {
+                            AccessibilityManager.shared.playConfirmationHaptic()
+                        }
+                    }
+                )) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Haptic Feedback")
+                            .font(.body)
+                            .foregroundColor(.textPrimary)
+                        Text("Vibration feedback when selecting zones")
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                    }
+                }
+                .toggleStyle(SwitchToggleStyle(tint: .appAccent))
+                .accessibilityLabel("Haptic Feedback")
+                .accessibilityHint("Enables vibration feedback when interacting with the app")
+
+                Divider()
+                    .background(Color.textSecondary.opacity(0.3))
+
+                // System Accessibility Status
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("System Accessibility")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.textSecondary)
+
+                    accessibilityStatusRow(
+                        title: "VoiceOver",
+                        isEnabled: AccessibilityManager.shared.isVoiceOverRunning
+                    )
+
+                    accessibilityStatusRow(
+                        title: "Reduce Motion",
+                        isEnabled: AccessibilityManager.shared.isReduceMotionEnabled
+                    )
+
+                    accessibilityStatusRow(
+                        title: "Bold Text",
+                        isEnabled: AccessibilityManager.shared.isBoldTextEnabled
+                    )
+
+                    Text("Adjust system accessibility settings in iOS Settings")
+                        .font(.caption)
+                        .foregroundColor(.textMuted)
+                        .padding(.top, 4)
+
+                    Button(action: openSettings) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "gear")
+                                .font(.caption)
+                            Text("Open iOS Settings")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                        }
+                        .foregroundColor(.appAccent)
+                    }
+                    .padding(.top, 4)
+                    .accessibilityLabel("Open iOS Settings")
+                    .accessibilityHint("Opens the iOS Settings app to adjust system accessibility options")
+                }
+            }
+            .padding(16)
+            .neumorphicCard()
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Accessibility Settings Section")
+    }
+
+    private func accessibilityStatusRow(title: String, isEnabled: Bool) -> some View {
+        HStack {
+            Text(title)
+                .font(.subheadline)
+                .foregroundColor(.textPrimary)
+
+            Spacer()
+
+            Text(isEnabled ? "On" : "Off")
+                .font(.subheadline)
+                .foregroundColor(isEnabled ? .appSuccess : .textSecondary)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title) is \(isEnabled ? "enabled" : "disabled")")
     }
 
     // MARK: - Notifications Section
