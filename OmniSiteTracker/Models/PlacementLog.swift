@@ -78,6 +78,15 @@ final class PlacementLog {
         self.customSiteId = customSite.id
         self.customSiteName = customSite.name
     }
+
+    /// Initializes a placement with a specific ID (used for data import)
+    /// - Parameters:
+    ///   - id: The unique identifier
+    ///   - placedAt: The date/time of placement
+    init(id: UUID, placedAt: Date) {
+        self.id = id
+        self.placedAt = placedAt
+    }
 }
 
 // MARK: - Convenience Extensions
