@@ -206,6 +206,31 @@ final class SettingsViewModel {
         }
     }
 
+    // MARK: - HealthKit Settings
+
+    /// Gets whether HealthKit integration is enabled
+    /// - Returns: True if HealthKit is enabled
+    func getHealthKitEnabled() -> Bool {
+        guard let modelContext else { return false }
+        let settings = UserSettings.getOrCreate(context: modelContext)
+        return settings.healthKitEnabled
+    }
+
+    /// Updates whether HealthKit integration is enabled
+    /// - Parameter enabled: Whether HealthKit should be enabled
+    func updateHealthKitEnabled(_ enabled: Bool) {
+        guard let modelContext else { return }
+        let settings = UserSettings.getOrCreate(context: modelContext)
+        settings.healthKitEnabled = enabled
+        settings.updatedAt = .now
+
+        do {
+            try modelContext.save()
+        } catch {
+            // Silent fail
+        }
+    }
+
     // MARK: - Notification Settings
 
     /// Gets the current notification settings
@@ -277,6 +302,7 @@ final class SettingsViewModel {
             let userSettings = UserSettings.getOrCreate(context: modelContext)
             userSettings.minimumRestDays = 3
             userSettings.showDisabledSitesInHistory = true
+            userSettings.healthKitEnabled = false
             userSettings.updatedAt = .now
 
             // Re-enable all default sites by deleting all DisabledDefaultSite records
