@@ -164,7 +164,7 @@ struct QRCodeGeneratorView: View {
         .navigationTitle("Generate QR Code")
         .sheet(isPresented: $showShareSheet) {
             if let image = qrImage {
-                ShareSheet(items: [image])
+                ShareSheet(activityItems: [image])
             }
         }
         .onAppear {
