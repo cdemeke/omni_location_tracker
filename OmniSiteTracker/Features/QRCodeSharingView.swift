@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 import CoreImage.CIFilterBuiltins
 import AVFoundation
 
