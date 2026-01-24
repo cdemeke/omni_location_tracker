@@ -34,6 +34,28 @@ final class PlacementLog {
     /// Stored separately to preserve history even if custom site is deleted
     var customSiteName: String?
 
+    // MARK: - HealthKit Glucose Correlation
+
+    /// Average blood glucose (mg/dL) in the 24 hours before this placement
+    var avgGlucoseBefore: Double?
+
+    /// Average blood glucose (mg/dL) in the 24 hours after this placement
+    var avgGlucoseAfter: Double?
+
+    /// Number of glucose readings used to calculate the "before" average
+    var glucoseReadingsCountBefore: Int?
+
+    /// Number of glucose readings used to calculate the "after" average
+    var glucoseReadingsCountAfter: Int?
+
+    /// Date when glucose correlation was last calculated
+    var glucoseCorrelationCalculatedAt: Date?
+
+    /// Whether this placement has glucose correlation data
+    var hasGlucoseCorrelation: Bool {
+        glucoseCorrelationCalculatedAt != nil
+    }
+
     /// Computed property to access the strongly-typed BodyLocation enum
     /// Returns nil for custom site placements
     var location: BodyLocation? {

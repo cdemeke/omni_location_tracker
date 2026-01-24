@@ -18,6 +18,9 @@ final class UserSettings {
     /// Whether to show disabled sites in history and patterns views
     var showDisabledSitesInHistory: Bool
 
+    /// Whether HealthKit integration is enabled for glucose correlation
+    var healthKitEnabled: Bool
+
     /// Timestamp when settings were first created
     var createdAt: Date
 
@@ -28,11 +31,13 @@ final class UserSettings {
     init(
         minimumRestDays: Int = 18,
         showDisabledSitesInHistory: Bool = true,
+        healthKitEnabled: Bool = false,
         createdAt: Date = .now,
         updatedAt: Date = .now
     ) {
         self.minimumRestDays = minimumRestDays
         self.showDisabledSitesInHistory = showDisabledSitesInHistory
+        self.healthKitEnabled = healthKitEnabled
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }

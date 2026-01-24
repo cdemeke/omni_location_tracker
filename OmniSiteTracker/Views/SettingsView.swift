@@ -35,6 +35,10 @@ struct SettingsView: View {
     @State private var showResetConfirmation: Bool = false
     @State private var showResetSuccessToast: Bool = false
 
+    // HealthKit state
+    @State private var healthKitEnabled: Bool = false
+    @State private var healthKitManager = HealthKitManager.shared
+
     /// Curated list of SF Symbols for custom site icons
     private let availableIcons = [
         "star.fill", "circle.fill", "square.fill", "triangle.fill", "heart.fill",
@@ -61,6 +65,9 @@ struct SettingsView: View {
                     // MARK: - Notifications Section
                     notificationsSection
 
+                    // MARK: - HealthKit Section
+                    healthKitSection
+
                     // MARK: - About Section
                     aboutSection
 
@@ -78,6 +85,7 @@ struct SettingsView: View {
                 disabledSites = Set(viewModel.getDisabledDefaultSites())
                 customSites = viewModel.getCustomSites()
                 showDisabledSitesInHistory = viewModel.getShowDisabledSitesInHistory()
+                healthKitEnabled = viewModel.getHealthKitEnabled()
                 loadNotificationSettings()
                 checkNotificationPermission()
             }
@@ -596,6 +604,76 @@ struct SettingsView: View {
                             .font(.caption)
                             .foregroundColor(.textSecondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+            }
+            .padding(16)
+            .neumorphicCard()
+        }
+    }
+
+    // MARK: - HealthKit Section
+
+    private var healthKitSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            SectionHeader("Health Integration")
+
+            VStack(spacing: 16) {
+                // HealthKit toggle
+                Toggle(isOn: Binding(
+                    get: { healthKitEnabled },
+                    set: { newValue in
+                        if newValue {
+                            Task {
+                                let authorized = await healthKitManager.requestAuthorization()
+                                healthKitEnabled = authorized
+                                viewModel.updateHealthKitEnabled(authorized)
+                            }
+                        } else {
+                            healthKitEnabled = false
+                            viewModel.updateHealthKitEnabled(false)
+                        }
+                    }
+                )) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "heart.text.square.fill")
+                            .font(.body)
+                            .foregroundColor(.appAccent)
+                        Text("Connect HealthKit")
+                            .font(.body)
+                            .foregroundColor(.textPrimary)
+                    }
+                }
+                .toggleStyle(SwitchToggleStyle(tint: .appAccent))
+
+                Text("Link blood glucose data to see how sites affect your glucose levels")
+                    .font(.caption)
+                    .foregroundColor(.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                // Navigation to Glucose Insights when enabled
+                if healthKitEnabled {
+                    Divider()
+                        .background(Color.textSecondary.opacity(0.3))
+
+                    NavigationLink {
+                        GlucoseCorrelationView()
+                    } label: {
+                        HStack {
+                            Image(systemName: "chart.line.uptrend.xyaxis")
+                                .font(.body)
+                                .foregroundColor(.appAccent)
+
+                            Text("View Glucose Insights")
+                                .font(.body)
+                                .foregroundColor(.textPrimary)
+
+                            Spacer()
+
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.textSecondary)
+                        }
                     }
                 }
             }
