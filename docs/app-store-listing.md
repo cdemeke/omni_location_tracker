@@ -203,9 +203,9 @@ This policy may be updated from time to time. Please check back periodically.
 
 ## Support Information
 
-**Support URL:** `https://chrisdemeke.github.io/omni_location_tracker/support.html`
-**Marketing URL:** `https://chrisdemeke.github.io/omni_location_tracker/index.html`
-**Privacy Policy URL:** `https://chrisdemeke.github.io/omni_location_tracker/privacy.html`
+**Support URL:** `https://cdemeke.github.io/omni_location_tracker/support.html`
+**Marketing URL:** `https://cdemeke.github.io/omni_location_tracker/`
+**Privacy Policy URL:** `https://cdemeke.github.io/omni_location_tracker/privacy.html`
 
 ---
 

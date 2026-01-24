@@ -15,20 +15,20 @@
 
 ## Phase 2: App Store Assets
 
-- [ ] Take screenshots (6.7" and 6.1" displays minimum)
-- [ ] Write App Store description (4000 char max)
-- [ ] Choose primary and secondary categories (Health & Fitness)
-- [ ] Select keywords (insulin pump, site rotation, diabetes tracker, etc.)
-- [ ] Create promotional text (170 char max)
+- [x] Take screenshots (6.7" and 6.1" displays minimum)
+- [x] Write App Store description (4000 char max)
+- [x] Choose primary and secondary categories (Medical, Health & Fitness)
+- [x] Select keywords (insulin pump, site rotation, diabetes tracker, etc.)
+- [x] Create promotional text (170 char max)
 - [ ] Record app preview video (optional)
-- [ ] Prepare "What's New" text for updates
+- [x] Prepare "What's New" text for updates
 
 ## Phase 3: Legal & Compliance
 
-- [ ] Write Privacy Policy (required)
-- [ ] Create Terms of Service
-- [ ] Add medical disclaimer in app and store listing
-- [ ] Set up support email or URL
+- [x] Write Privacy Policy (required)
+- [ ] Create Terms of Service (optional - not required for free apps)
+- [x] Add medical disclaimer in app and store listing
+- [x] Set up support email or URL
 - [ ] Complete App Store age rating questionnaire
 - [ ] Review Apple Health & Fitness app guidelines
 
