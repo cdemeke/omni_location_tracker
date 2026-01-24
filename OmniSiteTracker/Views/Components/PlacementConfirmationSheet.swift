@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 /// Sheet presented when user selects a placement location
 struct PlacementConfirmationSheet: View {
@@ -17,6 +18,8 @@ struct PlacementConfirmationSheet: View {
 
     @State private var note: String = ""
     @State private var showingNote = false
+    @State private var showingPhotoOptions = false
+    @State private var selectedPhoto: UIImage?
     @FocusState private var isNoteFocused: Bool
 
     var body: some View {
@@ -29,6 +32,9 @@ struct PlacementConfirmationSheet: View {
 
             // Optional note
             noteSection
+
+            // Photo documentation
+            photoSection
 
             // Action buttons
             actionButtons
@@ -157,11 +163,40 @@ struct PlacementConfirmationSheet: View {
         }
     }
 
+    private var photoSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    showingPhotoOptions.toggle()
+                }
+            } label: {
+                HStack {
+                    Image(systemName: showingPhotoOptions ? "minus.circle" : "camera")
+                        .foregroundColor(.appAccent)
+                    Text("Add photo (optional)")
+                        .font(.subheadline)
+                        .foregroundColor(.textSecondary)
+                    Spacer()
+
+                    if selectedPhoto != nil {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.appSuccess)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+
+            if showingPhotoOptions {
+                PhotoPickerView(selectedImage: $selectedPhoto)
+            }
+        }
+    }
+
     private var actionButtons: some View {
         VStack(spacing: 12) {
             // Primary confirm button - large tap target
             Button {
-                viewModel.logPlacement(at: location, note: showingNote ? note : nil)
+                viewModel.logPlacement(at: location, note: showingNote ? note : nil, photo: selectedPhoto)
                 onConfirm()
             } label: {
                 HStack {

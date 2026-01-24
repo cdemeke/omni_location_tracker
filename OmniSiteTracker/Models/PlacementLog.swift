@@ -34,6 +34,19 @@ final class PlacementLog {
     /// Stored separately to preserve history even if custom site is deleted
     var customSiteName: String?
 
+    // MARK: - Photo Documentation
+
+    /// Optional filename for attached photo (stored in documents directory)
+    var photoFileName: String?
+
+    /// Computed property to check if this placement has an attached photo
+    var hasPhoto: Bool {
+        guard let fileName = photoFileName, !fileName.isEmpty else {
+            return false
+        }
+        return PhotoManager.shared.photoExists(fileName: fileName)
+    }
+
     /// Computed property to access the strongly-typed BodyLocation enum
     /// Returns nil for custom site placements
     var location: BodyLocation? {
