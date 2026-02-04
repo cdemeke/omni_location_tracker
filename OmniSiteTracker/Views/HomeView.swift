@@ -115,6 +115,7 @@ private struct HomeOnboardingView: View {
     @Binding var hasCompletedOnboarding: Bool
     var isReviewing: Bool = false
     @Environment(\.dismiss) private var dismiss
+    @State private var showingMedicalInfo = false
 
     var body: some View {
         VStack(spacing: 32) {
@@ -140,22 +141,40 @@ private struct HomeOnboardingView: View {
 
             Spacer()
 
-            Button {
-                hasCompletedOnboarding = true
-                dismiss()
-            } label: {
-                Text(isReviewing ? "Done" : "Get Started")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.appAccent)
-                    .cornerRadius(14)
+            VStack(spacing: 12) {
+                Button {
+                    hasCompletedOnboarding = true
+                    dismiss()
+                } label: {
+                    Text(isReviewing ? "Done" : "Get Started")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.appAccent)
+                        .cornerRadius(14)
+                }
+
+                Button {
+                    showingMedicalInfo = true
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "cross.case")
+                            .font(.subheadline)
+                        Text("View Medical Information & Sources")
+                            .font(.subheadline)
+                    }
+                    .foregroundColor(.appAccent)
+                }
+                .buttonStyle(.plain)
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 40)
         }
         .background(Color.appBackground.ignoresSafeArea())
+        .sheet(isPresented: $showingMedicalInfo) {
+            MedicalInformationView()
+        }
     }
 
     private func featureRow(icon: String, title: String, description: String) -> some View {
