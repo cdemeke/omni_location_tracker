@@ -96,13 +96,13 @@ struct MedicalInformationView: View {
                 .lineSpacing(4)
 
             citationLink(
-                title: "American Diabetes Association - Insulin Injection Techniques",
-                url: "https://diabetes.org/living-with-diabetes/treatment-care/insulin-other-injectables"
+                title: "ADCES: Insulin Infusion Set Site Rotation Toolkit",
+                url: "https://www.adces.org/education/danatech/insulin-pumps/pumps-in-professional-practice/insulin-infusion-set-site-rotation-toolkit"
             )
 
             citationLink(
-                title: "Diabetes UK - Injection Site Rotation",
-                url: "https://www.diabetes.org.uk/guide-to-diabetes/managing-your-diabetes/treating-your-diabetes/taking-insulin/injection-sites"
+                title: "NIH: Practical Issues in Continuous Subcutaneous Insulin Infusion",
+                url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC3603042/"
             )
         }
         .padding(16)
@@ -136,18 +136,18 @@ struct MedicalInformationView: View {
                 .lineSpacing(4)
 
             citationLink(
-                title: "Insulet Omnipod - Pod Placement",
-                url: "https://www.omnipod.com/current-podders/resources/getting-started"
+                title: "ADCES: Body Placements for Insulin Pumps and Infusion Sets",
+                url: "https://www.adces.org/education/danatech/insulin-pumps/insulin-pumps-101/insulin-pump-infusion-set-placements"
             )
 
             citationLink(
-                title: "Medtronic - Infusion Set Basics",
-                url: "https://www.medtronicdiabetes.com/support/infusion-sets"
+                title: "UCSF Diabetes Teaching Center: Infusion Sets",
+                url: "https://diabetesteachingcenter.ucsf.edu/content/insulin-pump-infusion-sets"
             )
 
             citationLink(
-                title: "Tandem Diabetes - Infusion Site Selection",
-                url: "https://www.tandemdiabetes.com/support/infusion-sets"
+                title: "ISPAD Clinical Practice Consensus Guidelines",
+                url: "https://www.ispad.org/resources/ispad-clinical-practice-consensus-guidelines.html"
             )
         }
         .padding(16)
@@ -173,13 +173,13 @@ struct MedicalInformationView: View {
                 .lineSpacing(4)
 
             citationLink(
-                title: "JDRF - Insulin Pump Site Management",
-                url: "https://www.jdrf.org/t1d-resources/living-with-t1d/insulin/insulin-pumps/"
+                title: "ADCES: Insulin Infusion Set Site Rotation Toolkit",
+                url: "https://www.adces.org/education/danatech/insulin-pumps/pumps-in-professional-practice/insulin-infusion-set-site-rotation-toolkit"
             )
 
             citationLink(
-                title: "Diabetes Spectrum - Injection Site Rotation (ADA Publication)",
-                url: "https://diabetesjournals.org/spectrum/article/27/2/140/32254/Lipohypertrophy-Prevalence-Risk-Factors-and"
+                title: "NIH: Practical Issues in Continuous Subcutaneous Insulin Infusion",
+                url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC3603042/"
             )
         }
         .padding(16)
@@ -205,13 +205,13 @@ struct MedicalInformationView: View {
                 .lineSpacing(4)
 
             citationLink(
-                title: "Mayo Clinic - Managing Insulin Therapy",
-                url: "https://www.mayoclinic.org/diseases-conditions/diabetes/in-depth/insulin-therapy/art-20043731"
+                title: "NIH: Practical Issues in Continuous Subcutaneous Insulin Infusion",
+                url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC3603042/"
             )
 
             citationLink(
-                title: "NIH/PubMed - Lipohypertrophy in Insulin-Treated Patients",
-                url: "https://pubmed.ncbi.nlm.nih.gov/26880123/"
+                title: "ISPAD Clinical Practice Consensus Guidelines",
+                url: "https://www.ispad.org/resources/ispad-clinical-practice-consensus-guidelines.html"
             )
         }
         .padding(16)
