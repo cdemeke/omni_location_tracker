@@ -3,12 +3,15 @@
 //  OmniSiteTracker
 //
 //  Strongly-typed enum representing valid insulin pump placement sites.
+//  Site recommendations based on general diabetes care guidelines.
+//  See MedicalInformationView for sources and citations.
 //
 
 import Foundation
 
 /// Represents all valid body locations for insulin pump placement.
-/// Each case corresponds to a medically-approved site for pump insertion.
+/// Each case corresponds to a commonly recommended site for pump insertion
+/// based on general diabetes care guidelines (see Medical Information for sources).
 enum BodyLocation: String, Codable, CaseIterable, Identifiable {
     case leftArm = "left_arm"
     case rightArm = "right_arm"

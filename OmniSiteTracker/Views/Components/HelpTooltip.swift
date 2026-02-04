@@ -43,9 +43,10 @@ struct HelpTooltip: View {
 /// Modal displaying the story and purpose behind OmniSite
 struct AboutModal: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var showingMedicalInfo = false
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 20) {
             // App icon
             Image("AppLogo")
                 .resizable()
@@ -61,11 +62,37 @@ struct AboutModal: View {
                 .foregroundColor(.textPrimary)
 
             // Message
-            Text("This app was developed by a father caring for his child with Type 1 Diabetes.\n\nIt's intended to help ensure you're rotating pump placement locations and minimizing the chance of scar tissue developing.")
+            Text("This app was developed by a father caring for his child with Type 1 Diabetes.\n\nIt's intended to help you track and rotate pump placement locations based on general medical guidelines.")
                 .font(.body)
                 .foregroundColor(.textSecondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
+
+            // Medical disclaimer and link
+            VStack(spacing: 8) {
+                Text("This app does not provide medical advice.")
+                    .font(.caption)
+                    .foregroundColor(.textMuted)
+                    .multilineTextAlignment(.center)
+
+                Button {
+                    showingMedicalInfo = true
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "info.circle")
+                            .font(.caption)
+                        Text("View Medical Information & Sources")
+                            .font(.caption)
+                            .underline()
+                    }
+                    .foregroundColor(.appAccent)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .background(Color.textSecondary.opacity(0.1))
+            .cornerRadius(8)
 
             // Love message
             VStack(spacing: 8) {
@@ -78,7 +105,6 @@ struct AboutModal: View {
                     .font(.headline)
                     .foregroundColor(.appAccent)
             }
-            .padding(.top, 8)
 
             Spacer()
 
@@ -97,6 +123,9 @@ struct AboutModal: View {
         }
         .padding(24)
         .background(Color.appBackground)
+        .sheet(isPresented: $showingMedicalInfo) {
+            MedicalInformationView()
+        }
     }
 }
 

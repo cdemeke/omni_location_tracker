@@ -413,7 +413,7 @@ struct HomeView: View {
                             }
                         }
                     HomeHelpTooltip(
-                        message: "This suggests the best site based on your rotation history"
+                        message: "This suggests the best site based on your rotation history and general diabetes care guidelines. See Settings > Medical Information for sources."
                     ) {
                         withAnimation {
                             showingRecommendationHelp = false
