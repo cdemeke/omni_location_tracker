@@ -604,6 +604,9 @@ struct SettingsView: View {
         }
     }
 
+    // Medical Information state
+    @State private var showingMedicalInfo: Bool = false
+
     // MARK: - About Section
 
     private var aboutSection: some View {
@@ -628,6 +631,33 @@ struct SettingsView: View {
                 Divider()
                     .background(Color.textSecondary.opacity(0.3))
 
+                // Medical Information & Sources
+                Button {
+                    showingMedicalInfo = true
+                } label: {
+                    HStack {
+                        Image(systemName: "cross.case")
+                            .font(.body)
+                            .foregroundColor(.appAccent)
+                            .frame(width: 24)
+
+                        Text("Medical Information & Sources")
+                            .font(.body)
+                            .foregroundColor(.textPrimary)
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                    }
+                    .padding(.vertical, 12)
+                }
+                .buttonStyle(.plain)
+
+                Divider()
+                    .background(Color.textSecondary.opacity(0.3))
+
                 // Attribution
                 HStack {
                     Text("Made with ❤️ for Theo")
@@ -640,6 +670,9 @@ struct SettingsView: View {
             }
             .padding(16)
             .neumorphicCard()
+        }
+        .sheet(isPresented: $showingMedicalInfo) {
+            MedicalInformationView()
         }
     }
 

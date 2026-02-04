@@ -41,6 +41,7 @@
 		C7A0003F291A00010000020 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00040291A00010000020 /* SettingsView.swift */; };
 		C7A00041291A00010000021 /* CustomSitePlacementConfirmationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00042291A00010000021 /* CustomSitePlacementConfirmationSheet.swift */; };
 		C7A00043291A00010000022 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00044291A00010000022 /* NotificationManager.swift */; };
+		C7A00045291A00010000023 /* MedicalInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00046291A00010000023 /* MedicalInformationView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -79,6 +80,7 @@
 		C7A00040291A00010000020 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		C7A00042291A00010000021 /* CustomSitePlacementConfirmationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSitePlacementConfirmationSheet.swift; sourceTree = "<group>"; };
 		C7A00044291A00010000022 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		C7A00046291A00010000023 /* MedicalInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicalInformationView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -184,6 +186,7 @@
 				C7A00022291A00010000011 /* DateRangePickerView.swift */,
 				C7A00024291A00010000012 /* HeatmapBodyDiagramView.swift */,
 				C7A0002A291A00010000015 /* LocationBreakdownChartView.swift */,
+				C7A00046291A00010000023 /* MedicalInformationView.swift */,
 				C7A0000C291A00010000006 /* PlacementConfirmationSheet.swift */,
 				C7A0001C291A0001000000E /* PlacementEditSheet.swift */,
 				C7A0000E291A00010000007 /* RecommendationCard.swift */,
@@ -291,6 +294,7 @@
 				C7A0003F291A00010000020 /* SettingsView.swift in Sources */,
 				C7A00041291A00010000021 /* CustomSitePlacementConfirmationSheet.swift in Sources */,
 				C7A00043291A00010000022 /* NotificationManager.swift in Sources */,
+				C7A00045291A00010000023 /* MedicalInformationView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
