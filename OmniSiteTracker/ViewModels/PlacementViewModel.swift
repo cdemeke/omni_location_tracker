@@ -9,6 +9,7 @@
 import Foundation
 import SwiftData
 import SwiftUI
+import UIKit
 
 /// Represents a site recommendation with explanation
 struct SiteRecommendation: Equatable {
@@ -100,7 +101,7 @@ final class PlacementViewModel {
         _cachedRecommendation = computeRecommendation()
     }
 
-    func logPlacement(at location: BodyLocation, note: String? = nil) {
+    func logPlacement(at location: BodyLocation, note: String? = nil, photo: UIImage? = nil) {
         guard let modelContext else { return }
 
         let placedAt = Date.now
@@ -109,6 +110,11 @@ final class PlacementViewModel {
             placedAt: placedAt,
             note: note?.isEmpty == true ? nil : note
         )
+
+        // Save photo if provided
+        if let image = photo {
+            newPlacement.photoFileName = PhotoManager.shared.savePhoto(image, for: newPlacement.id)
+        }
 
         modelContext.insert(newPlacement)
 
@@ -127,7 +133,7 @@ final class PlacementViewModel {
         }
     }
 
-    func logPlacement(at customSite: CustomSite, note: String? = nil) {
+    func logPlacement(at customSite: CustomSite, note: String? = nil, photo: UIImage? = nil) {
         guard let modelContext else { return }
 
         let placedAt = Date.now
@@ -136,6 +142,11 @@ final class PlacementViewModel {
             placedAt: placedAt,
             note: note?.isEmpty == true ? nil : note
         )
+
+        // Save photo if provided
+        if let image = photo {
+            newPlacement.photoFileName = PhotoManager.shared.savePhoto(image, for: newPlacement.id)
+        }
 
         modelContext.insert(newPlacement)
 
@@ -157,6 +168,11 @@ final class PlacementViewModel {
 
     func deletePlacement(_ placement: PlacementLog) {
         guard let modelContext else { return }
+
+        // Delete associated photo if exists
+        if let photoFileName = placement.photoFileName {
+            PhotoManager.shared.deletePhoto(fileName: photoFileName)
+        }
 
         modelContext.delete(placement)
 
