@@ -24,17 +24,37 @@ final class UserSettings {
     /// Timestamp when settings were last modified
     var updatedAt: Date
 
+    // MARK: - iCloud Sync Settings
+
+    /// Whether iCloud sync is enabled
+    var iCloudSyncEnabled: Bool
+
+    /// Whether to sync photos to iCloud
+    var iCloudSyncPhotos: Bool
+
+    /// Whether to only sync on WiFi
+    var iCloudWifiOnly: Bool
+
+    /// When settings were last synced to iCloud
+    var iCloudLastSyncDate: Date?
+
     /// Initializes user settings with default values
     init(
         minimumRestDays: Int = 18,
         showDisabledSitesInHistory: Bool = true,
         createdAt: Date = .now,
-        updatedAt: Date = .now
+        updatedAt: Date = .now,
+        iCloudSyncEnabled: Bool = true,
+        iCloudSyncPhotos: Bool = false,
+        iCloudWifiOnly: Bool = false
     ) {
         self.minimumRestDays = minimumRestDays
         self.showDisabledSitesInHistory = showDisabledSitesInHistory
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.iCloudSyncEnabled = iCloudSyncEnabled
+        self.iCloudSyncPhotos = iCloudSyncPhotos
+        self.iCloudWifiOnly = iCloudWifiOnly
     }
 
     /// Retrieves existing settings or creates a new singleton instance
