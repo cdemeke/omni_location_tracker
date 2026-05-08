@@ -233,6 +233,7 @@ struct HomeView: View {
     @State private var enabledLocations: Set<BodyLocation> = Set(BodyLocation.allCases)
     @State private var enabledCustomSites: [CustomSite] = []
     @State private var selectedCustomSite: SelectedCustomSite?
+    @State private var diagramOrientation: DiagramOrientation = .patientPerspective
 
     private var showNavBarLogo: Bool {
         scrollOffset < 100
@@ -304,7 +305,8 @@ struct HomeView: View {
                                 selectedLocation = SelectedLocation(location: location)
                             },
                             selectedView: $selectedBodyView,
-                            enabledLocations: enabledLocations
+                            enabledLocations: enabledLocations,
+                            diagramOrientation: diagramOrientation
                         )
                         .frame(height: 350)
 
@@ -382,6 +384,7 @@ struct HomeView: View {
                 viewModel.configure(with: modelContext)
                 settingsViewModel.configure(with: modelContext)
                 loadEnabledLocations()
+                loadDiagramOrientation()
                 loadEnabledCustomSites()
             }
             .sheet(item: $selectedLocation) { selected in
@@ -572,6 +575,11 @@ struct HomeView: View {
         let disabledLocations = settingsViewModel.getDisabledDefaultSites()
         let allLocations = Set(BodyLocation.allCases)
         enabledLocations = allLocations.subtracting(Set(disabledLocations))
+    }
+
+    /// Loads the body diagram orientation preference from settings
+    private func loadDiagramOrientation() {
+        diagramOrientation = settingsViewModel.getDiagramOrientation()
     }
 
     /// Loads enabled custom sites from settings

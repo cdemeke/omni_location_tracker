@@ -23,9 +23,9 @@ final class SettingsViewModel {
     // MARK: - Rest Duration Settings
 
     /// Gets the current minimum rest duration in days
-    /// - Returns: The minimum rest days setting (default 3)
+    /// - Returns: The minimum rest days setting (default 18)
     func getRestDuration() -> Int {
-        guard let modelContext else { return 3 }
+        guard let modelContext else { return 18 }
         let settings = UserSettings.getOrCreate(context: modelContext)
         return settings.minimumRestDays
     }
@@ -206,6 +206,29 @@ final class SettingsViewModel {
         }
     }
 
+    /// Gets the current body diagram orientation preference
+    /// - Returns: The selected diagram orientation
+    func getDiagramOrientation() -> DiagramOrientation {
+        guard let modelContext else { return .patientPerspective }
+        let settings = UserSettings.getOrCreate(context: modelContext)
+        return settings.diagramOrientation
+    }
+
+    /// Updates the body diagram orientation preference
+    /// - Parameter orientation: The new diagram orientation
+    func updateDiagramOrientation(_ orientation: DiagramOrientation) {
+        guard let modelContext else { return }
+        let settings = UserSettings.getOrCreate(context: modelContext)
+        settings.diagramOrientation = orientation
+        settings.updatedAt = .now
+
+        do {
+            try modelContext.save()
+        } catch {
+            // Silent fail
+        }
+    }
+
     // MARK: - Notification Settings
 
     /// Gets the current notification settings
@@ -264,7 +287,7 @@ final class SettingsViewModel {
     // MARK: - Reset to Defaults
 
     /// Resets all settings to their default values
-    /// - Resets rest days to 3
+    /// - Resets rest days to 18
     /// - Enables all default sites
     /// - Deletes all custom sites
     /// - Disables notifications
@@ -275,8 +298,9 @@ final class SettingsViewModel {
         do {
             // Reset UserSettings to defaults
             let userSettings = UserSettings.getOrCreate(context: modelContext)
-            userSettings.minimumRestDays = 3
+            userSettings.minimumRestDays = 18
             userSettings.showDisabledSitesInHistory = true
+            userSettings.usesMirrorDiagramOrientation = false
             userSettings.updatedAt = .now
 
             // Re-enable all default sites by deleting all DisabledDefaultSite records

@@ -13,7 +13,7 @@ import UserNotifications
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = SettingsViewModel()
-    @State private var restDays: Int = 3
+    @State private var restDays: Int = 18
     @State private var disabledSites: Set<BodyLocation> = []
     @State private var showDisableAllAlert: Bool = false
     @State private var customSites: [CustomSite] = []
@@ -24,6 +24,7 @@ struct SettingsView: View {
     @State private var newSiteIcon: String = "star.fill"
     @State private var showDuplicateNameError: Bool = false
     @State private var showDisabledSitesInHistory: Bool = true
+    @State private var diagramOrientation: DiagramOrientation = .patientPerspective
 
     // Notification settings state
     @State private var notificationsEnabled: Bool = false
@@ -78,6 +79,7 @@ struct SettingsView: View {
                 disabledSites = Set(viewModel.getDisabledDefaultSites())
                 customSites = viewModel.getCustomSites()
                 showDisabledSitesInHistory = viewModel.getShowDisabledSitesInHistory()
+                diagramOrientation = viewModel.getDiagramOrientation()
                 loadNotificationSettings()
                 checkNotificationPermission()
             }
@@ -113,7 +115,7 @@ struct SettingsView: View {
                     performReset()
                 }
             } message: {
-                Text("Reset all settings to defaults? This will reset rest days to 18, enable all default sites, delete all custom sites, and disable notifications.")
+                Text("Reset all settings to defaults? This will reset rest days to 18, use patient diagram orientation, enable all default sites, delete all custom sites, and disable notifications.")
             }
             .overlay(alignment: .bottom) {
                 if showResetSuccessToast {
@@ -315,6 +317,8 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 16) {
             SectionHeader("Body Sites")
 
+            diagramOrientationControl
+
             VStack(spacing: 0) {
                 ForEach(BodyLocation.allCases) { location in
                     bodySiteRow(for: location)
@@ -328,6 +332,44 @@ struct SettingsView: View {
             .padding(16)
             .neumorphicCard()
         }
+    }
+
+    private var diagramOrientationControl: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                Image(systemName: "rectangle.2.swap")
+                    .font(.body)
+                    .foregroundColor(.appAccent)
+                    .frame(width: 24)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Diagram Orientation")
+                        .font(.body)
+                        .foregroundColor(.textPrimary)
+
+                    Text(diagramOrientation.description)
+                        .font(.caption)
+                        .foregroundColor(.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            Picker("Diagram Orientation", selection: Binding(
+                get: { diagramOrientation },
+                set: { newValue in
+                    diagramOrientation = newValue
+                    viewModel.updateDiagramOrientation(newValue)
+                }
+            )) {
+                ForEach(DiagramOrientation.allCases) { orientation in
+                    Text(orientation.displayName)
+                        .tag(orientation)
+                }
+            }
+            .pickerStyle(.segmented)
+        }
+        .padding(16)
+        .neumorphicCard()
     }
 
     private func bodySiteRow(for location: BodyLocation) -> some View {
@@ -782,6 +824,7 @@ struct SettingsView: View {
         disabledSites = []
         customSites = []
         showDisabledSitesInHistory = true
+        diagramOrientation = .patientPerspective
         notificationsEnabled = false
         daysBeforeReminder = 0
         reminderTime = Calendar.current.date(from: DateComponents(hour: 9, minute: 0)) ?? Date()

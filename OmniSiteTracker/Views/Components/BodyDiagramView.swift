@@ -33,6 +33,33 @@ struct PlacementZone: Identifiable {
         self.buttonPosition = corner
         self.bodyPoint = CGPoint(x: bodyX, y: bodyY)
     }
+
+    static func frontViewZones(for orientation: DiagramOrientation) -> [PlacementZone] {
+        switch orientation {
+        case .patientPerspective:
+            // On a front-facing body, the person's right side appears on screen left.
+            return [
+                PlacementZone(location: .abdomenRight, corner: .topLeft, bodyX: 0.42, bodyY: 0.52),
+                PlacementZone(location: .abdomenLeft, corner: .topRight, bodyX: 0.58, bodyY: 0.52),
+                PlacementZone(location: .rightThigh, corner: .bottomLeft, bodyX: 0.42, bodyY: 0.78),
+                PlacementZone(location: .leftThigh, corner: .bottomRight, bodyX: 0.58, bodyY: 0.78),
+            ]
+        case .mirrorPerspective:
+            return [
+                PlacementZone(location: .abdomenLeft, corner: .topLeft, bodyX: 0.42, bodyY: 0.52),
+                PlacementZone(location: .abdomenRight, corner: .topRight, bodyX: 0.58, bodyY: 0.52),
+                PlacementZone(location: .leftThigh, corner: .bottomLeft, bodyX: 0.42, bodyY: 0.78),
+                PlacementZone(location: .rightThigh, corner: .bottomRight, bodyX: 0.58, bodyY: 0.78),
+            ]
+        }
+    }
+
+    static let backViewZones: [PlacementZone] = [
+        PlacementZone(location: .leftArm, corner: .topLeft, bodyX: 0.25, bodyY: 0.42),
+        PlacementZone(location: .rightArm, corner: .topRight, bodyX: 0.75, bodyY: 0.42),
+        PlacementZone(location: .leftLowerBack, corner: .bottomLeft, bodyX: 0.42, bodyY: 0.58),
+        PlacementZone(location: .rightLowerBack, corner: .bottomRight, bodyX: 0.58, bodyY: 0.58),
+    ]
 }
 
 struct BodyDiagramView: View {
@@ -41,22 +68,17 @@ struct BodyDiagramView: View {
     @Binding var selectedView: BodyView
     /// Set of enabled body locations to display. If nil, all locations are shown.
     var enabledLocations: Set<BodyLocation>?
+    var diagramOrientation: DiagramOrientation = .patientPerspective
 
     // Front view zones - buttons in corners, body points where lines connect
-    private let allFrontZones: [PlacementZone] = [
-        PlacementZone(location: .abdomenLeft, corner: .topLeft, bodyX: 0.42, bodyY: 0.52),
-        PlacementZone(location: .abdomenRight, corner: .topRight, bodyX: 0.58, bodyY: 0.52),
-        PlacementZone(location: .leftThigh, corner: .bottomLeft, bodyX: 0.42, bodyY: 0.78),
-        PlacementZone(location: .rightThigh, corner: .bottomRight, bodyX: 0.58, bodyY: 0.78),
-    ]
+    private var allFrontZones: [PlacementZone] {
+        PlacementZone.frontViewZones(for: diagramOrientation)
+    }
 
     // Back view zones
-    private let allBackZones: [PlacementZone] = [
-        PlacementZone(location: .leftArm, corner: .topLeft, bodyX: 0.25, bodyY: 0.42),
-        PlacementZone(location: .rightArm, corner: .topRight, bodyX: 0.75, bodyY: 0.42),
-        PlacementZone(location: .leftLowerBack, corner: .bottomLeft, bodyX: 0.42, bodyY: 0.58),
-        PlacementZone(location: .rightLowerBack, corner: .bottomRight, bodyX: 0.58, bodyY: 0.58),
-    ]
+    private var allBackZones: [PlacementZone] {
+        PlacementZone.backViewZones
+    }
 
     /// Front zones filtered by enabled locations
     private var frontZones: [PlacementZone] {

@@ -12,24 +12,19 @@ struct HeatmapBodyDiagramView: View {
     let heatmapData: [HeatmapData]
     /// Set of enabled body locations to display. If nil, all locations are shown.
     var enabledLocations: Set<BodyLocation>?
+    var diagramOrientation: DiagramOrientation = .patientPerspective
     @State private var selectedView: BodyView = .front
     @State private var selectedZone: HeatmapData? = nil
 
     // All front view zones - same positioning as BodyDiagramView
-    private let allFrontZones: [PlacementZone] = [
-        PlacementZone(location: .abdomenLeft, corner: .topLeft, bodyX: 0.42, bodyY: 0.52),
-        PlacementZone(location: .abdomenRight, corner: .topRight, bodyX: 0.58, bodyY: 0.52),
-        PlacementZone(location: .leftThigh, corner: .bottomLeft, bodyX: 0.42, bodyY: 0.78),
-        PlacementZone(location: .rightThigh, corner: .bottomRight, bodyX: 0.58, bodyY: 0.78),
-    ]
+    private var allFrontZones: [PlacementZone] {
+        PlacementZone.frontViewZones(for: diagramOrientation)
+    }
 
     // All back view zones
-    private let allBackZones: [PlacementZone] = [
-        PlacementZone(location: .leftArm, corner: .topLeft, bodyX: 0.25, bodyY: 0.42),
-        PlacementZone(location: .rightArm, corner: .topRight, bodyX: 0.75, bodyY: 0.42),
-        PlacementZone(location: .leftLowerBack, corner: .bottomLeft, bodyX: 0.42, bodyY: 0.58),
-        PlacementZone(location: .rightLowerBack, corner: .bottomRight, bodyX: 0.58, bodyY: 0.58),
-    ]
+    private var allBackZones: [PlacementZone] {
+        PlacementZone.backViewZones
+    }
 
     /// Front zones filtered by enabled locations
     private var frontZones: [PlacementZone] {
