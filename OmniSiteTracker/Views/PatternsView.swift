@@ -119,6 +119,7 @@ struct PatternsView: View {
     @State private var enabledLocations: Set<BodyLocation> = Set(BodyLocation.allCases)
     @State private var showDisabledSitesInHistory: Bool = true
     @State private var customSites: [CustomSite] = []
+    @State private var diagramOrientation: DiagramOrientation = .patientPerspective
 
     // Date range state with defaults
     @State private var startDate: Date = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
@@ -207,7 +208,11 @@ struct PatternsView: View {
                                     }
                                 }
                             }
-                            HeatmapBodyDiagramView(heatmapData: heatmapData, enabledLocations: enabledLocations)
+                            HeatmapBodyDiagramView(
+                                heatmapData: heatmapData,
+                                enabledLocations: enabledLocations,
+                                diagramOrientation: diagramOrientation
+                            )
                         }
 
                         // Zone Statistics section
@@ -293,6 +298,7 @@ struct PatternsView: View {
                 settingsViewModel.configure(with: modelContext)
                 loadEnabledLocations()
                 showDisabledSitesInHistory = settingsViewModel.getShowDisabledSitesInHistory()
+                diagramOrientation = settingsViewModel.getDiagramOrientation()
                 customSites = settingsViewModel.getCustomSites()
                 // Auto-show score tooltip on first visit after delay
                 if !hasSeenHelp {
