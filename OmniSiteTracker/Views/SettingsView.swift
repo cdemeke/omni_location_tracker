@@ -34,6 +34,9 @@ struct SettingsView: View {
     // Reset to defaults state
     @State private var showResetConfirmation: Bool = false
     @State private var showResetSuccessToast: Bool = false
+    @State private var showTheoConfetti: Bool = false
+    @State private var showTheoLinkPrompt: Bool = false
+    @State private var theoConfettiID = UUID()
 
     /// Curated list of SF Symbols for custom site icons
     private let availableIcons = [
@@ -115,11 +118,28 @@ struct SettingsView: View {
             } message: {
                 Text("Reset all settings to defaults? This will reset rest days to 18, enable all default sites, delete all custom sites, and disable notifications.")
             }
+            .alert("Open Theo's T1D page?", isPresented: $showTheoLinkPrompt) {
+                Button("Not Now", role: .cancel) { }
+                Button("Open") {
+                    openTheoT1DPage()
+                }
+            } message: {
+                Text("Would you like to open heytheo.com/t1d in your browser?")
+            }
             .overlay(alignment: .bottom) {
                 if showResetSuccessToast {
                     toastView
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                         .animation(.easeInOut(duration: 0.3), value: showResetSuccessToast)
+                }
+            }
+            .overlay {
+                if showTheoConfetti {
+                    TheoConfettiBurst(id: theoConfettiID) {
+                        showTheoConfetti = false
+                    }
+                    .transition(.opacity)
+                    .allowsHitTesting(false)
                 }
             }
         }
@@ -667,6 +687,10 @@ struct SettingsView: View {
                     Spacer()
                 }
                 .padding(.vertical, 12)
+                .contentShape(Rectangle())
+                .onTapGesture(count: 3) {
+                    triggerTheoEasterEgg()
+                }
             }
             .padding(16)
             .neumorphicCard()
@@ -725,6 +749,23 @@ struct SettingsView: View {
 
     private func openSettings() {
         if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
+    }
+
+    private func triggerTheoEasterEgg() {
+        theoConfettiID = UUID()
+        withAnimation(.easeOut(duration: 0.15)) {
+            showTheoConfetti = true
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            showTheoLinkPrompt = true
+        }
+    }
+
+    private func openTheoT1DPage() {
+        if let url = URL(string: "https://heytheo.com/t1d") {
             UIApplication.shared.open(url)
         }
     }
@@ -798,6 +839,83 @@ struct SettingsView: View {
             }
         }
     }
+}
+
+private struct TheoConfettiBurst: View {
+    let id: UUID
+    let onComplete: () -> Void
+
+    @State private var isActive = false
+    private let pieces: [ConfettiPiece]
+
+    init(id: UUID, onComplete: @escaping () -> Void) {
+        self.id = id
+        self.onComplete = onComplete
+        self.pieces = (0..<44).map { index in
+            ConfettiPiece(
+                id: index,
+                color: ConfettiPiece.colors[index % ConfettiPiece.colors.count],
+                width: CGFloat.random(in: 7...13),
+                height: CGFloat.random(in: 9...18),
+                xOffset: CGFloat.random(in: -0.48...0.48),
+                yOffset: CGFloat.random(in: -0.72 ... -0.18),
+                rotation: Double.random(in: -260...260)
+            )
+        }
+    }
+
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                ForEach(pieces) { piece in
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(piece.color)
+                        .frame(width: piece.width, height: piece.height)
+                        .rotationEffect(.degrees(isActive ? piece.rotation : 0))
+                        .position(
+                            x: geometry.size.width / 2,
+                            y: geometry.size.height * 0.82
+                        )
+                        .offset(
+                            x: isActive ? geometry.size.width * piece.xOffset : 0,
+                            y: isActive ? geometry.size.height * piece.yOffset : 0
+                        )
+                        .opacity(isActive ? 0 : 1)
+                }
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
+        }
+        .ignoresSafeArea()
+        .id(id)
+        .onAppear {
+            withAnimation(.easeOut(duration: 1.45)) {
+                isActive = true
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                onComplete()
+            }
+        }
+    }
+}
+
+private struct ConfettiPiece: Identifiable {
+    let id: Int
+    let color: Color
+    let width: CGFloat
+    let height: CGFloat
+    let xOffset: CGFloat
+    let yOffset: CGFloat
+    let rotation: Double
+
+    static let colors: [Color] = [
+        .appAccent,
+        .appHighlight,
+        .appSuccess,
+        .appWarning,
+        .appInfo,
+        Color(red: 0.95, green: 0.45, blue: 0.62)
+    ]
 }
 
 // MARK: - Preview
