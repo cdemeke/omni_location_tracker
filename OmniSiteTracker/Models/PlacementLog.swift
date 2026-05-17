@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 /// Represents a single pump placement event stored in the local database.
-/// Uses SwiftData for automatic persistence with no cloud sync.
+/// Uses SwiftData for automatic persistence with iCloud sync support.
 @Model
 final class PlacementLog {
     /// Unique identifier for this placement record
@@ -33,6 +33,28 @@ final class PlacementLog {
     /// Optional name of the custom site for display purposes
     /// Stored separately to preserve history even if custom site is deleted
     var customSiteName: String?
+
+    // MARK: - Additional Metadata
+
+    /// Whether this was the recommended site when placed
+    var wasRecommended: Bool = false
+
+    /// Whether a reminder was scheduled for this placement
+    var reminderScheduled: Bool = false
+
+    /// Filename of attached photo (if any)
+    var photoFileName: String?
+
+    /// ID of the user profile this placement belongs to
+    var profileId: UUID?
+
+    // MARK: - iCloud Sync
+
+    /// Whether this record needs to be synced to iCloud
+    var needsCloudSync: Bool = true
+
+    /// When this record was last synced to iCloud
+    var cloudSyncedAt: Date?
 
     /// Computed property to access the strongly-typed BodyLocation enum
     /// Returns nil for custom site placements
@@ -77,6 +99,15 @@ final class PlacementLog {
         self.note = note
         self.customSiteId = customSite.id
         self.customSiteName = customSite.name
+    }
+
+    /// Initializes a placement with a specific ID (used for CloudKit sync)
+    /// - Parameters:
+    ///   - id: The unique identifier
+    ///   - placedAt: The date/time of placement
+    init(id: UUID, placedAt: Date) {
+        self.id = id
+        self.placedAt = placedAt
     }
 }
 
