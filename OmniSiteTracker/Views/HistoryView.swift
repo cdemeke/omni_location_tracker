@@ -8,6 +8,56 @@
 import SwiftUI
 import SwiftData
 
+private enum PlacementHistoryCSVExporter {
+    static func export(placements: [PlacementLog]) throws -> URL {
+        let rows = placements
+            .sorted { $0.placedAt > $1.placedAt }
+            .map { placement in
+                [
+                    iso8601Formatter.string(from: placement.placedAt),
+                    placement.location?.displayName ?? placement.customSiteName ?? "Unknown",
+                    placement.customSiteName ?? "",
+                    placement.note ?? "",
+                    placement.isCustomSite ? "true" : "false"
+                ]
+            }
+
+        let csv = ([
+            ["date", "site", "custom_site_name", "note", "is_custom"]
+        ] + rows)
+            .map { $0.map(escapeCSVField).joined(separator: ",") }
+            .joined(separator: "\n")
+
+        let fileURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("placement-history-\(fileNameDateFormatter.string(from: .now)).csv")
+
+        try csv.write(to: fileURL, atomically: true, encoding: .utf8)
+        return fileURL
+    }
+
+    private static let iso8601Formatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    private static let fileNameDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyyMMdd-HHmmss"
+        return formatter
+    }()
+
+    private static func escapeCSVField(_ value: String) -> String {
+        if value.contains(where: { $0 == "," || $0 == "\n" || $0 == "\r" || $0 == "\"" }) {
+            return "\"\(value.replacingOccurrences(of: "\"", with: "\"\""))\""
+        }
+        return value
+    }
+}
+
 // MARK: - Local Components (workaround for scope issues)
 
 private struct HistoryHelpTooltip: View {
@@ -112,6 +162,8 @@ struct HistoryView: View {
     @State private var customSites: [CustomSite] = []
     @State private var showDisabledSitesInHistory: Bool = true
     @State private var disabledDefaultSites: Set<BodyLocation> = []
+    @State private var exportedCSVURL: URL?
+    @State private var exportErrorMessage: String?
     @AppStorage("hasSeenHistoryHelp") private var hasSeenHelp = false
 
     private var showNavBarLogo: Bool {
@@ -152,7 +204,8 @@ struct HistoryView: View {
                             .transition(.opacity)
                     }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    exportButton
                     filterButton
                 }
             }
@@ -197,6 +250,22 @@ struct HistoryView: View {
             }
             .sheet(isPresented: $showingFilterSheet) {
                 filterSheet
+            }
+            .sheet(isPresented: Binding(
+                get: { exportedCSVURL != nil },
+                set: { if !$0 { exportedCSVURL = nil } }
+            )) {
+                if let csvURL = exportedCSVURL {
+                    ShareSheet(activityItems: [csvURL])
+                }
+            }
+            .alert("Unable to Export CSV", isPresented: Binding(
+                get: { exportErrorMessage != nil },
+                set: { if !$0 { exportErrorMessage = nil } }
+            )) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(exportErrorMessage ?? "")
             }
             .sheet(item: $placementToEdit) { placement in
                 PlacementEditSheet(
@@ -578,6 +647,17 @@ struct HistoryView: View {
         }
     }
 
+    private var exportButton: some View {
+        Button {
+            exportHistoryAsCSV()
+        } label: {
+            Image(systemName: "square.and.arrow.up")
+                .font(.title3)
+                .foregroundColor(.appAccent)
+        }
+        .disabled(currentFilteredPlacements.isEmpty)
+    }
+
     private var filterButton: some View {
         Button {
             showingFilterSheet = true
@@ -724,36 +804,36 @@ struct HistoryView: View {
         displayFilteredPlacements.filter { $0.customSiteId == customSiteId }.count
     }
 
-    private var filteredPlacementsByDay: [(date: Date, placements: [PlacementLog])] {
-        let calendar = Calendar.current
+    private var currentFilteredPlacements: [PlacementLog] {
         let basePlacements = displayFilteredPlacements
 
         if let filter = selectedFilter {
-            // Filter by BodyLocation
-            let filtered = basePlacements.filter { $0.location == filter }
-            let grouped = Dictionary(grouping: filtered) { placement in
-                calendar.startOfDay(for: placement.placedAt)
-            }
-            return grouped
-                .sorted { $0.key > $1.key }
-                .map { (date: $0.key, placements: $0.value) }
-        } else if let customSiteId = selectedCustomSiteFilter {
-            // Filter by custom site
-            let filtered = basePlacements.filter { $0.customSiteId == customSiteId }
-            let grouped = Dictionary(grouping: filtered) { placement in
-                calendar.startOfDay(for: placement.placedAt)
-            }
-            return grouped
-                .sorted { $0.key > $1.key }
-                .map { (date: $0.key, placements: $0.value) }
-        } else {
-            // Group all filtered placements by day
-            let grouped = Dictionary(grouping: basePlacements) { placement in
-                calendar.startOfDay(for: placement.placedAt)
-            }
-            return grouped
-                .sorted { $0.key > $1.key }
-                .map { (date: $0.key, placements: $0.value) }
+            return basePlacements.filter { $0.location == filter }
+        }
+
+        if let customSiteId = selectedCustomSiteFilter {
+            return basePlacements.filter { $0.customSiteId == customSiteId }
+        }
+
+        return basePlacements
+    }
+
+    private var filteredPlacementsByDay: [(date: Date, placements: [PlacementLog])] {
+        let calendar = Calendar.current
+        let grouped = Dictionary(grouping: currentFilteredPlacements) { placement in
+            calendar.startOfDay(for: placement.placedAt)
+        }
+
+        return grouped
+            .sorted { $0.key > $1.key }
+            .map { (date: $0.key, placements: $0.value) }
+    }
+
+    private func exportHistoryAsCSV() {
+        do {
+            exportedCSVURL = try PlacementHistoryCSVExporter.export(placements: currentFilteredPlacements)
+        } catch {
+            exportErrorMessage = error.localizedDescription
         }
     }
 
