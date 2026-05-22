@@ -4,70 +4,211 @@
 //
 //  Modern glassmorphism design with warm earthy tones.
 //  Clean, minimal aesthetic with soft gradients and blur effects.
+//  Supports both light and dark modes with adaptive colors.
 //
 
 import SwiftUI
+import UIKit
 
-// MARK: - Color Palette (Warm Earthy Theme)
+// MARK: - App Color Scheme
+
+/// User preference for app appearance
+enum AppColorScheme: String, CaseIterable, Identifiable {
+    case system = "System"
+    case light = "Light"
+    case dark = "Dark"
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .system: return "circle.lefthalf.filled"
+        case .light: return "sun.max.fill"
+        case .dark: return "moon.fill"
+        }
+    }
+
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: return nil
+        case .light: return .light
+        case .dark: return .dark
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .system:
+            return "Follows your device settings"
+        case .light:
+            return "Always use light appearance"
+        case .dark:
+            return "Always use dark appearance"
+        }
+    }
+}
+
+// MARK: - Adaptive Color Palette (Warm Earthy Theme)
 
 extension Color {
-    /// Primary background - warm cream gradient base
-    static let appBackground = Color(red: 0.98, green: 0.96, blue: 0.92)
+    // MARK: - Background Colors
 
-    /// Secondary background - soft sand
-    static let appBackgroundSecondary = Color(red: 0.96, green: 0.93, blue: 0.88)
+    /// Primary background - warm cream (light) / dark warm gray (dark)
+    static let appBackground = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.12, green: 0.11, blue: 0.10, alpha: 1.0)
+            : UIColor(red: 0.98, green: 0.96, blue: 0.92, alpha: 1.0)
+    })
 
-    /// Card background - warm white with slight transparency for glass effect
-    static let cardBackground = Color(red: 1.0, green: 0.99, blue: 0.97)
+    /// Secondary background - soft sand (light) / darker gray (dark)
+    static let appBackgroundSecondary = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.10, green: 0.09, blue: 0.08, alpha: 1.0)
+            : UIColor(red: 0.96, green: 0.93, blue: 0.88, alpha: 1.0)
+    })
+
+    /// Card background - warm white (light) / dark elevated surface (dark)
+    static let cardBackground = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.18, green: 0.17, blue: 0.16, alpha: 1.0)
+            : UIColor(red: 1.0, green: 0.99, blue: 0.97, alpha: 1.0)
+    })
 
     /// Glass background for overlays
-    static let glassBackground = Color.white.opacity(0.7)
+    static let glassBackground = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(white: 0.15, alpha: 0.5)
+            : UIColor(white: 1.0, alpha: 0.7)
+    })
 
-    /// Primary accent - warm terracotta/coral
-    static let appAccent = Color(red: 0.85, green: 0.55, blue: 0.45)
+    // MARK: - Accent Colors
+
+    /// Primary accent - warm terracotta/coral (slightly brighter in dark mode)
+    static let appAccent = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.90, green: 0.60, blue: 0.50, alpha: 1.0)
+            : UIColor(red: 0.85, green: 0.55, blue: 0.45, alpha: 1.0)
+    })
 
     /// Secondary accent - golden amber
-    static let appSecondary = Color(red: 0.92, green: 0.75, blue: 0.45)
+    static let appSecondary = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.95, green: 0.78, blue: 0.50, alpha: 1.0)
+            : UIColor(red: 0.92, green: 0.75, blue: 0.45, alpha: 1.0)
+    })
 
     /// Highlight - soft gold
-    static let appHighlight = Color(red: 0.95, green: 0.82, blue: 0.55)
+    static let appHighlight = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.97, green: 0.84, blue: 0.58, alpha: 1.0)
+            : UIColor(red: 0.95, green: 0.82, blue: 0.55, alpha: 1.0)
+    })
 
     /// Warning - warm orange
-    static let appWarning = Color(red: 0.95, green: 0.65, blue: 0.35)
+    static let appWarning = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.97, green: 0.68, blue: 0.40, alpha: 1.0)
+            : UIColor(red: 0.95, green: 0.65, blue: 0.35, alpha: 1.0)
+    })
 
     /// Success - sage green
-    static let appSuccess = Color(red: 0.55, green: 0.75, blue: 0.55)
+    static let appSuccess = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.58, green: 0.78, blue: 0.58, alpha: 1.0)
+            : UIColor(red: 0.55, green: 0.75, blue: 0.55, alpha: 1.0)
+    })
 
     /// Info - soft sky
-    static let appInfo = Color(red: 0.55, green: 0.70, blue: 0.85)
+    static let appInfo = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.58, green: 0.73, blue: 0.88, alpha: 1.0)
+            : UIColor(red: 0.55, green: 0.70, blue: 0.85, alpha: 1.0)
+    })
 
-    /// Primary text - warm dark brown
-    static let textPrimary = Color(red: 0.25, green: 0.22, blue: 0.20)
+    // MARK: - Text Colors
+
+    /// Primary text - warm dark brown (light) / light cream (dark)
+    static let textPrimary = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.96, green: 0.94, blue: 0.90, alpha: 1.0)
+            : UIColor(red: 0.25, green: 0.22, blue: 0.20, alpha: 1.0)
+    })
 
     /// Secondary text - warm gray
-    static let textSecondary = Color(red: 0.45, green: 0.42, blue: 0.40)
+    static let textSecondary = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.75, green: 0.72, blue: 0.70, alpha: 1.0)
+            : UIColor(red: 0.45, green: 0.42, blue: 0.40, alpha: 1.0)
+    })
 
     /// Muted text - light warm gray
-    static let textMuted = Color(red: 0.60, green: 0.57, blue: 0.55)
+    static let textMuted = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.55, green: 0.52, blue: 0.50, alpha: 1.0)
+            : UIColor(red: 0.60, green: 0.57, blue: 0.55, alpha: 1.0)
+    })
 
-    /// Shadow colors
-    static let neumorphicLight = Color.white.opacity(0.8)
-    static let neumorphicDark = Color(red: 0.85, green: 0.80, blue: 0.75)
+    // MARK: - Shadow/Effect Colors
 
-    /// Body diagram colors - warm neutral
-    static let bodyFill = Color(red: 0.90, green: 0.88, blue: 0.85)
-    static let bodyStroke = Color(red: 0.75, green: 0.72, blue: 0.68)
+    /// Neumorphic light shadow
+    static let neumorphicLight = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(white: 1.0, alpha: 0.1)
+            : UIColor(white: 1.0, alpha: 0.8)
+    })
 
-    /// Zone status colors - earthy palette
-    static let zoneAvailable = Color(red: 0.75, green: 0.72, blue: 0.68)
-    static let zoneRecent = Color(red: 0.92, green: 0.70, blue: 0.45)
-    static let zoneRested = Color(red: 0.60, green: 0.78, blue: 0.55)
+    /// Neumorphic dark shadow
+    static let neumorphicDark = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(white: 0.0, alpha: 0.4)
+            : UIColor(red: 0.85, green: 0.80, blue: 0.75, alpha: 1.0)
+    })
+
+    // MARK: - Body Diagram Colors
+
+    /// Body diagram fill
+    static let bodyFill = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.30, green: 0.27, blue: 0.25, alpha: 1.0)
+            : UIColor(red: 0.90, green: 0.88, blue: 0.85, alpha: 1.0)
+    })
+
+    /// Body diagram stroke
+    static let bodyStroke = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.45, green: 0.42, blue: 0.40, alpha: 1.0)
+            : UIColor(red: 0.75, green: 0.72, blue: 0.68, alpha: 1.0)
+    })
+
+    // MARK: - Zone Status Colors
+
+    /// Zone available color
+    static let zoneAvailable = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.50, green: 0.48, blue: 0.45, alpha: 1.0)
+            : UIColor(red: 0.75, green: 0.72, blue: 0.68, alpha: 1.0)
+    })
+
+    /// Zone recently used color
+    static let zoneRecent = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.95, green: 0.73, blue: 0.50, alpha: 1.0)
+            : UIColor(red: 0.92, green: 0.70, blue: 0.45, alpha: 1.0)
+    })
+
+    /// Zone well-rested color
+    static let zoneRested = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.63, green: 0.80, blue: 0.58, alpha: 1.0)
+            : UIColor(red: 0.60, green: 0.78, blue: 0.55, alpha: 1.0)
+    })
 }
 
 // MARK: - Glassmorphic Card Style
 
 struct GlassCardStyle: ViewModifier {
     var cornerRadius: CGFloat = 24
+    @Environment(\.colorScheme) private var colorScheme
 
     func body(content: Content) -> some View {
         content
@@ -78,10 +219,9 @@ struct GlassCardStyle: ViewModifier {
                         RoundedRectangle(cornerRadius: cornerRadius)
                             .fill(
                                 LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(0.5),
-                                        Color.white.opacity(0.2)
-                                    ],
+                                    colors: colorScheme == .dark
+                                        ? [Color.white.opacity(0.1), Color.white.opacity(0.05)]
+                                        : [Color.white.opacity(0.5), Color.white.opacity(0.2)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
@@ -91,10 +231,9 @@ struct GlassCardStyle: ViewModifier {
                         RoundedRectangle(cornerRadius: cornerRadius)
                             .stroke(
                                 LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(0.6),
-                                        Color.white.opacity(0.2)
-                                    ],
+                                    colors: colorScheme == .dark
+                                        ? [Color.white.opacity(0.2), Color.white.opacity(0.05)]
+                                        : [Color.white.opacity(0.6), Color.white.opacity(0.2)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 ),
@@ -102,22 +241,33 @@ struct GlassCardStyle: ViewModifier {
                             )
                     )
             )
-            .shadow(color: Color.black.opacity(0.08), radius: 16, x: 0, y: 8)
+            .shadow(color: colorScheme == .dark
+                    ? Color.black.opacity(0.3)
+                    : Color.black.opacity(0.08),
+                    radius: 16, x: 0, y: 8)
     }
 }
 
 // MARK: - Simplified Neumorphic Card (Fallback)
 
 struct NeumorphicCardStyle: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+
     func body(content: Content) -> some View {
         content
             .background(
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Color.cardBackground)
-                    .shadow(color: Color.black.opacity(0.06), radius: 10, x: 0, y: 5)
+                    .shadow(color: colorScheme == .dark
+                            ? Color.black.opacity(0.3)
+                            : Color.black.opacity(0.06),
+                            radius: 10, x: 0, y: 5)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.white.opacity(0.5), lineWidth: 1)
+                            .stroke(colorScheme == .dark
+                                    ? Color.white.opacity(0.1)
+                                    : Color.white.opacity(0.5),
+                                    lineWidth: 1)
                     )
             )
     }
@@ -175,6 +325,8 @@ struct NeumorphicButtonStyle: ButtonStyle {
 }
 
 struct NeumorphicSecondaryButtonStyle: ButtonStyle {
+    @Environment(\.colorScheme) private var colorScheme
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .padding(.horizontal, 20)
@@ -189,7 +341,10 @@ struct NeumorphicSecondaryButtonStyle: ButtonStyle {
             )
             .foregroundColor(.textPrimary)
             .font(.subheadline.weight(.medium))
-            .shadow(color: Color.black.opacity(0.04), radius: 4, x: 0, y: 2)
+            .shadow(color: colorScheme == .dark
+                    ? Color.black.opacity(0.2)
+                    : Color.black.opacity(0.04),
+                    radius: 4, x: 0, y: 2)
             .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
             .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
@@ -261,17 +416,34 @@ struct StatusBadge: View {
 // MARK: - Gradient Background
 
 struct WarmGradientBackground: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        LinearGradient(
-            colors: [
-                Color(red: 0.98, green: 0.96, blue: 0.92),
-                Color(red: 0.96, green: 0.94, blue: 0.90),
-                Color(red: 0.98, green: 0.95, blue: 0.91)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-        .ignoresSafeArea()
+        Group {
+            if colorScheme == .dark {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.12, green: 0.11, blue: 0.10),
+                        Color(red: 0.10, green: 0.09, blue: 0.08),
+                        Color(red: 0.11, green: 0.10, blue: 0.09)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+            } else {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.98, green: 0.96, blue: 0.92),
+                        Color(red: 0.96, green: 0.94, blue: 0.90),
+                        Color(red: 0.98, green: 0.95, blue: 0.91)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+            }
+        }
     }
 }
 
@@ -281,6 +453,7 @@ struct BodyViewTabButton: View {
     let title: String
     let isSelected: Bool
     let action: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         Text(title)
@@ -312,6 +485,7 @@ struct BodyViewTabButton: View {
 
 struct BodyViewTabs: View {
     @Binding var selection: BodyView
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         HStack(spacing: 0) {
@@ -325,7 +499,9 @@ struct BodyViewTabs: View {
         .padding(4)
         .background(
             Capsule()
-                .fill(Color.appBackgroundSecondary)
+                .fill(colorScheme == .dark
+                      ? Color(red: 0.15, green: 0.14, blue: 0.13)
+                      : Color.appBackgroundSecondary)
         )
     }
 }
