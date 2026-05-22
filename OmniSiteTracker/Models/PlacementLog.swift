@@ -34,6 +34,12 @@ final class PlacementLog {
     /// Stored separately to preserve history even if custom site is deleted
     var customSiteName: String?
 
+    // MARK: - Multi-Profile Support
+
+    /// The profile ID this placement belongs to
+    /// Nil for legacy placements (will be migrated to default profile)
+    var profileId: UUID?
+
     /// Computed property to access the strongly-typed BodyLocation enum
     /// Returns nil for custom site placements
     var location: BodyLocation? {
@@ -56,13 +62,15 @@ final class PlacementLog {
     ///   - location: The body location where the pump was placed
     ///   - placedAt: The date/time of placement (defaults to current time)
     ///   - note: Optional note about this placement
-    init(location: BodyLocation, placedAt: Date = .now, note: String? = nil) {
+    ///   - profileId: The profile ID this placement belongs to
+    init(location: BodyLocation, placedAt: Date = .now, note: String? = nil, profileId: UUID? = nil) {
         self.id = UUID()
         self.locationRawValue = location.rawValue
         self.placedAt = placedAt
         self.note = note
         self.customSiteId = nil
         self.customSiteName = nil
+        self.profileId = profileId
     }
 
     /// Initializes a new placement log entry for a custom site
@@ -70,13 +78,15 @@ final class PlacementLog {
     ///   - customSite: The custom site where the pump was placed
     ///   - placedAt: The date/time of placement (defaults to current time)
     ///   - note: Optional note about this placement
-    init(customSite: CustomSite, placedAt: Date = .now, note: String? = nil) {
+    ///   - profileId: The profile ID this placement belongs to
+    init(customSite: CustomSite, placedAt: Date = .now, note: String? = nil, profileId: UUID? = nil) {
         self.id = UUID()
         self.locationRawValue = nil
         self.placedAt = placedAt
         self.note = note
         self.customSiteId = customSite.id
         self.customSiteName = customSite.name
+        self.profileId = profileId
     }
 }
 
