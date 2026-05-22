@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F7A00001291A00010000028 /* MedicationTrackingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A00002291A00010000028 /* MedicationTrackingView.swift */; };
 		C7A00001291A00010000001 /* OmniSiteTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00002291A00010000001 /* OmniSiteTrackerApp.swift */; };
 		C7A00003291A00010000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00004291A00010000002 /* ContentView.swift */; };
 		C7A00005291A00010000003 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A00006291A00010000003 /* HomeView.swift */; };
@@ -45,6 +46,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		F7A00002291A00010000028 /* MedicationTrackingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicationTrackingView.swift; sourceTree = "<group>"; };
 		C7A00000291A00010000000 /* OmniSiteTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OmniSiteTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C7A00002291A00010000001 /* OmniSiteTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OmniSiteTrackerApp.swift; sourceTree = "<group>"; };
 		C7A00004291A00010000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -106,6 +108,7 @@
 			isa = PBXGroup;
 			children = (
 				C7A00002291A00010000001 /* OmniSiteTrackerApp.swift */,
+				F7AFFFF9291A00010000028 /* Features */,
 				C7AFFFF3291A00010000000 /* Models */,
 				C7AFFFF4291A00010000000 /* ViewModels */,
 				C7AFFFF5291A00010000000 /* Views */,
@@ -196,6 +199,14 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
+		F7AFFFF9291A00010000028 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				F7A00002291A00010000028 /* MedicationTrackingView.swift */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -266,6 +277,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F7A00001291A00010000028 /* MedicationTrackingView.swift in Sources */,
 				C7A00001291A00010000001 /* OmniSiteTrackerApp.swift in Sources */,
 				C7A00003291A00010000002 /* ContentView.swift in Sources */,
 				C7A00005291A00010000003 /* HomeView.swift in Sources */,
